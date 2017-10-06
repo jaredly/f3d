@@ -5,8 +5,8 @@
 let str = ReasonReact.stringToElement;
 
 let boxAttrs = Glamor.([
-  width "200px",
-  height "200px",
+  width "300px",
+  height "300px",
   margin "8px",
   padding "16px",
   fontSize "24px",
@@ -57,6 +57,7 @@ let make ::fb ::ingredients _children => {
     render: fun _self => {
       <Fetcher
         fb
+        pageSize=20
         query=Firebase.Query.(fun q => {
           /** Only recipes that have the specified ingredients */
           List.fold_left

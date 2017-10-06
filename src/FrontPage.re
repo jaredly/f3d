@@ -39,12 +39,15 @@ let make ::fb _children => {
       ReasonReact.NoUpdate
     }, */
     render: fun {state: ingredients, reduce} => {
-      <div>
-      (str "Home")
-      <SearchingRecipeList
-        fb
-        ingredients
-      />
+      <div className=Glamor.(css[width "1000px", alignSelf "center"])>
+        <div className=Glamor.(css[border "1px solid #777", fontSize "32px", padding "16px"])>
+          (str "Search by ingredient")
+        </div>
+        <div className=Glamor.(css[flexBasis "16px"])/>
+        <SearchingRecipeList
+          fb
+          ingredients
+        />
       </div>
     }
   }

@@ -10,12 +10,7 @@
     "reason-react",
     "bs-glamor"
   ],
-  "sources": [
-    {
-      "dir": "src",
-      "subdirs": ["interop", "simple"]
-    }
-  ],
+  "sources": ["src"],
   "ppx-flags": [
     "./node_modules/.bin/ppx_guard",
     "./node_modules/.bin/reason_async"
