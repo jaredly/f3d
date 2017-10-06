@@ -7,7 +7,9 @@ let make ::fb _children => {
     ...component,
     render: fun {state} => {
       <div>
-        (str "Hi")
+        <div className=Glamor.(css[fontSize "32px", padding "16px", flexDirection "row"])>
+          (str "Foood")
+        </div>
         <FrontPage fb /> 
       </div>
     }

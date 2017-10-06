@@ -40,7 +40,9 @@ let make ::fb _children => {
     }, */
     render: fun {state: ingredients, reduce} => {
       <div className=Glamor.(css[width "1000px", alignSelf "center"])>
-        <div className=Glamor.(css[border "1px solid #777", fontSize "32px", padding "16px"])>
+        <div className=Glamor.(css[
+          backgroundColor "white",
+          border "1px solid #777", fontSize "32px", padding "16px", position "sticky", top "16px"])>
           (str "Search by ingredient")
         </div>
         <div className=Glamor.(css[flexBasis "16px"])/>
