@@ -1,0 +1,68 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function canCreate() {
+    	return request.auth.uid != null
+      	&& request.auth.uid == request.resource.data.authorId;
+    }
+    function canUpdate() {
+    	return request.auth.uid != null
+      	&& resource.data.authorId == request.resource.data.authorId
+        && (
+          request.auth.uid == resource.data.authorId
+          ||
+          (request.auth.uid in resource.data.collaborators
+           && resource.data.collaborators == request.resource.data.collaborators)
+        )
+        ;
+    }
+    function isResourceAuthor() {
+    	return request.auth.uid != null
+      	&& request.auth.uid == resource.data.authorId;
+    }
+    function isAdmin() {
+    	return request.auth.uid != null
+      	&& exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isAccessible() {
+    	return !resource.data.isPrivate
+      	|| request.auth.uid == resource.data.authorId
+      	|| request.auth.uid in resource.data.collaborators
+    }
+
+    match /userData/{userId} {
+	    allow read, write: if userId == request.auth.uid;
+    }
+
+    match /tags/{id} {
+    	allow read;
+      allow create: if canCreate();
+      allow update: if isAdmin();
+      allow delete: if isResourceAuthor() || isAdmin();
+    }
+    match /ingredients/{id} {
+    	allow read;
+      allow create: if canCreate();
+      allow update: if isAdmin();
+      allow delete: if isResourceAuthor() || isAdmin();
+    }
+
+    match /recipes/{recipe} {
+    	allow read: if isAccessible();
+      allow create: if canCreate();
+      allow update: if canUpdate();
+      allow delete: if isResourceAuthor() || isAdmin();
+    }
+    match /madeIts/{id} {
+    	allow read: if true;
+      allow create: if canCreate();
+      allow update: if isResourceAuthor();
+      allow delete: if isResourceAuthor() || isAdmin();
+    }
+    match /lists/{id} {
+    	allow read: if isAccessible();
+      allow create: if canCreate();
+      allow update: if canUpdate();
+      allow delete: if isResourceAuthor() || isAdmin();
+    }
+  }
+}
