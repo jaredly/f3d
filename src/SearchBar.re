@@ -1,4 +1,58 @@
 
+let module Styles = {
+  let selectedFilter = Glamor.(css [
+    fontSize "20px",
+    padding "4px 8px",
+    cursor "pointer",
+    borderRadius "4px",
+    Selector ":hover" [
+      backgroundColor "#eee"
+    ]
+  ]);
+  let input = Glamor.(css[
+    border "none",
+    outline "none",
+    alignSelf "stretch",
+    flex "1",
+    fontSize "24px",
+    padding "4px"
+  ]);
+  let topBar = Glamor.(css[
+    fontSize "32px",
+    padding "16px",
+    flexDirection "row",
+    alignItems "center",
+  ]);
+  let container = Glamor.(css[
+    backgroundColor "white",
+    /* border "1px solid #777", */
+    boxShadow "0px 2px 10px #aaa",
+    borderRadius "4px",
+    position "sticky",
+    top "16px"
+  ]);
+  let results = Glamor.(css[
+    backgroundColor "white",
+    boxShadow "0px 2px 10px #aaa",
+    borderRadius "4px",
+    position "absolute",
+    top "100%",
+    marginTop "16px",
+    overflow "auto",
+    maxHeight "500px",
+    left "0",
+    right "0",
+  ]);
+  let result = Glamor.(css[
+    padding "12px",
+    fontSize "20px",
+    cursor "pointer",
+    Selector ":hover" [
+      backgroundColor "#eee"
+    ]
+  ]);
+};
+
 let str = ReasonReact.stringToElement;
 let evtValue event => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target event))##value;
 
@@ -35,6 +89,22 @@ let search ingredients tags text => {
   |> Array.map (fun tag => Tag tag))
 };
 
+/**
+ * Ok, so the performance under offline is terrible, because it's doing
+ * 
+ * - try to make a request
+ * - exponential backoff, twice
+ * - decide we're not online
+ * 
+ * - try to make a request
+ * - backoff from the past backoff
+ * - wait forever
+ * 
+ * Things that need to change:
+ * - reset the backoff when making a new query
+ * - listen to browser's "online" vs "offline", and if you're offline, don't even try
+ */
+
 let spacer num => <div style=ReactDOMRe.Style.(make flexBasis::(string_of_int num ^ "px") ()) />;
 
 let component = ReasonReact.reducerComponent "SearchBar";
@@ -50,33 +120,13 @@ let make ::onChange current::(text, selectedIngredients, selectedTags) ::ingredi
       selectedTags,
     );
 
-    <div className=Glamor.(css[
-      backgroundColor "white",
-      /* border "1px solid #777", */
-      boxShadow "0px 2px 10px #aaa",
-      borderRadius "4px",
-      position "sticky",
-      top "16px"
-    ])>
-      <div className=Glamor.(css[
-        fontSize "32px",
-        padding "16px",
-        flexDirection "row",
-        alignItems "center",
-      ])>
+    <div className=Styles.container>
+      <div className=Styles.topBar>
         {List.map
           (fun ingredient => {
             <div
               key=ingredient##id
-              className=Glamor.(css [
-                fontSize "20px",
-                padding "4px 8px",
-                cursor "pointer",
-                borderRadius "4px",
-                Selector ":hover" [
-                  backgroundColor "#eee"
-                ]
-              ])
+              className=Styles.selectedFilter
               onClick=(fun _ => removeIngredient ingredient)
             >(str ingredient##name)</div>
           })
@@ -91,42 +141,17 @@ let make ::onChange current::(text, selectedIngredients, selectedTags) ::ingredi
           onChange=(reduce (fun evt => evtValue evt))
           placeholder="Search by ingredient, tag, or title"
           /* disabled=(not enabled |> Js.Boolean.to_js_boolean) */
-          className=Glamor.(css[
-            border "none",
-            outline "none",
-            alignSelf "stretch",
-            flex "1",
-            fontSize "24px",
-            padding "4px"
-          ])
+          className=Styles.input
         />
       </div>
 
       {
         let results = (search ingredients tags state);
         if (results != [||]) {
-          <div className=Glamor.(css[
-            backgroundColor "white",
-            boxShadow "0px 2px 10px #aaa",
-            borderRadius "4px",
-            position "absolute",
-            top "100%",
-            marginTop "16px",
-            overflow "auto",
-            maxHeight "500px",
-            left "0",
-            right "0",
-          ])>
+          <div className=Styles.results>
             (ReasonReact.arrayToElement (Array.mapi
             (fun i result => {
-              <div key=(string_of_int i) className=Glamor.(css[
-                padding "12px",
-                fontSize "20px",
-                cursor "pointer",
-                Selector ":hover" [
-                  backgroundColor "#eee"
-                ]
-              ]) onClick=(fun _ => {
+              <div key=(string_of_int i) className=Styles.result onClick=(fun _ => {
                 Js.log result;
                 let (selectedIngredients, selectedTags) = switch result {
                 | Tag tag => (selectedIngredients, [tag, ...selectedTags])

@@ -29,6 +29,8 @@ type userData = Js.t {.
   /** TODO what else here? */
 };
 
+let module UserData = { let name = "userDatas"; type t = userData };
+
 type ingredient = Js.t {.
   id: string,
   authorId: string,
@@ -43,6 +45,8 @@ type ingredient = Js.t {.
   aisle: nu string
 };
 
+let module Ingredient = { let name = "ingredients"; type t = ingredient };
+
 type tag = Js.t {.
   id: string,
   authorId: string,
@@ -50,6 +54,8 @@ type tag = Js.t {.
   created: float,
   recipeCount: int
 };
+
+let module Tag = { let name = "tags"; type t = tag };
 
 /** The main types */
 
@@ -86,6 +92,8 @@ type recipe = Js.t {.
   }))
 };
 
+let module Recipe = { let name = "recipes"; type t = recipe };
+
 type madeIt = Js.t {.
   id: string,
   authorId: string,
@@ -100,6 +108,8 @@ type madeIt = Js.t {.
   meta: meta
 };
 
+let module MadeIt = { let name = "madeIts"; type t = madeIt };
+
 type list = Js.t {.
   id: string,
   authorId: string,
@@ -111,3 +121,5 @@ type list = Js.t {.
   updated: float,
   recipes: Js.Dict.t Js.boolean
 };
+
+let module List = { let name = "lists"; type t = list };

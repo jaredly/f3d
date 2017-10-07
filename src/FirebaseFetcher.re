@@ -1,4 +1,50 @@
 
+let module Single (Config: {let name: string; type t;}) => {
+  type state =
+    [ `Initial
+    | `Loaded Config.t
+    | `Errored Js.Promise.error ];
+
+  let component = ReasonReact.reducerComponentWithRetainedProps ("FirebaseSingleFetcher:" ^ Config.name);
+
+  let module FBCollection = Firebase.Collection Config;
+
+  let make ::fb ::id ::render _children => {
+    let collection = FBCollection.get fb;
+
+    let fetch state reduce => {
+      Js.log2 "fetching" Config.name;
+      Firebase.doc collection id
+      |> Firebase.get
+      |> Js.Promise.then_ (fun snap => {reduce (fun _ => `Loaded (Firebase.data snap)) ();Js.Promise.resolve ()})
+      |> Js.Promise.catch (fun err => {reduce (fun _ => `Errored err) ();Js.Promise.resolve ()})
+      |> ignore;
+    };
+
+    ReasonReact.{
+      ...component,
+      retainedProps: id,
+      initialState: fun () => `Initial,
+      willReceiveProps: fun {state, reduce, retainedProps} => {
+        if (retainedProps !== id) {
+          fetch state reduce;
+        };
+        state
+      },
+      reducer: fun action state => {
+        ReasonReact.Update (action: state)
+      },
+      didMount: fun {state, reduce} => {
+        fetch state reduce;
+        ReasonReact.NoUpdate
+      },
+      render: fun {state, reduce} => {
+        render ::state 
+      }
+    }
+  };
+};
+
 let module Dynamic (Collection: {let name: string; type t;}) => {
 
   type state =

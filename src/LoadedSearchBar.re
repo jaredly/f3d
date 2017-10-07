@@ -1,15 +1,6 @@
 
-let module IngredientsLoader = FirebaseFetcher.Static {
-  let name = "ingredients";
-  type t = Models.ingredient;
-  let query q => q;
-};
-
-let module TagsLoader = FirebaseFetcher.Static {
-  let name = "tags";
-  type t = Models.tag;
-  let query q => q;
-};
+let module IngredientsLoader = FirebaseFetcher.Static { include Models.Ingredient; let query q => q; };
+let module TagsLoader = FirebaseFetcher.Static { include Models.Tag; let query q => q; };
 
 /** TODO maybe have the searchbar w/ a loading spinner, and have it only
  * load the data upon focus, so that I don't load all this stuff without

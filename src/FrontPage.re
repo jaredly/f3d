@@ -8,7 +8,7 @@ type action = (array Models.recipe);
 
 type state = (list string, list string, string);
 
-let make ::fb _children => {
+let make ::fb ::navigate _children => {
   ReasonReact.{
     ...component,
     reducer: fun action state => {
@@ -19,7 +19,7 @@ let make ::fb _children => {
       <div className=Glamor.(css[width "1000px", alignSelf "center"])>
         (LoadedSearchBar.render fb state (reduce (fun x => x)))
         <div className=Glamor.(css[flexBasis "16px"])/>
-        <SearchingRecipeList fb search=state />
+        <SearchingRecipeList fb search=state navigate />
       </div>
     }
   }

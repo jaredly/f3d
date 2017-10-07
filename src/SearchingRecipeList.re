@@ -34,10 +34,12 @@ let emptyBoxes () => {
   </div>
 };
 
-let showRecipes ::recipes ::loadingMore ::fetchMore => {
-  <div className=Glamor.(css [flexDirection "row", flexWrap "wrap"])>
+let showRecipes ::navigate ::recipes ::loadingMore ::fetchMore => {
+  <div className=Glamor.(css [flexDirection "row", flexWrap "wrap", justifyContent "center"])>
     (ReasonReact.arrayToElement (Array.map
-      (fun recipe => <div key=(recipe##id) className=box>
+      (fun recipe => <div
+        onClick=(fun _ => navigate ("/recipe/" ^ recipe##id))
+        key=(recipe##id) className=box>
         (str recipe##title)
       </div>)
     recipes))
@@ -47,11 +49,11 @@ let showRecipes ::recipes ::loadingMore ::fetchMore => {
 
 let showError _err => <div>(str "Failed to fetch")</div>;
 
-let module Fetcher = FirebaseFetcher.Dynamic {let name = "recipes"; type t = Models.recipe; };
+let module Fetcher = FirebaseFetcher.Dynamic Models.Recipe;
 
 let component = ReasonReact.statelessComponent "SearchingRecipeList";
 
-let make ::fb ::search _children => {
+let make ::fb ::search ::navigate _children => {
   let (text: string, ingredients, tags) = search;
   let refetchKey = text ^ "%%"
     ^ (Js.Array.joinWith ":" (Array.map (fun i => i##id) (Array.of_list ingredients)))
@@ -81,7 +83,7 @@ let make ::fb ::search _children => {
         render=Fetcher.(fun ::state ::fetchMore => {
           switch state {
           | Initial => emptyBoxes ()
-          | Loaded snap recipes => showRecipes ::recipes loadingMore::(snap !== None) ::fetchMore
+          | Loaded snap recipes => showRecipes ::navigate ::recipes loadingMore::(snap !== None) ::fetchMore
           | Errored err => showError err
           }
         })
