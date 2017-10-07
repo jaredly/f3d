@@ -6,7 +6,7 @@ let str = ReasonReact.stringToElement;
 
 let boxAttrs = Glamor.([
   width "300px",
-  height "300px",
+  height "200px",
   margin "8px",
   padding "16px",
   fontSize "24px",
@@ -53,19 +53,25 @@ let component = ReasonReact.statelessComponent "SearchingRecipeList";
 
 let make ::fb ::search _children => {
   let (text: string, ingredients, tags) = search;
+  let refetchKey = text ^ "%%"
+    ^ (Js.Array.joinWith ":" (Array.map (fun i => i##id) (Array.of_list ingredients)))
+    ^ "%%"
+    ^ (Js.Array.joinWith ":" (Array.map (fun i => i##id) (Array.of_list tags)))
+    ;
   ReasonReact.{
     ...component,
     render: fun _self => {
       <Fetcher
         fb
         pageSize=20
+        refetchKey
         query=Firebase.Query.(fun q => {
           /** Only recipes that have the specified ingredients */
           let q = List.fold_left
-            (fun q id => q |> whereBool ("ingredientsUsed." ^ id) op::"==" Js.true_)
+            (fun q ing => q |> whereBool ("ingredientsUsed." ^ ing##id) op::"==" Js.true_)
           q ingredients;
           let q = List.fold_left
-            (fun q id => q |> whereBool ("tags." ^ id) op::"==" Js.true_)
+            (fun q tag => q |> whereBool ("tags." ^ tag##id) op::"==" Js.true_)
           q tags;
           /** TODO search bar should add texts to things */
           q

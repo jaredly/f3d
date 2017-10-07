@@ -32,18 +32,21 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
       |> ignore;
     };
 
-    let fetch state reduce => {
+    let fetch state reduce clear => {
+      Js.log2 "fetching" Collection.name;
       let module Q = Firebase.Query;
       let q = Firebase.asQuery collection
         |> query
         |> Q.limit pageSize;
 
-      let (q, current) = switch state {
+      let (q, current) = if clear {
+        (q, [||])
+      } else {switch state {
       | Errored _
       | Initial => (q, [||])
       | Loaded (Some snap) items => (Q.startAfter snap q, items)
       | Loaded None items => (q, items)
-      };
+      }};
 
       q |> Q.get |> handleResult reduce current;
     };
@@ -54,7 +57,7 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
       initialState: fun () => Initial,
       willReceiveProps: fun {state, reduce, retainedProps} => {
         if (retainedProps !== refetchKey) {
-          fetch state reduce;
+          fetch state reduce true;
         };
         state
       },
@@ -62,12 +65,12 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
         ReasonReact.Update action
       },
       didMount: fun {state, reduce} => {
-        fetch state reduce;
+        fetch state reduce false;
         ReasonReact.NoUpdate
       },
       render: fun {state, reduce} => {
         render ::state fetchMore::(fun () => {
-          fetch state reduce
+          fetch state reduce false
         })
       }
     }

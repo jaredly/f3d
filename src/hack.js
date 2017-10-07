@@ -4,6 +4,8 @@ const init = () => {
   console.log(data)
   const db = fb.firestore()
   const uid = fb.auth().currentUser.uid
+  const ingredientsById = {}
+  data.ingredients.forEach(ing => ingredientsById[ing.id] = ing)
   const prom = [
     /*
     db.collection('userData').doc(uid).set({
@@ -32,7 +34,10 @@ const init = () => {
       recipe.tags = {}
       recipe.instructions.forEach(i => i.ingredientsUsed = {})
       recipe.ingredientsUsed = {}
-      recipe.ingredients.forEach(ing => recipe.ingredientsUsed[ing.id] = true)
+      recipe.ingredients.forEach(ing => {
+        ing.ingredient = ing.ingredient.id
+        recipe.ingredientsUsed[ing.ingredient] = true
+      })
       recipe.meta = {
         yield: recipe.yield,
         yieldUnit: recipe.yieldUnit,

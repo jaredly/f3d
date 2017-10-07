@@ -14,10 +14,10 @@ let make ::fb _children => {
     reducer: fun action state => {
       ReasonReact.Update action
     },
-    initialState: fun () => SearchBar.SearchBar.empty,
+    initialState: fun () => SearchBar.empty,
     render: fun {state, reduce} => {
       <div className=Glamor.(css[width "1000px", alignSelf "center"])>
-        (SearchBar.loadedSearchBar fb state (reduce (fun x => x)))
+        (LoadedSearchBar.render fb state (reduce (fun x => x)))
         <div className=Glamor.(css[flexBasis "16px"])/>
         <SearchingRecipeList fb search=state />
       </div>
