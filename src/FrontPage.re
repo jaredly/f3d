@@ -10,6 +10,19 @@ type action = (array Models.recipe);
 
 type state = (list string, list string, string);
 
+let module SearchBar = {
+  let component = ReasonReact.statelessComponent "SearchBar";
+  let empty = ("", []: list string, []: list string);
+  let make ::onChange ::current _children => ReasonReact.{
+    ...component,
+    render: fun _ => {
+      <div />
+    }
+  };
+};
+
+let id x => x;
+
 let make ::fb _children => {
   /* let recipes = Recipes.get fb; */
   ReasonReact.{
@@ -17,39 +30,25 @@ let make ::fb _children => {
     reducer: fun action state => {
       ReasonReact.Update action
     },
-    initialState: fun () => [],
-    /* , ["hello"], ""), */
-    /* didMount: fun {reduce} => {
-      let module Q = Firebase.Query;
-      Firebase.asQuery recipes
-      /* |> Q.limit 10 */
-      |> Q.whereBool "isPrivate" op::"==" Js.false_
-      |> Q.get
-      |> Js.Promise.then_
-      (fun snap => {
-        let recipes = Array.map Firebase.data (Q.docs snap);
-        reduce (fun () => recipes) ();
-        Js.Promise.resolve ();
-      })
-      |> Js.Promise.catch (fun err => {
-        Js.log2 "Failed to get recipes" err;
-        Js.Promise.resolve ();
-      })
-      |> ignore;
-      ReasonReact.NoUpdate
-    }, */
-    render: fun {state: ingredients, reduce} => {
+    initialState: fun () => SearchBar.empty,
+    render: fun {state, reduce} => {
       <div className=Glamor.(css[width "1000px", alignSelf "center"])>
+        <SearchBar
+          onChange=(reduce id)
+          current=state
+        />
         <div className=Glamor.(css[
           backgroundColor "white",
-          border "1px solid #777", fontSize "32px", padding "16px", position "sticky", top "16px"])>
+          border "1px solid #777",
+          fontSize "32px",
+          padding "16px",
+          position "sticky",
+          top "16px"
+        ])>
           (str "Search by ingredient")
         </div>
         <div className=Glamor.(css[flexBasis "16px"])/>
-        <SearchingRecipeList
-          fb
-          ingredients
-        />
+        <SearchingRecipeList fb search=state />
       </div>
     }
   }

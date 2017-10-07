@@ -51,7 +51,8 @@ let module Fetcher = FirebaseFetcher.F {let name = "recipes"; type t = Models.re
 
 let component = ReasonReact.statelessComponent "SearchingRecipeList";
 
-let make ::fb ::ingredients _children => {
+let make ::fb ::search _children => {
+  let (text: string, ingredients, tags) = search;
   ReasonReact.{
     ...component,
     render: fun _self => {
@@ -60,9 +61,12 @@ let make ::fb ::ingredients _children => {
         pageSize=20
         query=Firebase.Query.(fun q => {
           /** Only recipes that have the specified ingredients */
-          List.fold_left
+          let q = List.fold_left
             (fun q id => q |> whereBool ("ingredientsUsed." ^ id) op::"==" Js.true_)
-          q ingredients
+          q ingredients;
+          List.fold_left
+            (fun q id => q |> whereBool ("tags." ^ id) op::"==" Js.true_)
+          q tags
           /** Only public ones (TODO also fetch private ones I can see) */
           |> whereBool "isPrivate" op::"==" Js.false_
         })
