@@ -47,7 +47,7 @@ let showRecipes ::recipes ::loadingMore ::fetchMore => {
 
 let showError _err => <div>(str "Failed to fetch")</div>;
 
-let module Fetcher = FirebaseFetcher.F {let name = "recipes"; type t = Models.recipe; };
+let module Fetcher = FirebaseFetcher.Dynamic {let name = "recipes"; type t = Models.recipe; };
 
 let component = ReasonReact.statelessComponent "SearchingRecipeList";
 
@@ -64,9 +64,11 @@ let make ::fb ::search _children => {
           let q = List.fold_left
             (fun q id => q |> whereBool ("ingredientsUsed." ^ id) op::"==" Js.true_)
           q ingredients;
-          List.fold_left
+          let q = List.fold_left
             (fun q id => q |> whereBool ("tags." ^ id) op::"==" Js.true_)
-          q tags
+          q tags;
+          /** TODO search bar should add texts to things */
+          q
           /** Only public ones (TODO also fetch private ones I can see) */
           |> whereBool "isPrivate" op::"==" Js.false_
         })

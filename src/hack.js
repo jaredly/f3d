@@ -24,7 +24,7 @@ const init = () => {
     }),
     // */
 
-    /*
+    //*
     ...data.recipes.map(recipe => {
       recipe.authorId = uid
       recipe.collaborators = {}
@@ -47,6 +47,18 @@ const init = () => {
       delete recipe.prepTime
       delete recipe.totalTime
       delete recipe.ovenTemp
+
+      const stopwords = require('stopword/lib/stopwords_en.js').words
+      const stopMap = stopwords.reduce((m, w) => (m[w] = true, m), {})
+      const tokenRegex = /[^a-zа-яё0-9\-']+/i;
+
+      recipe.titleSearch = {}
+
+      recipe.title.toLowerCase().split(tokenRegex)
+      .filter(token => token && !stopMap[token])
+      .forEach(token => {
+        recipe.titleSearch[token] = true
+      })
 
       recipe.comments = []
 

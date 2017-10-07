@@ -1,5 +1,5 @@
 
-let module F (Collection: {let name: string; type t;}) => {
+let module Dynamic (Collection: {let name: string; type t;}) => {
 
   type state =
     | Initial
@@ -21,9 +21,8 @@ let module F (Collection: {let name: string; type t;}) => {
       (fun snap => {
         let snaps = (Firebase.Query.docs snap);
         let items = Array.map Firebase.data snaps;
-        let lastSnap = snaps.(Array.length snaps - 1);
         let total = Array.append current items;
-        reduce (fun () => Array.length items === pageSize ? Loaded (Some lastSnap) total : Loaded None total) ();
+        reduce (fun () => Array.length items === pageSize ? Loaded (Some snaps.(Array.length snaps - 1)) total : Loaded None total) ();
         Js.Promise.resolve ();
       })
       |> Js.Promise.catch (fun err => {
@@ -72,5 +71,12 @@ let module F (Collection: {let name: string; type t;}) => {
         })
       }
     }
+  };
+};
+
+let module Static (Config: {let name: string; type t; let query: Firebase.Query.query t => Firebase.Query.query t; }) => {
+  let module Inner = Dynamic Config;
+  let make ::fb ::pageSize=10 ::render children => {
+    Inner.make ::fb ::pageSize query::Config.query refetchKey::"" ::render children
   };
 };

@@ -47,7 +47,8 @@ type tag = Js.t {.
   id: string,
   authorId: string,
   name: string,
-  created: float
+  created: float,
+  recipeCount: int
 };
 
 /** The main types */
@@ -59,6 +60,7 @@ type recipe = Js.t {.
   isPrivate: Js.boolean,
 
   title: string,
+  titleSearch: Js.Dict.t Js.boolean,
   created: float,
   updated: float,
   imageUrl: nu string,
