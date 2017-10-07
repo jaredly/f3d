@@ -27,6 +27,7 @@ let module Styles = {
     backgroundColor "white",
     /* border "1px solid #777", */
     boxShadow "0px 2px 10px #aaa",
+    margin "0 16px",
     borderRadius "4px",
     position "sticky",
     top "16px"
@@ -103,6 +104,16 @@ let search ingredients tags text => {
  * Things that need to change:
  * - reset the backoff when making a new query
  * - listen to browser's "online" vs "offline", and if you're offline, don't even try
+ * 
+ * 
+ * Hmmmm maybe the problem is we're setting online state to healthy, when it's definitely not.
+ * RemoteStore.prototype.onWatchStreamChange
+ * 
+ * 
+ * PersistentListenStream.prototype.onMessage
+ * huh we're resetting the backoff here, what's happening?
+ * 
+ * dunno how that's happening
  */
 
 let spacer num => <div style=ReactDOMRe.Style.(make flexBasis::(string_of_int num ^ "px") ()) />;

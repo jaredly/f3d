@@ -2,21 +2,40 @@
 let component = ReasonReact.reducerComponent "Recipe";
 let str = ReasonReact.stringToElement;
 
+let module Styles = {
+  open Glamor;
+  let container = css [
+    padding "16px",
+    width "1000px",
+    maxWidth "100%",
+    alignSelf "center",
+  ];
+  let loading = css [
+    alignItems "center",
+  ];
+  let title = css [
+    fontSize "24px"
+  ];
+};
+
 let make ::recipe ::fb ::id _children => ReasonReact.{
   ...component,
   initialState: fun () => (),
   reducer: fun () () => ReasonReact.NoUpdate,
   render: fun {state, reduce} => {
-    <div >
-      (str "Recipe!")
-      (str recipe##title)
+    <div className=Styles.container>
+      <div className=Styles.title>
+        (str recipe##title)
+      </div>
     </div>
   }
 };
 
 let loadingRecipe () => {
-  <div>
+  <div className=Styles.container>
+    <div className=Styles.loading>
     (str "Loading")
+    </div>
   </div>
 };
 
@@ -27,6 +46,7 @@ let failedLoading err => {
   </div>
 };
 
+/** Data loading part */
 let module Fetcher = FirebaseFetcher.Single Models.Recipe;
 let make ::fb ::navigate ::id children => {
   Js.log id;

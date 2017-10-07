@@ -2,44 +2,57 @@
 /* type state = Loading | Loaded (array Models.recipe); */
 
 
-let str = ReasonReact.stringToElement;
+open Utils;
 
-let boxAttrs = Glamor.([
-  width "300px",
-  height "200px",
-  margin "8px",
-  padding "16px",
-  fontSize "24px",
-  lineHeight "36px",
-  overflow "hidden",
-  border "1px solid #aaa"
-]);
+let module Styles = {
+  open Glamor;
+  let boxAttrs = [
+    width "300px",
+    height "200px",
+    margin "8px",
+    padding "16px",
+    paddingTop "8px", /** This makes it so the text is 16px from top & left corner */
+    fontSize "24px",
+    lineHeight "36px",
+    overflow "hidden",
+    border "1px solid #aaa"
+  ];
 
-let box = Glamor.css boxAttrs;
-let emptyBox = Glamor.(css ([
-  backgroundColor "#fafafa",
-  ...boxAttrs
-]));
+  let box = css boxAttrs;
+  let emptyBox = css @@ [
+    backgroundColor "#fafafa",
+    ...boxAttrs
+  ] @ [
+    border "1px solid #fafafa"
+  ];
+
+  let container = css [
+    flexDirection "row",
+    flexWrap "wrap",
+    justifyContent "center"
+  ];
+};
 
 let emptyBoxes () => {
-  <div className=Glamor.(css [flexDirection "row", flexWrap "wrap"])>
-    <div className=emptyBox key="1" />
-    <div className=emptyBox key="2" />
-    <div className=emptyBox key="3" />
-    <div className=emptyBox key="4" />
-    <div className=emptyBox key="5" />
-    <div className=emptyBox key="6" />
-    <div className=emptyBox key="7" />
-    <div className=emptyBox key="8" />
+  <div className=Styles.container>
+    <div className=Styles.emptyBox key="1" />
+    <div className=Styles.emptyBox key="2" />
+    <div className=Styles.emptyBox key="3" />
+    <div className=Styles.emptyBox key="4" />
+    <div className=Styles.emptyBox key="5" />
+    <div className=Styles.emptyBox key="6" />
+    <div className=Styles.emptyBox key="7" />
+    <div className=Styles.emptyBox key="8" />
+    <div className=Styles.emptyBox key="9" />
   </div>
 };
 
 let showRecipes ::navigate ::recipes ::loadingMore ::fetchMore => {
-  <div className=Glamor.(css [flexDirection "row", flexWrap "wrap", justifyContent "center"])>
+  <div className=Styles.container>
     (ReasonReact.arrayToElement (Array.map
       (fun recipe => <div
         onClick=(fun _ => navigate ("/recipe/" ^ recipe##id))
-        key=(recipe##id) className=box>
+        key=(recipe##id) className=Styles.box>
         (str recipe##title)
       </div>)
     recipes))

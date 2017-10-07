@@ -2,7 +2,7 @@ let component = ReasonReact.statelessComponent "App";
 
 let str = ReasonReact.stringToElement;
 
-let make ::fb _children => {
+let make ::fb ::auth _children => {
   ReasonReact.{
     ...component,
     render: fun _ => {
@@ -14,11 +14,7 @@ let make ::fb _children => {
         ]
         render=(fun child navigate => 
           <div>
-            <div className=Glamor.(css[fontSize "32px", padding "16px", flexDirection "row"])>
-              (str "Foood")
-              <a href="/add">
-              </a>
-            </div>
+            <Header auth />
             child
           </div>
         )

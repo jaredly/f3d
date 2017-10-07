@@ -11,6 +11,6 @@ hack;
 Firebase.enablePersistence (Firebase.firestore fb)
 |> Js.Promise.catch (fun err => {Js.log2 "error" err; Js.Promise.resolve ()})
 |> Js.Promise.then_ (fun () => {
-  ReactDOMRe.renderToElementWithId <App fb=(Firebase.firestore fb) /> "root";
+  ReactDOMRe.renderToElementWithId <App fb=(Firebase.firestore fb) auth=(Firebase.auth fb) /> "root";
   Js.Promise.resolve ();
 }) |> ignore;

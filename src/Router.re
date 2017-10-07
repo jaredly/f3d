@@ -1,11 +1,17 @@
 
 type history;
 external history: history = "" [@@bs.val];
-external pushState: history => string => Js.t {..} => unit = "" [@@bs.send];
+external pushState: history => Js.t {..} => Js.t {..} => string => unit = "" [@@bs.send];
+
+type window;
+external window: window = "" [@@bs.val];
+external onhashchange: window => (unit => unit) => unit = "" [@@bs.set];
 
 type location;
 external location: location = "" [@@bs.val];
 external pathname: location => string = "" [@@bs.get];
+external hash: location => string = "" [@@bs.get];
+external setHash: location => string => unit = "hash" [@@bs.set];
 
 let str = ReasonReact.stringToElement;
 
@@ -24,16 +30,29 @@ let match path routes navigate => {
   loop routes;
 };
 
+let currentHash () => {
+  hash location |> Js.String.sliceToEnd from::1
+};
+
 let component = ReasonReact.reducerComponent "Router";
 let make ::render ::routes _children => ReasonReact.{
   ...component,
-  initialState: fun () => pathname location,
+  initialState: fun () => currentHash(),
+  didMount: fun {state, reduce} => {
+    onhashchange window (fun _ => {
+      (reduce currentHash) ()
+    });
+    ReasonReact.NoUpdate
+  },
   reducer: fun action state => {
-    pushState history action {"um": "ok"};
     ReasonReact.Update action
   },
   render: fun {state, reduce} => {
-    let navigate = (reduce (fun path => path));
+    let navigate path => {
+      setHash location ("#" ^ path);
+      /* pushState history {"um": "ok"} {"a": "b"}  */
+    };
+    /* (reduce (fun path => path)); */
     render (match state routes navigate) navigate;
   }
 };

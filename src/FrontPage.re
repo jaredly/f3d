@@ -16,7 +16,7 @@ let make ::fb ::navigate _children => {
     },
     initialState: fun () => SearchBar.empty,
     render: fun {state, reduce} => {
-      <div className=Glamor.(css[width "1000px", alignSelf "center"])>
+      <div className=Glamor.(css[maxWidth "100%", width "1000px", alignSelf "center"])>
         (LoadedSearchBar.render fb state (reduce (fun x => x)))
         <div className=Glamor.(css[flexBasis "16px"])/>
         <SearchingRecipeList fb search=state navigate />

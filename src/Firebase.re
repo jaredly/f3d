@@ -2,13 +2,22 @@
 type config;
 type firebase;
 type firestore;
+type auth;
 
 /* external config: apiKey::string => authDomain::string => projectId::string => config = "" [@@bs.obj]; */
 
 external initializeApp: config => firebase = "" [@@bs.module "firebase"];
 external useFirestore: unit = "" [@@bs.module "firebase/firestore"];
 external firestore: firebase => firestore = "" [@@bs.send];
+external auth: firebase => auth = "" [@@bs.send];
 external enablePersistence: firestore => Js.Promise.t unit = "" [@@bs.send];
+
+let module Auth = {
+  type user;
+  external currentUser: auth => Js.nullable user = "" [@@bs.get];
+  external displayName: user => Js.nullable string = "" [@@bs.get];
+  external email: user => string = "" [@@bs.get];
+};
 
 type collection 't;
 external collection' : firestore => string => collection 't = "collection" [@@bs.send];
