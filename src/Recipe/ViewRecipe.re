@@ -118,6 +118,7 @@ let module IngredientsFetcher = FirebaseFetcher.Static { include Models.Ingredie
 let make ::fb ::navigate ::id children => {
   Js.log id;
   RecipeFetcher.make ::fb ::id
+  listen::true
   render::(fun ::state => {
     <IngredientsFetcher
       fb

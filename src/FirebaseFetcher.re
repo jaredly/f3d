@@ -9,7 +9,7 @@ let module Single (Config: {let name: string; type t;}) => {
 
   let module FBCollection = Firebase.Collection Config;
 
-  let make ::fb ::id ::render _children => {
+  let make ::fb ::id ::listen=false ::render _children => {
     let collection = FBCollection.get fb;
 
     let fetch state reduce => {
@@ -40,6 +40,12 @@ let module Single (Config: {let name: string; type t;}) => {
       },
       didMount: fun {state, reduce} => {
         fetch state reduce;
+        if listen {
+          let doc = Firebase.doc collection id;
+          Firebase.onSnapshot doc (fun snap => {
+            reduce (fun _ => `Loaded (Firebase.data snap)) ();
+          });
+        };
         ReasonReact.NoUpdate
       },
       render: fun {state, reduce} => {
