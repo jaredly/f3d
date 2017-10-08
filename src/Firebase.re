@@ -47,7 +47,7 @@ module Query = {
   external whereStr: string => op::string => string => query 't = "where" [@@bs.send.pipe: query 't];
   external whereNum: string => op::string => float  => query 't = "where" [@@bs.send.pipe: query 't];
 
-  external onSnapshot: query 't => (querySnapshot 't => unit) => unit = "" [@@bs.send];
+  external onSnapshot: query 't => (querySnapshot 't => unit) => (unit => unit) = "" [@@bs.send];
 };
 
 external asQuery: collection 't => Query.query 't = "%identity";
@@ -57,7 +57,8 @@ external doc: collection 't => string => doc 't = "" [@@bs.send];
 external set: doc 't => 't => Js.Promise.t unit = "" [@@bs.send];
 external get: doc 't => Js.Promise.t (snapshot 't) = "" [@@bs.send];
 external delete: doc 't => Js.Promise.t unit = "" [@@bs.send];
-external onSnapshot: doc 't => (snapshot 't => unit) => unit = "" [@@bs.send];
+type unsubscribe = unit => unit;
+external onSnapshot: doc 't => (snapshot 't => unit) => unsubscribe = "" [@@bs.send];
 /* external update: doc 't => */
 
 /* Js.t {.

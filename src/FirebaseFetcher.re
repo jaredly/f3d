@@ -1,6 +1,6 @@
 
 let module Single (Config: {let name: string; type t;}) => {
-  type state =
+  type status =
     [ `Initial
     | `Loaded Config.t
     | `Errored Js.Promise.error ];
@@ -12,7 +12,7 @@ let module Single (Config: {let name: string; type t;}) => {
   let make ::fb ::id ::listen=false ::render _children => {
     let collection = FBCollection.get fb;
 
-    let fetch state reduce => {
+    let fetch status reduce => {
       Js.log2 "fetching" Config.name;
       Firebase.doc collection id
       |> Firebase.get
@@ -28,27 +28,35 @@ let module Single (Config: {let name: string; type t;}) => {
     ReasonReact.{
       ...component,
       retainedProps: id,
-      initialState: fun () => `Initial,
-      willReceiveProps: fun {state, reduce, retainedProps} => {
+      initialState: fun () => (None, `Initial),
+      willReceiveProps: fun {state: (_, status) as state, reduce, retainedProps} => {
         if (retainedProps !== id) {
-          fetch state reduce;
+          fetch status reduce;
         };
         state
       },
-      reducer: fun action state => {
-        ReasonReact.Update (action: state)
+      reducer: fun action (destruct, _) => {
+        ReasonReact.Update (destruct, action: status)
       },
-      didMount: fun {state, reduce} => {
-        fetch state reduce;
+      didMount: fun {state: (_, status), reduce} => {
+        fetch status reduce;
         if listen {
           let doc = Firebase.doc collection id;
           Firebase.onSnapshot doc (fun snap => {
             reduce (fun _ => `Loaded (Firebase.data snap)) ();
-          });
-        };
-        ReasonReact.NoUpdate
+          }) |> (fun x => ReasonReact.Update (Some x, status));
+          /** TODO TODO TODO tear down this listener. How? */
+        } else {
+          ReasonReact.NoUpdate
+        }
       },
-      render: fun {state, reduce} => {
+      willUnmount: fun {state: (destruct, _)} => {
+        switch destruct {
+        | None => ()
+        | Some destruct => destruct ()
+        }
+      },
+      render: fun {state: (_, state), reduce} => {
         render ::state 
       }
     }
