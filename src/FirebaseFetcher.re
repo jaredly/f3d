@@ -17,7 +17,11 @@ let module Single (Config: {let name: string; type t;}) => {
       Firebase.doc collection id
       |> Firebase.get
       |> Js.Promise.then_ (fun snap => {reduce (fun _ => `Loaded (Firebase.data snap)) ();Js.Promise.resolve ()})
-      |> Js.Promise.catch (fun err => {reduce (fun _ => `Errored err) ();Js.Promise.resolve ()})
+      |> Js.Promise.catch (fun err => {
+        Js.log "bad";
+        [%bs.debugger];
+        /* [%bs.raw "debugger"]; */
+        reduce (fun _ => `Errored err) ();Js.Promise.resolve ()})
       |> ignore;
     };
 
@@ -48,9 +52,9 @@ let module Single (Config: {let name: string; type t;}) => {
 let module Dynamic (Collection: {let name: string; type t;}) => {
 
   type state =
-    | Initial
-    | Loaded (option (Firebase.snapshot Collection.t)) (array Collection.t)
-    | Errored Js.Promise.error;
+    [ `Initial
+    | `Loaded (option (Firebase.snapshot Collection.t), array Collection.t)
+    | `Errored Js.Promise.error ];
 
   let component = ReasonReact.reducerComponentWithRetainedProps ("FirebaseFetcher:" ^ Collection.name);
 
@@ -68,11 +72,14 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
         let snaps = (Firebase.Query.docs snap);
         let items = Array.map Firebase.data snaps;
         let total = Array.append current items;
-        reduce (fun () => Array.length items === pageSize ? Loaded (Some snaps.(Array.length snaps - 1)) total : Loaded None total) ();
+        reduce (fun () => Array.length items === pageSize ? `Loaded (Some snaps.(Array.length snaps - 1), total) : `Loaded (None, total)) ();
         Js.Promise.resolve ();
       })
       |> Js.Promise.catch (fun err => {
-        reduce (fun () => Errored err) ();
+        Js.log "booo";
+        [%bs.debugger];
+        /* [%bs.raw "debugger"]; */
+        reduce (fun () => `Errored err) ();
         Js.Promise.resolve ();
       })
       |> ignore;
@@ -88,10 +95,10 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
       let (q, current) = if clear {
         (q, [||])
       } else {switch state {
-      | Errored _
-      | Initial => (q, [||])
-      | Loaded (Some snap) items => (Q.startAfter snap q, items)
-      | Loaded None items => (q, items)
+      | `Errored _
+      | `Initial => (q, [||])
+      | `Loaded (Some snap, items) => (Q.startAfter snap q, items)
+      | `Loaded (None, items) => (q, items)
       }};
 
       q |> Q.get |> handleResult reduce current;
@@ -100,7 +107,7 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
     ReasonReact.{
       ...component,
       retainedProps: refetchKey,
-      initialState: fun () => Initial,
+      initialState: fun () => `Initial,
       willReceiveProps: fun {state, reduce, retainedProps} => {
         if (retainedProps !== refetchKey) {
           fetch state reduce true;
@@ -108,7 +115,7 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
         state
       },
       reducer: fun action state => {
-        ReasonReact.Update action
+        ReasonReact.Update (action: state)
       },
       didMount: fun {state, reduce} => {
         fetch state reduce false;

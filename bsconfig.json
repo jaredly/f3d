@@ -10,7 +10,7 @@
     "reason-react",
     "bs-glamor"
   ],
-  "sources": ["src"],
+  "sources": ["src", "src/Recipe", "src/EditRecipe"],
   "ppx-flags": [
     "./node_modules/.bin/ppx_guard",
     "./node_modules/.bin/reason_async"

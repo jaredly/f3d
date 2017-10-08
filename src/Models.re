@@ -1,14 +1,25 @@
 
-type nu 't = Js.null_undefined 't;
+type nu 't = Js.nullable 't;
 
 /** Sub-objects */
 
 type recipeIngredient = Js.t {.
   id: string,
-  amount: float,
-  unit: string,
+  ingredient: string,
+  amount: nu float,
+  unit: nu string,
   comments: nu string
 };
+
+/* let module RecipeIngredient = {
+  type record = {
+    id: string,
+    ingredient: string,
+    amount: float,
+    unit: string,
+    comments: string,
+  };
+}; */
 
 type meta = Js.t {.
   cookTime: nu int,
@@ -59,6 +70,11 @@ let module Tag = { let name = "tags"; type t = tag };
 
 /** The main types */
 
+type instruction = (Js.t {.
+  text: string,
+  ingredientsUsed: Js.Dict.t string
+});
+
 type recipe = Js.t {.
   id: string,
   authorId: string,
@@ -73,10 +89,7 @@ type recipe = Js.t {.
   tags: Js.Dict.t string,
 
   source: nu string,
-  instructions: array (Js.t {.
-    text: string,
-    ingredientsUsed: Js.Dict.t string
-  }),
+  instructions: array instruction,
   ingredients: array recipeIngredient,
   ingredientsUsed: Js.Dict.t Js.boolean,
   description: nu string,

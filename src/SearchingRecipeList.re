@@ -95,11 +95,11 @@ let make ::fb ::search ::navigate _children => {
           /** Only public ones (TODO also fetch private ones I can see) */
           |> whereBool "isPrivate" op::"==" Js.false_
         })
-        render=Fetcher.(fun ::state ::fetchMore => {
+        render=(fun ::state ::fetchMore => {
           switch state {
-          | Initial => emptyBoxes ()
-          | Loaded snap recipes => showRecipes ::navigate ::recipes loadingMore::(snap !== None) ::fetchMore
-          | Errored err => showError err
+          | `Initial => emptyBoxes ()
+          | `Loaded (snap, recipes) => showRecipes ::navigate ::recipes loadingMore::(snap !== None) ::fetchMore
+          | `Errored err => showError err
           }
         })
       />
