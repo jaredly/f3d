@@ -18,7 +18,9 @@ let module Styles = {
     border "1px solid #aaa"
   ];
 
-  let box = css boxAttrs;
+  let box = css @@ boxAttrs @ [
+    cursor "pointer",
+  ];
   let emptyBox = css @@ [
     backgroundColor "#fafafa",
     ...boxAttrs

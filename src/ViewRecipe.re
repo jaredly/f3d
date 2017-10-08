@@ -1,12 +1,12 @@
 
+open Utils;
 let component = ReasonReact.reducerComponent "Recipe";
-let str = ReasonReact.stringToElement;
 
 let module Styles = {
   open Glamor;
   let container = css [
     padding "16px",
-    width "1000px",
+    width "800px",
     maxWidth "100%",
     alignSelf "center",
   ];
@@ -16,16 +16,54 @@ let module Styles = {
   let title = css [
     fontSize "24px"
   ];
+  let header = css [
+    flexDirection "row",
+    alignItems "center",
+  ];
+  let button = css [
+    fontSize "inherit",
+    border "none",
+    backgroundColor "transparent",
+    padding "0",
+    margin "0",
+    fontWeight "inherit",
+
+    color "#777",
+    cursor "pointer",
+    padding "8px 16px",
+    Selector ":hover" [
+      color "black",
+    ]
+  ];
+  let editButton = css [
+    textDecoration "none",
+    color "currentColor",
+    padding "8px 16px",
+    cursor "pointer",
+    color "#777",
+    Selector ":hover" [
+      color "black",
+    ]
+  ];
 };
 
 let make ::recipe ::fb ::id _children => ReasonReact.{
   ...component,
-  initialState: fun () => (),
-  reducer: fun () () => ReasonReact.NoUpdate,
+  initialState: fun () => false,
+  reducer: fun action _state => ReasonReact.Update action,
   render: fun {state, reduce} => {
     <div className=Styles.container>
+      <div className=Styles.header>
       <div className=Styles.title>
         (str recipe##title)
+      </div>
+      spring
+      <button className=Styles.button onClick=(reduce (fun _ => not state))>
+        (str (state ? "Stop making" : "Make"))
+      </button>
+      <a className=Styles.editButton href=("#/edit/recipe/" ^ id)>
+        (str "Edit")
+      </a>
       </div>
     </div>
   }
