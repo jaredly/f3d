@@ -6,34 +6,52 @@ type action =
   | ToggleMaking
   | StartEditing
   | StopEditing
+  | StartSaving
+  | DoneSaving
   | SetBatches float;
 
 type state =
   | Making
   | Editing
+  | Saving
   | Normal;
 
 let component = ReasonReact.reducerComponent "Recipe";
 
 let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
   ...component,
-  initialState: fun () => (1., Normal),
+  initialState: fun () => (1., Editing),
   reducer: fun action (batches, making) => ReasonReact.Update (switch action {
   | ToggleMaking => (batches, (making === Normal) ? Making : Normal)
   | StartEditing => (batches, Editing)
   | StopEditing => (batches, Normal)
+  | StartSaving => (batches, Saving)
+  | DoneSaving => (batches, Normal)
   | SetBatches batches => (batches, making)
   }),
 
   render: fun {state: (batches, making), reduce} => {
-    [%guard let false = making === Editing][@else
+    [%guard let false = making === Editing || making === Saving][@else
       <EditRecipe
+        saving=(making === Saving)
         ingredients
         recipe
         fb
         id
         onCancel=(reduce (fun _ => StopEditing))
-        onSave=(reduce (fun _ => StopEditing))
+        onSave=(fun recipe => {
+          (reduce (fun _ => StartSaving)) ();
+          let module FB = Firebase.Collection Models.Recipe;
+          let collection = FB.get fb;
+          let doc = Firebase.doc collection recipe##id;
+          Firebase.set doc recipe
+          |> Js.Promise.then_ (fun () => {
+            (reduce (fun _ => DoneSaving)) ();
+            Js.Promise.resolve ()
+          })
+          |> ignore;
+          ()
+        })
       />
     ];
     <div className=Styles.container>

@@ -4,28 +4,60 @@ open Utils;
 let module Styles = {
   open Glamor;
   include RecipeStyles;
+  let title = css [
+    fontSize "24px",
+    flex "1",
+  ];
 };
 
-let component = ReasonReact.reducerComponent "EditRecipe";
-
 type state = {
-  meta: {.},
+  title: string,
+  description: string,
+  meta: Models.meta,
   ingredients: array Models.recipeIngredient,
   instructions: array Models.instruction,
 };
 
-let make ::recipe ::ingredients ::fb ::id ::onSave ::onCancel _children => ReasonReact.{
+type action =
+  | SetTitle string;
+
+let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
+
+let updateRecipe recipe {title, description, meta, ingredients, instructions} => {
+  let recipe = clone recipe |> Obj.magic;
+  recipe##title #= title;
+  recipe##description #= description;
+  recipe##meta #= meta;
+  recipe##ingredients #= ingredients;
+  recipe##instructions #= instructions;
+  let recipe: Models.recipe = recipe;
+  recipe
+};
+
+let component = ReasonReact.reducerComponent "EditRecipe";
+
+let make ::saving ::recipe ::ingredients ::fb ::id ::onSave ::onCancel _children => ReasonReact.{
   ...component,
-  initialState: fun () => (),
-  reducer: fun () () => ReasonReact.NoUpdate ,
-  render: fun {state, reduce} => {
+  initialState: fun () => {
+    title: recipe##title,
+    meta: recipe##meta,
+    description: recipe##description |> Js.Nullable.to_opt |> orr "",
+    ingredients: recipe##ingredients,
+    instructions: recipe##instructions,
+  },
+  reducer: fun action state => ReasonReact.Update (switch action {
+    | SetTitle title => {...state, title}
+  }),
+  render: fun {state: {title} as state, reduce} => {
     <div className=Styles.container>
       <div className=Styles.header>
-        <div className=Styles.title>
-          (str recipe##title)
-        </div>
-        spring
-        <button className=Styles.button onClick=onSave>
+        <input
+          disabled=(Js.Boolean.to_js_boolean saving)
+          className=Styles.title
+          value=title
+          onChange=(reduce (fun evt => SetTitle (evtValue evt)))
+        />
+        <button className=Styles.button onClick=(fun _ => onSave (updateRecipe recipe state))>
           (str "Save")
         </button>
         <button className=Styles.button onClick=onCancel>

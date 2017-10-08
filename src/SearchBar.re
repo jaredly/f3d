@@ -1,4 +1,6 @@
 
+open Utils;
+
 let module Styles = {
   let selectedFilter = Glamor.(css [
     fontSize "20px",
@@ -27,7 +29,6 @@ let module Styles = {
     backgroundColor "white",
     /* border "1px solid #777", */
     boxShadow "0px 2px 10px #aaa",
-    margin "0 16px",
     borderRadius "4px",
     position "sticky",
     top "16px"
@@ -53,9 +54,6 @@ let module Styles = {
     ]
   ]);
 };
-
-let str = ReasonReact.stringToElement;
-let evtValue event => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target event))##value;
 
 /**
  * For testing:
@@ -112,8 +110,6 @@ let search ingredients tags text => {
  * 
  * PersistentListenStream.prototype.onMessage
  * huh we're resetting the backoff here, what's happening?
- * 
- * dunno how that's happening
  */
 
 let spacer num => <div style=ReactDOMRe.Style.(make flexBasis::(string_of_int num ^ "px") ()) />;

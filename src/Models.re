@@ -21,6 +21,11 @@ type recipeIngredient = Js.t {.
   };
 }; */
 
+type instruction = (Js.t {.
+  text: string,
+  ingredientsUsed: Js.Dict.t string
+});
+
 type meta = Js.t {.
   cookTime: nu int,
   prepTime: nu int,
@@ -69,11 +74,6 @@ type tag = Js.t {.
 let module Tag = { let name = "tags"; type t = tag };
 
 /** The main types */
-
-type instruction = (Js.t {.
-  text: string,
-  ingredientsUsed: Js.Dict.t string
-});
 
 type recipe = Js.t {.
   id: string,

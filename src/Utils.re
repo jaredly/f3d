@@ -48,3 +48,6 @@ let spacedArray spacer items => {
    }
    }
  };
+
+let str = ReasonReact.stringToElement;
+let evtValue event => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target event))##value;
