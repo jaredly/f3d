@@ -1,5 +1,5 @@
 
-type nu 't = Js.nullable 't;
+type nu 't = Js.null 't;
 
 /** Sub-objects */
 

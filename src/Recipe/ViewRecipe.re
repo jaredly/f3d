@@ -34,7 +34,7 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
     [%guard let false = making === Editing || making === Saving][@else
       <EditRecipe
         saving=(making === Saving)
-        ingredients
+        allIngredients=ingredients
         recipe
         fb
         id
@@ -71,7 +71,7 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
       (Meta.metaLine meta::recipe##meta source::recipe##source)
       (spacer 16)
       <div className=Glamor.(css[fontStyle "italic"])>
-        (orr "" (Js.Nullable.to_opt recipe##description) |> ifEmpty "No description" |> str)
+        (orr "" (Js.Null.to_opt recipe##description) |> ifEmpty "No description" |> str)
       </div>
       (spacer 32)
       <div className=Styles.subHeader>

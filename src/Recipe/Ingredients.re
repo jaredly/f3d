@@ -23,60 +23,6 @@ let module Styles = {
   ];
 };
 
-let nonnull v => not @@ Js.Nullable.test v;
-
-let fractions = [
-  (1. /. 2., {j|½|j}),
-
-  (1. /. 3., {j|⅓|j}),
-  (2. /. 3., {j|⅔|j}),
-
-  (1. /. 4., {j|¼|j}),
-  (3. /. 4., {j|¾|j}),
-
-  (1. /. 6., {j|⅙|j}),
-  (5. /. 6., {j|⅚|j}),
-
-  (1. /. 8., {j|⅛|j}),
-  (3. /. 8., {j|⅜|j}),
-  (5. /. 8., {j|⅝|j}),
-  (7. /. 8., {j|⅞|j}),
-];
-
-let fractionify n => {
-  let frac = n -. floor n;
-  let whole = (int_of_float n);
-  /** I want a [%bail_if frac < 0.001][@with x] */
-  if (frac < 0.0001) {
-    string_of_int whole
-  } else {
-    let rec loop fractions => switch fractions {
-      | [] => (string_of_float n)
-      | [(num, str), ..._] when frac -. 0.01 < num && frac +. 0.02 > num =>
-          ((whole > 0 ? string_of_int whole ^ " " : "") ^ str)
-      | [_, ...rest] => loop rest
-    };
-    loop fractions
-  }
-};
-
-let unitShortNames = [
-  ("c", ["cup", "cups"]),
-  ("t", ["teaspoon", "tablespoons", "tsp", "tsps"]),
-  ("T", ["tablespoon", "tablespoons", "tbs"]),
-  ("oz", ["ounce", "ounces"]),
-];
-
-let smallUnit unit => {
-  let canon = Js.String.toLowerCase unit;
-  let rec loop names => switch names {
-  | [] => unit
-  | [(short, longs), ...rest] when List.mem canon longs => short
-  | [_, ...rest] => loop rest
-  };
-  loop unitShortNames;
-};
-
 let render ::batches ::ingredients ::allIngredients => {
   let map = ingredientsMap allIngredients;
   <div className=Glamor.(css[

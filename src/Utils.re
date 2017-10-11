@@ -3,6 +3,8 @@ let str = ReasonReact.stringToElement;
 let spring = <div style=ReactDOMRe.Style.(make flexGrow::"1" ()) />;
 let spacer ::key=? num => <div key=?key style=ReactDOMRe.Style.(make flexBasis::(string_of_int num ^ "px") ()) />;
 
+let evtValue: ReactEventRe.Form.t => string = fun event => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target event))##value;
+
 let optMap fn value => switch value { | None => None | Some v => Some (fn v) };
 let optBind fn value => switch value { | None => None | Some v => fn v };
 let optOr default value => switch value { | None => default | Some v => v };
@@ -10,7 +12,7 @@ let optOr default value => switch value { | None => default | Some v => v };
 let orr default value => switch value { | None => default | Some value => value };
 let ifEmpty default value => if (value == "") { default } else {value};
 
-let maybe item render => switch (Js.Nullable.to_opt item) {
+let maybe item render => switch (Js.Null.to_opt item) {
 | None => None
 | Some value => Some (render value)
 };
@@ -53,5 +55,58 @@ let spacedArray spacer items => {
    }
  };
 
-let str = ReasonReact.stringToElement;
-let evtValue event => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target event))##value;
+
+
+let nonnull v => not @@ Js.Null.test v;
+
+let fractions = [
+  (1. /. 2., {j|½|j}),
+
+  (1. /. 3., {j|⅓|j}),
+  (2. /. 3., {j|⅔|j}),
+
+  (1. /. 4., {j|¼|j}),
+  (3. /. 4., {j|¾|j}),
+
+  (1. /. 6., {j|⅙|j}),
+  (5. /. 6., {j|⅚|j}),
+
+  (1. /. 8., {j|⅛|j}),
+  (3. /. 8., {j|⅜|j}),
+  (5. /. 8., {j|⅝|j}),
+  (7. /. 8., {j|⅞|j}),
+];
+
+let fractionify n => {
+  let frac = n -. floor n;
+  let whole = (int_of_float n);
+  /** I want a [%bail_if frac < 0.001][@with x] */
+  if (frac < 0.0001) {
+    string_of_int whole
+  } else {
+    let rec loop fractions => switch fractions {
+      | [] => (string_of_float n)
+      | [(num, str), ..._] when frac -. 0.01 < num && frac +. 0.02 > num =>
+          ((whole > 0 ? string_of_int whole ^ " " : "") ^ str)
+      | [_, ...rest] => loop rest
+    };
+    loop fractions
+  }
+};
+
+let unitShortNames = [
+  ("c", ["cup", "cups"]),
+  ("t", ["teaspoon", "tablespoons", "tsp", "tsps"]),
+  ("T", ["tablespoon", "tablespoons", "tbs"]),
+  ("oz", ["ounce", "ounces"]),
+];
+
+let smallUnit unit => {
+  let canon = Js.String.toLowerCase unit;
+  let rec loop names => switch names {
+  | [] => unit
+  | [(short, longs), ...rest] when List.mem canon longs => short
+  | [_, ...rest] => loop rest
+  };
+  loop unitShortNames;
+};

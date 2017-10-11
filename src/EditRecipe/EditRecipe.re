@@ -4,12 +4,13 @@ open Utils;
 let module Styles = {
   open Glamor;
   include RecipeStyles;
+  /** TODO extend header, change top padding to be different */
   let title = css [
     fontSize "24px",
     fontWeight "inherit",
     fontFamily "inherit",
     flex "1",
-    padding "4px 0",
+    padding "0",
     margin "0",
     border "none",
     borderBottom "1px solid #aaa",
@@ -27,6 +28,7 @@ type state = {
 
 type action =
   | SetDescription string
+  | SetIngredients (array Models.recipeIngredient)
   | SetTitle string;
 
 let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
@@ -44,20 +46,21 @@ let updateRecipe recipe {title, description, meta, ingredients, instructions} =>
 
 let component = ReasonReact.reducerComponent "EditRecipe";
 
-let make ::saving ::recipe ::ingredients ::fb ::id ::onSave ::onCancel _children => ReasonReact.{
+let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _children => ReasonReact.{
   ...component,
   initialState: fun () => {
     title: recipe##title,
     meta: recipe##meta,
-    description: recipe##description |> Js.Nullable.to_opt |> orr "",
+    description: recipe##description |> Js.Null.to_opt |> orr "",
     ingredients: recipe##ingredients,
     instructions: recipe##instructions,
   },
   reducer: fun action state => ReasonReact.Update (switch action {
     | SetTitle title => {...state, title}
+    | SetIngredients ingredients => {...state, ingredients}
     | SetDescription description => {...state, description}
   }),
-  render: fun {state: {title, description} as state, reduce} => {
+  render: fun {state: {title, description, ingredients} as state, reduce} => {
     <div className=Styles.container>
       <div className=Styles.header>
         <input
@@ -79,19 +82,26 @@ let make ::saving ::recipe ::ingredients ::fb ::id ::onSave ::onCancel _children
       <Textarea
         value=description
         onChange=(reduce (fun text => SetDescription text))
-        className=""
+        className=Glamor.(css[
+          border "none",
+          borderBottom "1px solid #aaa",
+          outline "none",
+          fontStyle "italic",
+          padding "0"
+        ])
       />
-      /* <div className=Glamor.(css[fontStyle "italic"])>
-        (orr "" (Js.Nullable.to_opt recipe##description) |> ifEmpty "No description" |> str)
-      </div> */
-      (spacer 32)
+      (spacer (32 - 2 /* correct for border */))
       <div className=Styles.subHeader>
         (str "ingredients")
         (spacer 32)
         /** TODO num input */
       </div>
       (spacer 16)
-      /* (EditIngredients.render ingredients::recipe##ingredients allIngredients::ingredients) */
+      (EditIngredients.render
+        ::ingredients
+        ::allIngredients
+        onChange::(reduce (fun ingredients => SetIngredients ingredients))
+      )
       (spacer 32)
       <div className=Styles.subHeader>
         (str "instructions")
