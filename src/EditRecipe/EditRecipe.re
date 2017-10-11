@@ -6,7 +6,14 @@ let module Styles = {
   include RecipeStyles;
   let title = css [
     fontSize "24px",
+    fontWeight "inherit",
+    fontFamily "inherit",
     flex "1",
+    padding "4px 0",
+    margin "0",
+    border "none",
+    borderBottom "1px solid #aaa",
+    outline "none",
   ];
 };
 
@@ -19,6 +26,7 @@ type state = {
 };
 
 type action =
+  | SetDescription string
   | SetTitle string;
 
 let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
@@ -47,8 +55,9 @@ let make ::saving ::recipe ::ingredients ::fb ::id ::onSave ::onCancel _children
   },
   reducer: fun action state => ReasonReact.Update (switch action {
     | SetTitle title => {...state, title}
+    | SetDescription description => {...state, description}
   }),
-  render: fun {state: {title} as state, reduce} => {
+  render: fun {state: {title, description} as state, reduce} => {
     <div className=Styles.container>
       <div className=Styles.header>
         <input
@@ -67,9 +76,14 @@ let make ::saving ::recipe ::ingredients ::fb ::id ::onSave ::onCancel _children
       (spacer 8)
       (Meta.metaLine meta::recipe##meta source::recipe##source)
       (spacer 16)
-      <div className=Glamor.(css[fontStyle "italic"])>
+      <Textarea
+        value=description
+        onChange=(reduce (fun text => SetDescription text))
+        className=""
+      />
+      /* <div className=Glamor.(css[fontStyle "italic"])>
         (orr "" (Js.Nullable.to_opt recipe##description) |> ifEmpty "No description" |> str)
-      </div>
+      </div> */
       (spacer 32)
       <div className=Styles.subHeader>
         (str "ingredients")

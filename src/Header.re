@@ -49,7 +49,7 @@ let make ::auth _children => ReasonReact.{
         padding "16px",
         cursor "pointer",
         Selector ":hover" [
-          backgroundColor "#eee"
+          backgroundColor "#555"
         ]
       ])>
         (str name)
