@@ -53,8 +53,29 @@ let render ::ingredients ::allIngredients ::onChange => {
     onChange ingredients;
   };
 
+  let remove i => {
+    let ingredients = Array.copy ingredients;
+    Js.Array.spliceInPlace pos::i remove::1 add::[||] ingredients
+    |> ignore;
+    onChange ingredients;
+  };
+
+  let addEmptyAfter i => {
+    let ingredients = Array.copy ingredients;
+    Js.Array.spliceInPlace pos::(i + 1) remove::0 add::[|
+    {"id": "" /* TODO random */, "ingredient": "", "amount": Js.null, "unit": Js.null, "comments": Js.null}
+    |] ingredients
+    |> ignore;
+    /** TODO transfer focus... maybe with a nextFocus::(i + 1) on the onChange?
+     * Then track it here, retainedProp + refs?
+     */
+    onChange ingredients;
+  };
+
   let map = ingredientsMap allIngredients;
   <table className=Glamor.(css[
+    borderCollapse "collapse",
+    width "100%",
   ])>
   <tbody>
   (Array.mapi
@@ -64,8 +85,10 @@ let render ::ingredients ::allIngredients ::onChange => {
           <AmountInput
             value=(ingredient##amount |> Js.Null.to_opt)
             onChange=(fun value => setAmount i ingredient value)
+            className=Glamor.(css[width "70px"])
           />
         </td>
+        <td className=Glamor.(css[width "8px"]) />
         <td>
           <input
             value=(ingredient##unit |> Js.Null.to_opt |> optOr "")
@@ -82,10 +105,17 @@ let render ::ingredients ::allIngredients ::onChange => {
           }
         <td className=Glamor.(css[width "16px"]) />
         <td>
-          <input
+          <Textarea
             value=(ingredient##comments |> Js.Null.to_opt |> optOr "")
-            onChange=(fun evt => setComments i ingredient (evtValue evt))
+            onChange=(fun text => setComments i ingredient text)
+            onReturn=(fun () => addEmptyAfter i)
+            className=Glamor.(css[borderColor "rgb(200, 200, 200)"])
           />
+        </td>
+        <td>
+          <button onClick=(fun _ => remove i)>
+            (str "remove")
+          </button>
         </td>
       </tr>
     })

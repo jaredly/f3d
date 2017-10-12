@@ -69,7 +69,7 @@ type action = Set string | Reset;
 
 let component = ReasonReact.reducerComponentWithRetainedProps "AmountInput";
 
-let make ::value ::onChange _ => ReasonReact.{
+let make ::value ::onChange ::className=? _ => ReasonReact.{
   ...component,
   initialState: fun _ => (makeText value),
   retainedProps: value,
@@ -97,6 +97,7 @@ let make ::value ::onChange _ => ReasonReact.{
     };
     <input
       value=state
+      className=?className
       onChange=(fun evt => process (Utils.evtValue evt))
       onBlur=(reduce (fun _ => Reset))
     />

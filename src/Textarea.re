@@ -30,6 +30,7 @@ let component = ReasonReact.statelessComponent "Textarea";
 type style = Js.t {.
   height: string,
   lineHeight: string,
+  fontSize: string,
   paddingTop: string,
   paddingBottom: string
 };
@@ -42,16 +43,17 @@ external setDisplay: Dom.element => string => unit = "display" [@@bs.set] [@@bs.
 let getShadowHeight value node => {
   let style = getComputedStyle node;
   if (Js.String.trim value === "") {
-    let lineHeight = parseFloat style##lineHeight;
+    let lineHeight = parseFloat (style##lineHeight === "normal" ? style##fontSize : style##lineHeight);
     let paddingTop = parseFloat style##paddingTop;
     let paddingBottom = parseFloat style##paddingBottom;
+    /* [%bs.debugger]; */
     (string_of_float (lineHeight +. paddingTop +. paddingBottom)) ^ "px";
   } else {
     style##height;
   }
 };
 
-let make ::value ::onChange ::className _children => {
+let make ::value ::onChange ::onReturn=? ::className=? _children => {
   let shadow = ref None;
   let textarea = ref None;
 
@@ -78,9 +80,21 @@ let make ::value ::onChange ::className _children => {
         make position::"relative" cursor::"text" ()
       )>
         <textarea
-          className
+          className=?className
           ref={setRef textarea}
           onChange={fun evt => onChange (evtValue evt)}
+          onKeyDown=?(onReturn |> optMap (
+            fun onReturn evt => {
+              switch (ReactEventRe.Keyboard.key evt) {
+              | "Return"
+              | "Enter" => {
+                ReactEventRe.Keyboard.preventDefault evt;
+                onReturn ()
+              }
+              | _ => ()
+              }
+            }
+          ))
           style=ReactDOMRe.Style.(
             make
               cursor::"text"
@@ -94,11 +108,12 @@ let make ::value ::onChange ::className _children => {
         />
 
         <div
-          className
+          className=?className
           ref={setRef shadow}
           style=ReactDOMRe.Style.(
             make
               whiteSpace::"pre-wrap"
+              wordBreak::"break-word"
               width::"100%"
               top::"0"
               left::"0"
