@@ -29,6 +29,14 @@ let clone: Js.t 'a => Js.t 'a = fun obj => {
 
 let render ::ingredients ::allIngredients ::onChange => {
 
+  let setIngredient i (ingredient: Models.recipeIngredient) (id: string) => {
+    let ingredient = Obj.magic (clone ingredient);
+    ingredient##ingredient #= id;
+    let ingredients = Array.copy ingredients;
+    ingredients.(i) = ingredient;
+    onChange ingredients;
+  };
+
   let setUnit i (ingredient: Models.recipeIngredient) (value: string) => {
     let ingredient = Obj.magic (clone ingredient);
     ingredient##unit #= (value === "" ? Js.null : Js.Null.return value);
@@ -96,13 +104,13 @@ let render ::ingredients ::allIngredients ::onChange => {
           />
         </td>
         <td className=Glamor.(css[width "16px"]) />
-          {
-            let ing = Js.Dict.get map ingredient##ingredient;
-            switch ing {
-            | None => <td className=Styles.unknownName>(str "Unknown ingredient")</td>
-            | Some ing => <td>(str ing##name)</td>
-            }
-          }
+        <td>
+          <IngredientInput
+            value=ingredient##ingredient
+            ingredientsMap=map
+            onChange=(fun id => setIngredient i ingredient id)
+          />
+        </td>
         <td className=Glamor.(css[width "16px"]) />
         <td>
           <Textarea
