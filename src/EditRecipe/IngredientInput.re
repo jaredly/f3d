@@ -40,11 +40,18 @@ let module Styles = {
     padding "4px 8px",
     Selector ":hover" [
       backgroundColor "#eee",
-    ]
-  ]
+    ],
+  ];
+
+  let chevron = css [
+    Property "pointer-events" "none",
+    position "absolute",
+    right "4px",
+    top "4px",
+  ];
 };
 
-let showResults map text onSelect => {
+let showResults ::map ::text ::onSelect => {
   let text = Js.String.toLowerCase text;
   let names = Js.Dict.keys map
   |> Array.map (fun id => Js.Dict.unsafeGet map id)
@@ -55,7 +62,10 @@ let showResults map text onSelect => {
   <div className=Styles.list>
     (Array.map
     (fun ing => (
-      <div className=Styles.result onMouseDown=(fun _ => onSelect ing)>
+      <div className=Styles.result onMouseDown=(fun evt => {
+        ReactEventRe.Mouse.preventDefault evt;
+        onSelect ing
+      })>
         (str ing##name)
       </div>
     ))
@@ -91,16 +101,26 @@ let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonRe
 
   render: fun {state: {text, selection, isOpen}, reduce} => {
     <div className=Styles.container>
-    <input
-      value=text
-      className=Styles.input
-      onChange=(reduce (fun evt => SetText (Utils.evtValue evt)))
-      onBlur=(reduce (fun _ => Close))
-      onFocus=(reduce (fun _ => Open))
-    />
-    (isOpen
-    ? showResults ingredientsMap text (fun ing => onChange ing##id)
-    : ReasonReact.nullElement)
+      <input
+        value=text
+        className=Styles.input
+        onChange=(reduce (fun evt => SetText (Utils.evtValue evt)))
+        onBlur=(reduce (fun _ => Close))
+        onFocus=(reduce (fun evt => {
+          let obj = (ReactDOMRe.domElementToObj (ReactEventRe.Focus.target evt));
+          obj##select() |> ignore;
+          Open
+        }))
+      />
+      <div className=Styles.chevron>
+        (str {j|▼|j})
+      </div>
+      (isOpen
+      ? showResults map::ingredientsMap ::text onSelect::(fun ing => {
+        (reduce (fun _ => Close)) ();
+        onChange ing##id
+      })
+      : ReasonReact.nullElement)
     </div>
   }
 }

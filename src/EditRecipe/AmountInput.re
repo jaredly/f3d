@@ -34,6 +34,18 @@ let fractionify n => {
   }
 };
 
+let fractionText text => {
+  let fractParts = Js.String.split "/" text;
+  switch fractParts {
+  | [|one, two|] => try {
+    Some (float_of_string one /. float_of_string two)
+  } {
+    | _ => None
+  }
+  | _ => None
+  }
+};
+
 let makeFloat text => {
   if (text == "") {
     None
@@ -41,17 +53,18 @@ let makeFloat text => {
     let parts = Js.String.split " " (Js.String.trim text);
     switch parts {
     | [|single|] =>
-      try (Some (float_of_string text)) {
-      | _ => None
+      switch (fractionText single) {
+      | Some fract => Some (fract)
+      | None => 
+          try (Some (float_of_string text)) {
+          | _ => None
+          }
       }
     | [|one, two|] => try {
         let whole = float_of_string one;
-        let fractParts = Js.String.split "/" two;
-        switch fractParts {
-        | [|one, two|] => {
-          Some (whole +. float_of_string one /. float_of_string two)
-        }
-        | _ => None
+        switch (fractionText two) {
+        | None => Some whole
+        | Some frac => Some (whole +. frac)
         }
     } {
       | _ => None

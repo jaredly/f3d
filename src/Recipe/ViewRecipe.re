@@ -54,6 +54,7 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
         })
       />
     ];
+
     <div className=Styles.container>
       <div className=Styles.header>
         <div className=Styles.title>
@@ -77,6 +78,10 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
       <div className=Styles.subHeader>
         (str "ingredients")
         (spacer 32)
+        <AmountInput
+          value=(Some batches)
+          onChange=(fun value => value |> optMap (fun (value: float) => (reduce (fun _ => SetBatches value) ())) |> ignore)
+        />
         /** TODO num input */
       </div>
       (spacer 16)
