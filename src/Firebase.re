@@ -15,8 +15,11 @@ external enablePersistence: firestore => Js.Promise.t unit = "" [@@bs.send];
 let module Auth = {
   type user;
   external currentUser: auth => Js.nullable user = "" [@@bs.get];
+  external signOut: auth => unit = "" [@@bs.send];
   external displayName: user => Js.nullable string = "" [@@bs.get];
   external email: user => string = "" [@@bs.get];
+  external signInWithEmailAndPassword: auth => string => string => (Js.Promise.t user) = "" [@@bs.send];
+  external onAuthStateChanged: auth => (Js.nullable user => unit) => unit = "" [@@bs.send];
 };
 
 type collection 't;

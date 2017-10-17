@@ -10,41 +10,74 @@ let name auth => {
   Some name;
 };
 
-let component = ReasonReact.reducerComponent "Header";
+let component = ReasonReact.statelessComponent "Header";
 
-let make ::auth _children => ReasonReact.{
-  ...component,
-  initialState: fun () => (name auth),
-  reducer: fun () _ => ReasonReact.NoUpdate,
-  render: fun {state, reduce} => {
-    <div className=Glamor.(css[
+let module Styles = {
+  open Glamor;
+  let container = css[
       flexDirection "row",
       alignItems "center",
       lineHeight "1",
       backgroundColor "#333",
       color "white",
       marginBottom "16px",
-    ])>
+  ];
+
+  let logo = css[
+    fontSize "32px",
+    padding "8px", 
+    textDecoration "none",
+    color "currentColor",
+  ];
+
+  let topMenu = css[
+    cursor "pointer",
+    padding "16px",
+    textDecoration "none",
+    color "currentColor",
+  ];
+
+  let menuItem = css [
+    padding "16px 24px",
+    cursor "pointer",
+    Selector ":hover" [
+      backgroundColor "#555"
+    ]
+  ];
+};
+
+let make ::auth ::navigate _children => ReasonReact.{
+  ...component,
+  /* initialState: fun () => (name auth), */
+  /* reducer: fun action _ => ReasonReact.Update action, */
+  render: fun _ => {
+    <div className=Styles.container>
       (spacer 16)
-      <a href="#/" className=Glamor.(css[
-        fontSize "32px",
-        padding "8px", 
-        textDecoration "none",
-        color "currentColor",
-      ])>
+      <a href="#/" className=Styles.logo>
         (str "Foood")
       </a>
       spring
-      <a href="#/add" className=Glamor.(css[
-        cursor "pointer",
-        padding "16px",
-        textDecoration "none",
-        color "currentColor",
-      ])>
+      <a href="#/add" className=Styles.topMenu>
         (str "Add Recipe")
       </a>
-      (switch state {
+      (switch (name auth) {
       | Some name =>
+      <Menu
+        className=Glamor.(css[
+          backgroundColor "#333",
+        ])
+        menu=(ReasonReact.arrayToElement [|
+        <div
+          className=Styles.menuItem
+          onClick=(fun _ => {
+            /* (reduce (fun _ => None)) (); */
+            Firebase.Auth.signOut auth
+          })
+        >
+          (str "Logout")
+        </div>
+        |])
+      >
       <div className=Glamor.(css[
         padding "16px",
         cursor "pointer",
@@ -54,7 +87,21 @@ let make ::auth _children => ReasonReact.{
       ])>
         (str name)
       </div>
-      | None => ReasonReact.nullElement
+      </Menu>
+      | None => <Link
+          dest="/login"
+          navigate
+          text="Login"
+          className=Glamor.(css[
+            padding "16px",
+            cursor "pointer",
+            textDecoration "none",
+            color "currentColor",
+            Selector ":hover" [
+              backgroundColor "#555"
+            ]
+          ])
+        />
       })
     </div>
   }

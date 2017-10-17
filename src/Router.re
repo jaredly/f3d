@@ -20,6 +20,11 @@ let match path routes navigate => {
     switch routes {
     | [] => <div>(str "Not found")</div>
     | [`NotFound fn, ..._] => fn navigate
+    | [`Exact (route, fn), ...rest] => if (route === path) {
+        fn navigate
+      } else {
+        loop rest
+      }
     | [`Prefix (prefix, fn), ...rest] => if (Js.String.startsWith prefix path) {
         fn navigate (Js.String.slice from::(Js.String.length prefix) to_::(Js.String.length path) path)
       } else {

@@ -1,20 +1,36 @@
-let component = ReasonReact.statelessComponent "App";
+let component = ReasonReact.reducerComponent "App";
 
 let str = ReasonReact.stringToElement;
 
 let make ::fb ::auth _children => {
   ReasonReact.{
     ...component,
-    render: fun _ => {
-      <Router
-        routes=[
-          `Prefix ("/recipe/", (fun navigate id => <ViewRecipe fb navigate id />)),
-          /* `Exact ("/add", (fun navigate => <AddPage fb navigate />)), */
-          `NotFound (fun navigate => <FrontPage fb navigate />),
+    initialState: fun () => Firebase.Auth.currentUser auth |> Js.Nullable.to_opt,
+    reducer: fun action _ => ReasonReact.Update action,
+    didMount: fun {reduce} => {
+      Firebase.Auth.onAuthStateChanged auth (fun user => {
+        (reduce (fun _ => user |> Js.Nullable.to_opt)) ()
+      });
+      ReasonReact.NoUpdate
+    },
+    render: fun {state} => {
+      let basicRoutes = [
+        `Prefix ("/recipe/", (fun navigate id => <ViewRecipe fb navigate id />)),
+        `NotFound (fun navigate => <FrontPage fb navigate />),
+      ];
+      let routes = state === None
+        ? [
+          `Exact ("/login", (fun navigate => <LogInPage auth navigate />)),
         ]
+        : [
+
+        ];
+      let routes = routes @ basicRoutes;
+      <Router
+        routes
         render=(fun child navigate => 
           <div>
-            <Header auth />
+            <Header auth navigate />
             child
           </div>
         )
