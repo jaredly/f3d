@@ -47,6 +47,7 @@ let editButton = css [
   ]
 ];
 let subHeader = css [
+  alignItems "center",
   flexDirection "row",
   fontSize "16px",
   fontWeight "400",

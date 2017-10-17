@@ -16,19 +16,31 @@ let module Styles = {
     borderBottom "1px solid #aaa",
     outline "none",
   ];
+  let saveButton = css [
+    color "green",
+    fontWeight "400",
+  ];
+  let disabledbutton = css [
+    fontWeight "200",
+    color "#aaa",
+    cursor "default",
+    Selector ":hover" [
+      color "#aaa",
+    ],
+  ];
 };
 
 type state = {
   title: string,
   description: string,
   meta: Models.meta,
-  ingredients: array Models.recipeIngredient,
+  ingredients: array Models.maybeRecipeIngredient,
   instructions: array Models.instruction,
 };
 
 type action =
   | SetDescription string
-  | SetIngredients (array Models.recipeIngredient)
+  | SetIngredients (array Models.maybeRecipeIngredient)
   | SetTitle string;
 
 let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
@@ -38,7 +50,7 @@ let updateRecipe recipe {title, description, meta, ingredients, instructions} =>
   recipe##title #= title;
   recipe##description #= description;
   recipe##meta #= meta;
-  recipe##ingredients #= ingredients;
+  recipe##ingredients #= (ingredients |> Array.map Models.reallyRecipeIngredient);
   recipe##instructions #= instructions;
   let recipe: Models.recipe = recipe;
   recipe
@@ -52,7 +64,7 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
     title: recipe##title,
     meta: recipe##meta,
     description: recipe##description |> Js.Null.to_opt |> orr "",
-    ingredients: recipe##ingredients,
+    ingredients: recipe##ingredients |> Array.map Models.maybeRecipeIngredient,
     instructions: recipe##instructions,
   },
   reducer: fun action state => ReasonReact.Update (switch action {
@@ -61,6 +73,13 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
     | SetDescription description => {...state, description}
   }),
   render: fun {state: {title, description, ingredients} as state, reduce} => {
+    let allIngredientsValid = Js.Array.every
+    (fun ing => switch ing##ingredient {
+    | Models.Text _ => false
+    | Models.Id _ => true
+    })
+    ingredients;
+    let canSave = title !== "" && allIngredientsValid && (not saving);
     <div className=Styles.container>
       <div className=Styles.header>
         <input
@@ -69,9 +88,19 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
           value=title
           onChange=(reduce (fun evt => SetTitle (evtValue evt)))
         />
-        <button className=Styles.button onClick=(fun _ => onSave (updateRecipe recipe state))>
-          (str "Save")
-        </button>
+        <Tooltip
+          message="Cannot save with invalid ingredients"
+          enabled=(not canSave)
+          render=(fun () => {
+            <button
+              className=(Styles.button ^ " " ^ Styles.saveButton ^ " " ^ (canSave ? "" : Styles.disabledbutton))
+              /* disabled=(Js.Boolean.to_js_boolean (not canSave)) */
+              onClick=(fun _ => canSave ? onSave (updateRecipe recipe state) : ())
+            >
+              (str (saving ? "Saving" : "Save"))
+            </button>
+          })
+        />
         <button className=Styles.button onClick=onCancel>
           (str "Cancel")
         </button>

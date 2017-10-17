@@ -81,7 +81,18 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
         <AmountInput
           value=(Some batches)
           onChange=(fun value => value |> optMap (fun (value: float) => (reduce (fun _ => SetBatches value) ())) |> ignore)
+          className=Glamor.(css [
+            width "40px",
+          ])
         />
+        (spacer 8)
+        <div className=Glamor.(css[
+          textTransform "none",
+          fontVariant "none",
+          fontWeight "200",
+        ])>
+          (str "batches")
+        </div>
         /** TODO num input */
       </div>
       (spacer 16)

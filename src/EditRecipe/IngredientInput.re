@@ -1,30 +1,25 @@
 open Utils;
 
-type state = {
-  text: string,
-  isOpen: bool,
-  selection: int,
-};
-type action = 
-  | Open
-  | Close
-  | SetText string
-  ;
-
-let component = ReasonReact.reducerComponentWithRetainedProps "AmountInput";
-
 let module Styles = {
   open Glamor;
   let container = css [
     position "relative"
   ];
-  
-  let input = css [
 
+  let input = css [
+  ];
+
+  let badInput = css [
+    backgroundColor "#fee",
+    Selector ":focus" [
+      backgroundColor "white",
+    ]
   ];
 
   let list = css [
     position "absolute",
+    maxHeight "400px",
+    overflow "auto",
     zIndex "1000",
     top "100%",
     marginTop "5px",
@@ -43,69 +38,166 @@ let module Styles = {
     ],
   ];
 
+  let selectedResult = css [
+    backgroundColor "#eee",
+  ];
+
   let chevron = css [
-    Property "pointer-events" "none",
+    Property "pointerEvents" "none",
     position "absolute",
-    right "4px",
-    top "4px",
+    right "5px",
+    top "6px",
+    color "#aaa",
+    fontSize "10px",
   ];
 };
 
-let showResults ::map ::text ::onSelect => {
+let getResults ::map ::text => {
   let text = Js.String.toLowerCase text;
-  let names = Js.Dict.keys map
+  Js.Dict.keys map
   |> Array.map (fun id => Js.Dict.unsafeGet map id)
   |> Js.Array.filter
   (fun ing => ing##name
   |> Js.String.toLowerCase
   |> Js.String.includes text);
+};
+
+let showResults ::results ::selection ::onSelect => {
   <div className=Styles.list>
-    (Array.map
-    (fun ing => (
-      <div className=Styles.result onMouseDown=(fun evt => {
-        ReactEventRe.Mouse.preventDefault evt;
-        onSelect ing
-      })>
+    (Array.mapi
+    (fun i ing => (
+      <div
+        key=(string_of_int i)
+        className=(Styles.result ^ " " ^ (selection == i ? Styles.selectedResult : ""))
+        onMouseDown=(fun evt => {
+          ReactEventRe.Mouse.preventDefault evt;
+          onSelect ing
+        })
+      >
         (str ing##name)
       </div>
     ))
-    names
+    results
     |> ReasonReact.arrayToElement)
   </div>
+};
+
+type state = {
+  text: string,
+  isOpen: bool,
+  results: array Models.ingredient,
+  selection: int,
+};
+type action = 
+  | Open
+  | Close
+  | SetText string
+  | GoUp
+  | GoDown
+  ;
+
+let selectUp selection len => selection <= 0 ? len - 1 : selection - 1;
+let selectDown selection len => selection + 1 >= len ? 0 : selection + 1;
+
+let component = ReasonReact.reducerComponentWithRetainedProps "AmountInput";
+
+let getText value ingredientsMap => {
+  switch value {
+    | Models.Text text => text
+    | Models.Id id => Js.Dict.get ingredientsMap id |> optMap (fun ing => ing##name) |> optOr "";
+  }
 };
 
 let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonReact.{
   ...component,
   initialState: fun _ => {
-    text: Js.Dict.get ingredientsMap value |> optMap (fun ing => ing##name) |> optOr "",
-    isOpen: false,
-    selection: 0,
+    let text = switch value {
+    | Models.Text text => text
+    | Models.Id id => Js.Dict.get ingredientsMap id |> optMap (fun ing => ing##name) |> optOr "";
+    };
+    {
+      text,
+      results: getResults map::ingredientsMap ::text,
+      isOpen: false,
+      selection: 0,
+    }
   },
   retainedProps: value,
-  reducer: fun action {text, isOpen, selection} => switch action {
-  | Open => ReasonReact.Update {text, isOpen: true, selection}
-  | Close => ReasonReact.Update {text, isOpen: false, selection}
-  | SetText text => ReasonReact.Update {text, isOpen: true, selection}
+  reducer: fun action ({text, isOpen, selection, results} as state) => switch action {
+  | Open => ReasonReact.Update {...state, isOpen: true}
+  | Close => ReasonReact.Update {...state, isOpen: false}
+  | SetText text => ReasonReact.Update {...state, isOpen: true, text, results: getResults map::ingredientsMap ::text}
+  | GoUp => ReasonReact.Update {...state, isOpen: true, selection: isOpen ? (selectUp selection (Array.length results)) : Array.length results - 1}
+  | GoDown => ReasonReact.Update {...state, isOpen: true, selection: isOpen ? (selectDown selection (Array.length results)) : 0}
   },
   willReceiveProps: fun {retainedProps, reduce, state} => {
     if (retainedProps != value) {
+      /* let text = Js.Dict.get ingredientsMap value |> optMap (fun ing => ing##name) |> optOr ""; */
+      let text = getText value ingredientsMap;
       {
-        text: Js.Dict.get ingredientsMap value |> optMap (fun ing => ing##name) |> optOr "",
+        text,
         isOpen: false,
         selection: 0,
+        results: getResults map::ingredientsMap ::text,
       }
     } else {
       state
     }
   },
 
-  render: fun {state: {text, selection, isOpen}, reduce} => {
+  render: fun {state: {text, selection, isOpen, results}, reduce} => {
+    /* let results = isOpen ? Some (getResults map::ingredientsMap ::text) : None; */
     <div className=Styles.container>
       <input
         value=text
-        className=Styles.input
+        className=(Styles.input ^ " " ^ (switch value { | Models.Text _ => true | _ => false } ? Styles.badInput : ""))
         onChange=(reduce (fun evt => SetText (Utils.evtValue evt)))
-        onBlur=(reduce (fun _ => Close))
+        onBlur=(fun _ => {
+          switch value {
+            | Models.Text oldText => {
+              let found = Js.Array.some
+              (fun ing => {
+                if (ing##name == text) {
+                  onChange (Models.Id ing##id);
+                  true
+                } else {
+                  false
+                }
+              })
+              results;
+              if (not found && text != oldText) {
+                onChange (Models.Text text)
+              }
+            }
+            | Models.Id id => {
+              let change = switch (Js.Dict.get ingredientsMap id) {
+              | None => true
+              | Some ing => ing##name !== text
+              };
+              if (change) {
+                onChange (Models.Text text)
+              }
+            }
+          };
+          (reduce (fun _ => Close)) ()
+        })
+
+        onKeyDown=(fun evt => {
+          let key = ReactEventRe.Keyboard.key evt;
+          let cmd = switch key {
+          | "ArrowUp" => (Some GoUp)
+          | "ArrowDown" => (Some GoDown)
+          | "Escape" => (Some Close)
+          | "Enter" => {
+            onChange (Models.Id results.(selection)##id);
+            None
+          }
+          | _ => None
+          };
+          [%guard let Some cmd = cmd][@else ()];
+          ReactEventRe.Keyboard.preventDefault evt;
+          (reduce (fun _ => cmd)) ();
+        })
         onFocus=(reduce (fun evt => {
           let obj = (ReactDOMRe.domElementToObj (ReactEventRe.Focus.target evt));
           obj##select() |> ignore;
@@ -115,12 +207,13 @@ let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonRe
       <div className=Styles.chevron>
         (str {j|▼|j})
       </div>
-      (isOpen
-      ? showResults map::ingredientsMap ::text onSelect::(fun ing => {
+      (isOpen ?
+      showResults ::results ::selection onSelect::(fun ing => {
         (reduce (fun _ => Close)) ();
-        onChange ing##id
+        onChange (Models.Id ing##id)
       })
-      : ReasonReact.nullElement)
+      : ReasonReact.nullElement
+      )
     </div>
   }
 }

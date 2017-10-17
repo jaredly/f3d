@@ -11,6 +11,37 @@ type recipeIngredient = Js.t {.
   comments: nu string
 };
 
+type idOrText =
+  | Id string
+  | Text string;
+
+type maybeRecipeIngredient = Js.t {.
+  id: string,
+  ingredient: idOrText,
+  amount: nu float,
+  unit: nu string,
+  comments: nu string
+};
+
+let maybeRecipeIngredient ing => {
+  "id": ing##id,
+  "ingredient": Id (ing##ingredient),
+  "amount": ing##amount,
+  "unit": ing##unit,
+  "comments": ing##comments,
+};
+
+let reallyRecipeIngredient ing => {
+  "id": ing##id,
+  "ingredient": switch (ing##ingredient) {
+  | Id id => id
+  | Text text => failwith "No id"
+  },
+  "amount": ing##amount,
+  "unit": ing##unit,
+  "comments": ing##comments,
+};
+
 /* let module RecipeIngredient = {
   type record = {
     id: string,

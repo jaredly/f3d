@@ -1,4 +1,6 @@
 
+open Utils;
+
 let fractions = [
   (1. /. 2., {j|1/2|j}),
 
@@ -111,8 +113,23 @@ let make ::value ::onChange ::className=? _ => ReasonReact.{
     <input
       value=state
       className=?className
+      onKeyDown=(fun evt => switch (ReactEventRe.Keyboard.key evt) {
+      | "ArrowUp" => {
+        ReactEventRe.Keyboard.preventDefault evt;
+        let shift = ReactEventRe.Keyboard.shiftKey evt;
+        let off = shift ? 0.5 : 1.;
+        (reduce (fun _ => Set (makeText (Some ((makeFloat state |> optOr 0.) +. off))))) ()
+      }
+      | "ArrowDown" => {
+        ReactEventRe.Keyboard.preventDefault evt;
+        let shift = ReactEventRe.Keyboard.shiftKey evt;
+        let off = shift ? -0.5 : -1.;
+        (reduce (fun _ => Set (makeText (Some ((makeFloat state |> optOr 0.) +. off))))) ()
+      }
+      | _ => ()
+      })
       onChange=(fun evt => process (Utils.evtValue evt))
       onBlur=(reduce (fun _ => Reset))
     />
   }
-}
+};
