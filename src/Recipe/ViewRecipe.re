@@ -71,7 +71,7 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
       (spacer 8)
       (Meta.metaLine meta::recipe##meta source::recipe##source)
       (spacer 16)
-      <div className=Glamor.(css[fontStyle "italic"])>
+      <div className=Glamor.(css[fontStyle "italic", whiteSpace "pre-wrap"])>
         (orr "" (Js.Null.to_opt recipe##description) |> ifEmpty "No description" |> str)
       </div>
       (spacer 32)

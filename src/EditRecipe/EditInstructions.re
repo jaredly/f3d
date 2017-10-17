@@ -29,13 +29,13 @@ let module Styles = {
   let container = css [];
   let instruction = css [
     fontSize "20px",
-    lineHeight "32px",
+    /* lineHeight "32px", */
     letterSpacing "1px",
     flexDirection "row",
   ];
   let instructionText = css [
     fontSize "20px",
-    lineHeight "32px",
+    /* lineHeight "20px", */
     letterSpacing "1px",
     padding "4px 8px",
   ];
@@ -58,6 +58,23 @@ let render ::instructions ::onChange => {
     onChange instructions;
   };
 
+  let addInstruction i (value: string) => {
+    let instructions = Array.copy instructions;
+    Js.Array.spliceInPlace pos::i remove::0 add::[|
+    {"text": value, "ingredientsUsed": Js.Dict.empty ()}
+    |] instructions |> ignore;
+    onChange instructions;
+  };
+
+  let removeToPrev i (value: string) => {
+    let instruction = Obj.magic (clone instructions.(i - 1));
+    instruction##text #= (instruction##text ^ " " ^ value);
+    let instructions = Array.copy instructions;
+    instructions.(i - 1) = instruction;
+    Js.Array.spliceInPlace pos::i remove::1 add::[||] instructions |> ignore;
+    onChange instructions;
+  };
+
   <div className=Styles.container>
     (Array.mapi
       (fun i instruction =>
@@ -70,6 +87,14 @@ let render ::instructions ::onChange => {
                 className=Styles.instructionText
                 containerClassName=Styles.textContainer
                 onChange
+                onReturn=(fun pre post => {
+                  onChange (Js.String.trim pre);
+                  addInstruction (i + 1) (Js.String.trim post);
+                })
+                onDelete=(fun text => {
+                  [%guard let true = i > 0][@else ()];
+                  removeToPrev i text;
+                })
                 value
                 onBlur
               />

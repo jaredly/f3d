@@ -19,6 +19,7 @@ let module Styles = {
   ];
   let comment = css [
     fontStyle "italic",
+    maxWidth "50vw",
     color "#777",
   ];
 };

@@ -7,6 +7,7 @@ let module Styles = {
   let instruction = css [
     fontSize "20px",
     lineHeight "32px",
+    whiteSpace "pre-wrap",
     letterSpacing "1px",
   ];
 };

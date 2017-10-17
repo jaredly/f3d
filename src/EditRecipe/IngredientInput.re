@@ -146,6 +146,21 @@ let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonRe
   },
 
   render: fun {state: {text, selection, isOpen, results}, reduce} => {
+    let findByName text => {
+      let result = ref None;
+      Js.Array.some
+      (fun ing => {
+        if (ing##name == text) {
+          result := Some (ing##id);
+          /* onChange (Models.Id ing##id); */
+          true
+        } else {
+          false
+        }
+      })
+      results |> ignore;
+      !result
+    };
     /* let results = isOpen ? Some (getResults map::ingredientsMap ::text) : None; */
     <div className=Styles.container>
       <input
@@ -155,18 +170,12 @@ let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonRe
         onBlur=(fun _ => {
           switch value {
             | Models.Text oldText => {
-              let found = Js.Array.some
-              (fun ing => {
-                if (ing##name == text) {
-                  onChange (Models.Id ing##id);
-                  true
-                } else {
-                  false
-                }
-              })
-              results;
-              if (not found && text != oldText) {
+              let found = findByName text;
+              switch found {
+              | None => if (text != oldText) {
                 onChange (Models.Text text)
+              }
+              | Some id => onChange (Models.Id id)
               }
             }
             | Models.Id id => {
@@ -175,7 +184,10 @@ let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonRe
               | Some ing => ing##name !== text
               };
               if (change) {
-                onChange (Models.Text text)
+                switch (findByName text) {
+                | None => onChange (Models.Text text)
+                | Some id => onChange (Models.Id id)
+                }
               }
             }
           };

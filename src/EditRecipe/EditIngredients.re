@@ -117,7 +117,7 @@ let render ::ingredients ::allIngredients ::onChange => {
           <Textarea
             value=(ingredient##comments |> Js.Null.to_opt |> optOr "")
             onChange=(fun text => setComments i ingredient text)
-            onReturn=(fun () => addEmptyAfter i)
+            onReturn=(fun _ _ => addEmptyAfter i)
             className=Glamor.(css[borderColor "rgb(200, 200, 200)"])
           />
         </td>

@@ -53,7 +53,7 @@ let getShadowHeight value node => {
   }
 };
 
-let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onBlur=? ::className=? _children => {
+let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::onBlur=? ::className=? _children => {
   let shadow = ref None;
   let textarea = ref None;
 
@@ -84,13 +84,32 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onBlur=? ::cla
           ref={setRef textarea}
           onChange={fun evt => onChange (evtValue evt)}
           onBlur=?onBlur
-          onKeyDown=?(onReturn |> optMap (
-            fun onReturn evt => {
+          onKeyDown=?(onReturn == None && onDelete == None ? None : Some (
+            fun evt => {
               switch (ReactEventRe.Keyboard.key evt) {
               | "Return"
               | "Enter" => {
+                [%guard let Some(onReturn) = onReturn][@else ()];
+                [%guard let Some(textarea) = !textarea][@else ()];
+                let obj = ReactDOMRe.domElementToObj textarea;
+                let start: int = obj##selectionStart;
+                let send: int = obj##selectionEnd;
+                [%guard let true = start === send][@else ()];
                 ReactEventRe.Keyboard.preventDefault evt;
-                onReturn ()
+                let before: string = Js.String.slice from::0 to_::start value;
+                let after: string = Js.String.sliceToEnd from::start value;
+                onReturn before after
+              }
+              | "Backspace"
+              | "Delete" => {
+                [%guard let Some(onDelete) = onDelete][@else ()];
+                [%guard let Some(textarea) = !textarea][@else ()];
+                let obj = ReactDOMRe.domElementToObj textarea;
+                let start: int = obj##selectionStart;
+                let send: int = obj##selectionEnd;
+                [%guard let true = start === send && start === 0][@else ()];
+                ReactEventRe.Keyboard.preventDefault evt;
+                onDelete value;
               }
               | _ => ()
               }

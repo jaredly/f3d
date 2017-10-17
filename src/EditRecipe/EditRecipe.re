@@ -74,13 +74,14 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
     | SetInstructions instructions => {...state, instructions}
     | SetDescription description => {...state, description}
   }),
-  render: fun {state: {title, description, ingredients} as state, reduce} => {
+  render: fun {state: {title, description, ingredients, instructions} as state, reduce} => {
     let allIngredientsValid = Js.Array.every
     (fun ing => switch ing##ingredient {
     | Models.Text _ => false
     | Models.Id _ => true
     })
     ingredients;
+    /* Js.log2 "Instructions" instructions; */
     let canSave = title !== "" && allIngredientsValid && (not saving);
     <div className=Styles.container>
       <div className=Styles.header>
@@ -139,7 +140,7 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
       </div>
       (spacer 16)
       (EditInstructions.render
-        instructions::recipe##instructions
+        instructions::instructions
         onChange::(reduce (fun instructions => SetInstructions instructions))
       )
       (spacer 64)
