@@ -41,6 +41,7 @@ type state = {
 type action =
   | SetDescription string
   | SetIngredients (array Models.maybeRecipeIngredient)
+  | SetInstructions (array Models.instruction)
   | SetTitle string;
 
 let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
@@ -70,6 +71,7 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
   reducer: fun action state => ReasonReact.Update (switch action {
     | SetTitle title => {...state, title}
     | SetIngredients ingredients => {...state, ingredients}
+    | SetInstructions instructions => {...state, instructions}
     | SetDescription description => {...state, description}
   }),
   render: fun {state: {title, description, ingredients} as state, reduce} => {
@@ -90,7 +92,7 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
         />
         <Tooltip
           message="Cannot save with invalid ingredients"
-          enabled=(not canSave)
+          enabled=(not allIngredientsValid)
           render=(fun () => {
             <button
               className=(Styles.button ^ " " ^ Styles.saveButton ^ " " ^ (canSave ? "" : Styles.disabledbutton))
@@ -136,7 +138,10 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
         (str "instructions")
       </div>
       (spacer 16)
-      /* (Instructions.render instructions::recipe##instructions) */
+      (EditInstructions.render
+        instructions::recipe##instructions
+        onChange::(reduce (fun instructions => SetInstructions instructions))
+      )
       (spacer 64)
     </div>
   }

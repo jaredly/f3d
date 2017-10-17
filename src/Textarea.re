@@ -53,7 +53,7 @@ let getShadowHeight value node => {
   }
 };
 
-let make ::value ::onChange ::onReturn=? ::className=? _children => {
+let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onBlur=? ::className=? _children => {
   let shadow = ref None;
   let textarea = ref None;
 
@@ -78,11 +78,12 @@ let make ::value ::onChange ::onReturn=? ::className=? _children => {
     render: fun _ => {
       <div style=ReactDOMRe.Style.(
         make position::"relative" cursor::"text" ()
-      )>
+      ) className=?containerClassName>
         <textarea
           className=?className
           ref={setRef textarea}
           onChange={fun evt => onChange (evtValue evt)}
+          onBlur=?onBlur
           onKeyDown=?(onReturn |> optMap (
             fun onReturn evt => {
               switch (ReactEventRe.Keyboard.key evt) {
