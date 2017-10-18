@@ -16,7 +16,15 @@ let module Single (Config: {let name: string; type t;}) => {
       Js.log2 "fetching" Config.name;
       Firebase.doc collection id
       |> Firebase.get
-      |> Js.Promise.then_ (fun snap => {reduce (fun _ => `Loaded (Firebase.data snap)) ();Js.Promise.resolve ()})
+      |> Js.Promise.then_ (fun snap => {
+        if (Firebase.exists snap) {
+          reduce (fun _ => `Loaded (Firebase.data snap)) ();
+        } else {
+          Js.log "Deleted";
+          /** TODO something useful? */
+        };
+        Js.Promise.resolve ()
+      })
       |> Js.Promise.catch (fun err => {
         Js.log "bad";
         [%bs.debugger];
@@ -84,7 +92,7 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
       |> Js.Promise.then_
       (fun snap => {
         let snaps = (Firebase.Query.docs snap);
-        let items = Array.map (fun doc => {Js.log doc; Firebase.data doc}) snaps;
+        let items = Array.map Firebase.data snaps;
         let total = Array.append current items;
         reduce (fun () => Array.length items === pageSize ? `Loaded (Some snaps.(Array.length snaps - 1), total) : `Loaded (None, total)) ();
         Js.Promise.resolve ();

@@ -78,7 +78,7 @@ let updateRecipe recipe {title, description, source, meta, ingredients, instruct
 
 let component = ReasonReact.reducerComponent "EditRecipe";
 
-let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _children => ReasonReact.{
+let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel ::onDelete=? _children => ReasonReact.{
   ...component,
   initialState: fun () => {
     title: recipe##title,
@@ -173,6 +173,11 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
         onChange::(reduce (fun instructions => SetInstructions instructions))
       )
       (spacer 64)
+      {[%guard let Some onDelete = onDelete][@else ReasonReact.nullElement];
+        <DeleteButton
+          onDelete
+        />
+      }
     </div>
   }
 };

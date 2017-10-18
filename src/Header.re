@@ -51,15 +51,16 @@ let make ::auth ::navigate _children => ReasonReact.{
   /* initialState: fun () => (name auth), */
   /* reducer: fun action _ => ReasonReact.Update action, */
   render: fun _ => {
+    let uid = Firebase.Auth.currentUser auth |> Js.Nullable.to_opt;
     <div className=Styles.container>
       (spacer 16)
       <a href="#/" className=Styles.logo>
         (str "Foood")
       </a>
       spring
-      <a href="#/add" className=Styles.topMenu>
+      (uid === None ? ReasonReact.nullElement : <a href="#/add" className=Styles.topMenu>
         (str "Add Recipe")
-      </a>
+      </a>)
       (switch (name auth) {
       | Some name =>
       <Menu
@@ -69,6 +70,7 @@ let make ::auth ::navigate _children => ReasonReact.{
         menu=(ReasonReact.arrayToElement [|
         <div
           className=Styles.menuItem
+          key="Logout"
           onClick=(fun _ => {
             /* (reduce (fun _ => None)) (); */
             Firebase.Auth.signOut auth
@@ -78,7 +80,7 @@ let make ::auth ::navigate _children => ReasonReact.{
         </div>
         |])
       >
-      <div className=Glamor.(css[
+      <div key="name" className=Glamor.(css[
         padding "16px",
         cursor "pointer",
         Selector ":hover" [

@@ -39,7 +39,7 @@ let render ::batches ::ingredients ::allIngredients => {
       | None => <div className=Styles.unknownName>(str "Unknown ingredient")</div>
       | Some ing => <div>(str ing##name)</div>
       };
-      <tr key=(string_of_int i) className=Glamor.(css[ ])>
+      <tr key=(string_of_int i) className=Glamor.(css[verticalAlign "top"])>
         <td className=Glamor.(css[textAlign "right"])>
           (maybe ingredient##amount (fun amount => {
             (str @@ fractionify (amount *. batches))

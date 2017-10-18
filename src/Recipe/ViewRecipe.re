@@ -18,7 +18,7 @@ type state =
 
 let component = ReasonReact.reducerComponent "Recipe";
 
-let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
+let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
   ...component,
   initialState: fun () => (1., Editing),
   reducer: fun action (batches, making) => ReasonReact.Update (switch action {
@@ -52,6 +52,18 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
           |> ignore;
           ()
         })
+        onDelete=(fun () => {
+          let module FB = Firebase.Collection Models.Recipe;
+          let collection = FB.get fb;
+          let doc = Firebase.doc collection recipe##id;
+          Firebase.delete doc
+          |> Js.Promise.then_ (fun () => {
+            navigate "/";
+            Js.Promise.resolve ()
+          })
+          |> ignore;
+          ()
+        })
       />
     ];
 
@@ -60,7 +72,6 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
         <div className=Styles.title>
           (str recipe##title)
         </div>
-        spring
         <button className=Styles.button onClick=(reduce (fun _ => ToggleMaking))>
           (str (making === Making ? "Stop making" : "Make"))
         </button>
@@ -152,7 +163,7 @@ let make ::fb ::navigate ::id children => {
       render=(fun state::ingredients => {
         switch (doubleState state ingredients) {
         | `Initial => loadingRecipe ()
-        | `Loaded (recipe, ingredients) => make ::recipe ::ingredients ::fb ::id [||] |> ReasonReact.element
+        | `Loaded (recipe, ingredients) => make ::navigate ::recipe ::ingredients ::fb ::id [||] |> ReasonReact.element
         | `Errored err => failedLoading err
         }
       })

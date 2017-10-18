@@ -13,6 +13,7 @@ let loading = css [
 ];
 let title = css [
   fontSize "44px",
+  flex "1",
   fontFamily "Abril Fatface, sans-serif",
 ];
 let header = css [
@@ -20,6 +21,7 @@ let header = css [
   flexDirection "row",
   alignItems "center",
   position "sticky",
+  zIndex "10",
   top "0px",
   paddingBottom "8px",
   paddingTop "8px",
