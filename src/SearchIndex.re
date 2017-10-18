@@ -24,6 +24,7 @@ let tokens text => {
   text
   |> Js.String.toLowerCase
   |> Js.String.splitByRe rx
-  |> Js.Array.filter (fun item => Js.Dict.get stopMap item == None)
+  |> Array.map Js.String.trim
+  |> Js.Array.filter (fun item => item !== "" && Js.Dict.get stopMap item == None)
   |> unique
 };

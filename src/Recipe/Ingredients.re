@@ -26,7 +26,7 @@ let module Styles = {
 
 let orr default value => switch value { | None => default | Some value => value };
 
-let render ::batches ::ingredients ::allIngredients => {
+let render ::batches ::ingredients ::allIngredients ::making => {
   let map = ingredientsMap allIngredients;
   <table className=Glamor.(css[
     maxWidth "100%",
@@ -39,7 +39,30 @@ let render ::batches ::ingredients ::allIngredients => {
       | None => <div className=Styles.unknownName>(str "Unknown ingredient")</div>
       | Some ing => <div>(str ing##name)</div>
       };
-      <tr key=(string_of_int i) className=Glamor.(css[verticalAlign "top"])>
+      <tr
+        key=(string_of_int i)
+        className=Glamor.(css[verticalAlign "top"])
+        onClick=?(switch making {
+        | None => None
+        | Some (set, onChange) => {
+          let checked = StringSet.mem ingredient##id set;
+          Some (
+            fun _ => onChange (checked ? (StringSet.remove ingredient##id set) : (StringSet.add ingredient##id set))
+          )
+        }
+        })
+      >
+        (switch making {
+        | None => ReasonReact.nullElement
+        | Some (set, onChange) => {
+          let checked = StringSet.mem ingredient##id set;
+          <td onClick=(fun _ => onChange (checked ? (StringSet.remove ingredient##id set) : (StringSet.add ingredient##id set)))>
+            <input
+              _type="checkbox"
+              checked=(Js.Boolean.to_js_boolean checked)
+            />
+          </td>
+        }})
         <td className=Glamor.(css[textAlign "right"])>
           (maybe ingredient##amount (fun amount => {
             (str @@ fractionify (amount *. batches))

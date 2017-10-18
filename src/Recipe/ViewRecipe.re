@@ -8,10 +8,11 @@ type action =
   | StopEditing
   | StartSaving
   | DoneSaving
+  | SetMaking (StringSet.t, IntSet.t)
   | SetBatches float;
 
 type state =
-  | Making
+  | Making (StringSet.t, IntSet.t)
   | Editing
   | Saving
   | Normal;
@@ -20,9 +21,10 @@ let component = ReasonReact.reducerComponent "Recipe";
 
 let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
   ...component,
-  initialState: fun () => (1., Editing),
+  initialState: fun () => (1., Normal),
   reducer: fun action (batches, making) => ReasonReact.Update (switch action {
-  | ToggleMaking => (batches, (making === Normal) ? Making : Normal)
+  | ToggleMaking => (batches, (making === Normal) ? Making (StringSet.empty, IntSet.empty) : Normal)
+  | SetMaking (ing, inst) => (batches, Making (ing, inst))
   | StartEditing => (batches, Editing)
   | StopEditing => (batches, Normal)
   | StartSaving => (batches, Saving)
@@ -73,14 +75,17 @@ let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
           (str recipe##title)
         </div>
         <button className=Styles.button onClick=(reduce (fun _ => ToggleMaking))>
-          (str (making === Making ? "Stop making" : "Make"))
+          (str (making !== Normal ? "Stop making" : "Make"))
         </button>
         <button className=Styles.button onClick=(reduce (fun _ => StartEditing))>
           (str "Edit")
         </button>
       </div>
       (spacer 8)
-      (Meta.metaLine meta::recipe##meta source::recipe##source)
+      (Meta.metaLine
+        meta::recipe##meta
+        source::recipe##source
+        )
       (spacer 16)
       <div className=Glamor.(css[whiteSpace "pre-wrap"])>
         (orr "" (Js.Null.to_opt recipe##description) |> ifEmpty "No description" |> str)
@@ -112,13 +117,26 @@ let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
         /** TODO num input */
       </div>
       (spacer 16)
-      (Ingredients.render ::batches ingredients::recipe##ingredients allIngredients::ingredients)
+      (Ingredients.render
+        ::batches
+        ingredients::recipe##ingredients
+        allIngredients::ingredients
+        making::(switch making {
+        | Making (ing, inst) => Some (ing, (reduce (fun ing => SetMaking (ing, inst))))
+        | _ => None
+        })
+      )
       (spacer 32)
       <div className=Styles.subHeader>
         (str "instructions")
       </div>
       (spacer 16)
-      (Instructions.render instructions::recipe##instructions)
+      (Instructions.render instructions::recipe##instructions
+        making::(switch making {
+        | Making (ing, inst) => Some (inst, (reduce (fun inst => SetMaking (ing, inst))))
+        | _ => None
+        })
+      )
       (spacer 64)
     </div>
   }

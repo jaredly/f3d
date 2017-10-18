@@ -1,4 +1,14 @@
 
+let module StringSet = Set.Make {
+  type t = string;
+  let compare = compare;
+};
+
+let module IntSet = Set.Make {
+  type t = int;
+  let compare = compare;
+};
+
 let uuid: unit => string = [%bs.raw{|function() {return Math.random().toString(16).slice(2)}|}];
 
 let str = ReasonReact.stringToElement;
