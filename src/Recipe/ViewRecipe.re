@@ -91,7 +91,7 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
           fontVariant "none",
           fontWeight "200",
         ])>
-          (str "batches")
+          (str (batches === 1. ? "batch" : "batches"))
         </div>
         /** TODO num input */
       </div>

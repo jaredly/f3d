@@ -34,25 +34,29 @@ type state = {
   title: string,
   description: string,
   meta: Models.meta,
+  source: (Js.null string),
   ingredients: array Models.maybeRecipeIngredient,
   instructions: array Models.instruction,
 };
 
 type action =
   | SetDescription string
+  | SetSource (Js.null string)
   | SetIngredients (array Models.maybeRecipeIngredient)
   | SetInstructions (array Models.instruction)
+  | SetMeta Models.meta
   | SetTitle string;
 
 let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
 
-let updateRecipe recipe {title, description, meta, ingredients, instructions} => {
+let updateRecipe recipe {title, description, source, meta, ingredients, instructions} => {
   let recipe = clone recipe |> Obj.magic;
   recipe##title #= title;
   recipe##description #= description;
   recipe##meta #= meta;
   recipe##ingredients #= (ingredients |> Array.map Models.reallyRecipeIngredient);
   recipe##instructions #= instructions;
+  recipe##source #= source;
   let recipe: Models.recipe = recipe;
   recipe
 };
@@ -64,17 +68,21 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
   initialState: fun () => {
     title: recipe##title,
     meta: recipe##meta,
+    source: recipe##source,
     description: recipe##description |> Js.Null.to_opt |> orr "",
     ingredients: recipe##ingredients |> Array.map Models.maybeRecipeIngredient,
     instructions: recipe##instructions,
   },
   reducer: fun action state => ReasonReact.Update (switch action {
     | SetTitle title => {...state, title}
+    | SetMeta meta => {...state, meta}
+    | SetSource source => {...state, source}
     | SetIngredients ingredients => {...state, ingredients}
     | SetInstructions instructions => {...state, instructions}
     | SetDescription description => {...state, description}
   }),
-  render: fun {state: {title, description, ingredients, instructions} as state, reduce} => {
+
+  render: fun {state: {title, description, ingredients, instructions, meta, source} as state, reduce} => {
     let allIngredientsValid = Js.Array.every
     (fun ing => switch ing##ingredient {
     | Models.Text _ => false
@@ -109,7 +117,11 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
         </button>
       </div>
       (spacer 8)
-      (Meta.metaLine meta::recipe##meta source::recipe##source)
+      (EditMeta.render
+        onChange::(reduce (fun meta => SetMeta meta))
+        meta::meta
+        source::source
+        onChangeSource::(reduce (fun source => SetSource source)))
       (spacer 16)
       <Textarea
         value=description
