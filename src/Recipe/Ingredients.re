@@ -3,7 +3,7 @@ open Utils;
 
 let ingredientsMap list => {
   let map = Js.Dict.empty ();
-  Array.iter
+  List.iter
   (fun ing => Js.Dict.set map ing##id ing)
   list;
   map
@@ -29,6 +29,7 @@ let orr default value => switch value { | None => default | Some value => value 
 let render ::batches ::ingredients ::allIngredients => {
   let map = ingredientsMap allIngredients;
   <table className=Glamor.(css[
+    maxWidth "100%",
   ])>
   <tbody>
   (Array.mapi
@@ -67,7 +68,7 @@ let render ::batches ::ingredients ::allIngredients => {
   /* |> Array.mapi (fun i row => <tr key={string_of_int i}>row</tr>) */
   |> spacedArray (fun i => <tr
     key=(string_of_int i ^ "s") 
-    className=Glamor.(css[height "16px"])
+    className=Glamor.(css[height "8px"])
   />)
   |> ReasonReact.arrayToElement)
   </tbody>

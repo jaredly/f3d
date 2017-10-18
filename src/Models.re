@@ -92,7 +92,11 @@ type ingredient = Js.t {.
   aisle: nu string
 };
 
-let module Ingredient = { let name = "ingredients"; type t = ingredient };
+let module Ingredient = {
+  let name = "ingredients";
+  type t = ingredient;
+  let getId ing => ing##id;
+};
 
 type tag = Js.t {.
   id: string,

@@ -3,30 +3,6 @@ open Utils;
 
 let component = ReasonReact.statelessComponent "Textarea";
 
-/**
-  resize = () => {
-    const style = window.getComputedStyle(this.shadow)
-    let height
-    if (!this.props.value.trim()) {
-      const lineHeight = parseFloat(style.lineHeight)
-      const paddingTop = parseFloat(style.paddingTop)
-      const paddingBottom = parseFloat(style.paddingBottom)
-      height = lineHeight + paddingTop + paddingBottom + 'px'
-    } else {
-      height = style.height
-    }
-    if (
-      this.props.onHeightChange &&
-      this._prevHeight &&
-      this._prevHeight !== height
-    ) {
-      this.props.onHeightChange(parseFloat(height))
-    }
-    this.textarea.style.height = height
-    this._prevHeight = height
-  }
- */
-
 type style = Js.t {.
   height: string,
   lineHeight: string,
@@ -46,7 +22,6 @@ let getShadowHeight value node => {
     let lineHeight = parseFloat (style##lineHeight === "normal" ? style##fontSize : style##lineHeight);
     let paddingTop = parseFloat style##paddingTop;
     let paddingBottom = parseFloat style##paddingBottom;
-    /* [%bs.debugger]; */
     (string_of_float (lineHeight +. paddingTop +. paddingBottom)) ^ "px";
   } else {
     style##height;
@@ -65,6 +40,30 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
   };
 
   let setRef dest node => Js.Null.to_opt node |> optMap (fun node => dest := Some node) |> ignore;
+
+  let handleReturn evt => {
+    [%guard let Some(onReturn) = onReturn][@else ()];
+    [%guard let Some(textarea) = !textarea][@else ()];
+    let obj = ReactDOMRe.domElementToObj textarea;
+    let start: int = obj##selectionStart;
+    let send: int = obj##selectionEnd;
+    [%guard let true = start === send][@else ()];
+    ReactEventRe.Keyboard.preventDefault evt;
+    let before: string = Js.String.slice from::0 to_::start value;
+    let after: string = Js.String.sliceToEnd from::start value;
+    onReturn before after
+  };
+
+  let handleDelete evt => {
+    [%guard let Some(onDelete) = onDelete][@else ()];
+    [%guard let Some(textarea) = !textarea][@else ()];
+    let obj = ReactDOMRe.domElementToObj textarea;
+    let start: int = obj##selectionStart;
+    let send: int = obj##selectionEnd;
+    [%guard let true = start === send && start === 0][@else ()];
+    ReactEventRe.Keyboard.preventDefault evt;
+    onDelete value;
+  };
 
   ReasonReact.{
     ...component,
@@ -87,30 +86,8 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
           onKeyDown=?(onReturn == None && onDelete == None ? None : Some (
             fun evt => {
               switch (ReactEventRe.Keyboard.key evt) {
-              | "Return"
-              | "Enter" => {
-                [%guard let Some(onReturn) = onReturn][@else ()];
-                [%guard let Some(textarea) = !textarea][@else ()];
-                let obj = ReactDOMRe.domElementToObj textarea;
-                let start: int = obj##selectionStart;
-                let send: int = obj##selectionEnd;
-                [%guard let true = start === send][@else ()];
-                ReactEventRe.Keyboard.preventDefault evt;
-                let before: string = Js.String.slice from::0 to_::start value;
-                let after: string = Js.String.sliceToEnd from::start value;
-                onReturn before after
-              }
-              | "Backspace"
-              | "Delete" => {
-                [%guard let Some(onDelete) = onDelete][@else ()];
-                [%guard let Some(textarea) = !textarea][@else ()];
-                let obj = ReactDOMRe.domElementToObj textarea;
-                let start: int = obj##selectionStart;
-                let send: int = obj##selectionEnd;
-                [%guard let true = start === send && start === 0][@else ()];
-                ReactEventRe.Keyboard.preventDefault evt;
-                onDelete value;
-              }
+              | "Return" | "Enter" => handleReturn evt
+              | "Backspace" | "Delete" => handleDelete evt
               | _ => ()
               }
             }
@@ -120,6 +97,7 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
               cursor::"text"
               width::"100%"
               resize::"none"
+              boxSizing::"border-box"
               overflow::"hidden"
               display::"none"
             ()
@@ -134,6 +112,7 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
             make
               whiteSpace::"pre-wrap"
               wordBreak::"break-word"
+              boxSizing::"border-box"
               width::"100%"
               top::"0"
               left::"0"
@@ -147,131 +126,3 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
     }
   }
 };
-
-    /* 
-const styles = {
-  textarea: {
-    cursor: 'text',
-    width: '100%',
-    resize: 'none',
-    overflow: 'hidden',
-    display: 'none',
-  },
-
-  shadow: {
-    whiteSpace: 'pre-wrap',
-    width: '100%',
-    top: 0,
-    left: 0,
-    visibility: 'hidden',
-  },
-    
-    
-    const {onHeightChange, style, ...props} = this.props
-    return (
-      <div style={{...styles.container, ...style}}>
-        <textarea
-          {...props}
-          ref={n => (this.textarea = n)}
-          style={styles.textarea}
-          className={this.props.className}
-        />
-        <div
-          ref={n => (this.shadow = n)}
-          style={styles.shadow}
-          className={this.props.className}
-        >
-          {this.props.value + ' '}
-        </div>
-      </div>
-    ) */
-
-/* // @flow
-
-import React, {Component} from 'react'
-
-const getTestContent = (text, pos) => {
-  let start = text.slice(0, pos)
-  if (!text[pos].match(/\s/)) {
-    start += text.slice(pos).match(/[^\s]+/)[0]
-  }
-  return start
-}
-
-type Props = {
-  value: string,
-  onHeightChange?: (height: number) => void,
-  className: string,
-  // anything you want to pass to textarea
-}
-
-export default class GrowingTextarea extends Component {
-  textarea: any
-  shadow: any
-  _prevHeight: ?string
-
-  componentDidMount() {
-    this.resize()
-    this.shadow.style.position = 'absolute'
-    this.textarea.style.setProperty('display', 'block', 'important')
-    window.addEventListener('resize', this.resize)
-    this._prevHeight = null
-  }
-
-  componentDidUpdate() {
-    this.resize()
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resize)
-  }
-
-  getCursorSplit() {
-    return this.textarea.selectionEnd
-  }
-
-  resize = () => {
-    const style = window.getComputedStyle(this.shadow)
-    let height
-    if (!this.props.value.trim()) {
-      const lineHeight = parseFloat(style.lineHeight)
-      const paddingTop = parseFloat(style.paddingTop)
-      const paddingBottom = parseFloat(style.paddingBottom)
-      height = lineHeight + paddingTop + paddingBottom + 'px'
-    } else {
-      height = style.height
-    }
-    if (
-      this.props.onHeightChange &&
-      this._prevHeight &&
-      this._prevHeight !== height
-    ) {
-      this.props.onHeightChange(parseFloat(height))
-    }
-    this.textarea.style.height = height
-    this._prevHeight = height
-  }
-
-  render() {
-    const {onHeightChange, style, ...props} = this.props
-    return (
-      <div style={{...styles.container, ...style}}>
-        <textarea
-          {...props}
-          ref={n => (this.textarea = n)}
-          style={styles.textarea}
-          className={this.props.className}
-        />
-        <div
-          ref={n => (this.shadow = n)}
-          style={styles.shadow}
-          className={this.props.className}
-        >
-          {this.props.value + ' '}
-        </div>
-      </div>
-    )
-  }
-}
-
-*/

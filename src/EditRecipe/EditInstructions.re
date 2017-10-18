@@ -38,6 +38,8 @@ let module Styles = {
     /* lineHeight "20px", */
     letterSpacing "1px",
     padding "4px 8px",
+    border "none",
+    borderBottom "1px solid #aaa",
   ];
   let textContainer = css [
     flex "1",

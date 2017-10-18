@@ -32,11 +32,17 @@ type snapshot 't;
 external data: snapshot 't => 't = "" [@@bs.send];
 external exists: snapshot 't => bool = "" [@@bs.get];
 
+type unsubscribe = unit => unit;
+
 module Query = {
   type query 't;
   type querySnapshot 't;
   external size: querySnapshot 't => float = "" [@@bs.get];
   external docs: querySnapshot 't => array (snapshot 't) = "" [@@bs.get];
+  type docChange 't;
+  external doc: docChange 't => snapshot 't = "" [@@bs.get];
+  external type_: docChange 't => string = "type" [@@bs.get];
+  external docChanges: querySnapshot 't => array (docChange 't) = "" [@@bs.get];
 
   external get: query 't => Js.Promise.t (querySnapshot 't) = "" [@@bs.send];
   external limit: int => query 't = "" [@@bs.send.pipe: query 't];
@@ -50,7 +56,7 @@ module Query = {
   external whereStr: string => op::string => string => query 't = "where" [@@bs.send.pipe: query 't];
   external whereNum: string => op::string => float  => query 't = "where" [@@bs.send.pipe: query 't];
 
-  external onSnapshot: query 't => (querySnapshot 't => unit) => (unit => unit) = "" [@@bs.send];
+  external onSnapshot: query 't => (querySnapshot 't => unit) => (Js.Promise.error => unit) => unsubscribe = "" [@@bs.send];
 };
 
 external asQuery: collection 't => Query.query 't = "%identity";
@@ -60,7 +66,6 @@ external doc: collection 't => string => doc 't = "" [@@bs.send];
 external set: doc 't => 't => Js.Promise.t unit = "" [@@bs.send];
 external get: doc 't => Js.Promise.t (snapshot 't) = "" [@@bs.send];
 external delete: doc 't => Js.Promise.t unit = "" [@@bs.send];
-type unsubscribe = unit => unit;
 external onSnapshot: doc 't => (snapshot 't => unit) => unsubscribe = "" [@@bs.send];
 /* external update: doc 't => */
 

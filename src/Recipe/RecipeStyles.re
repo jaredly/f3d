@@ -5,12 +5,14 @@ let container = css [
   width "800px",
   maxWidth "100%",
   alignSelf "center",
+  fontSize "20px",
+  letterSpacing "1px",
 ];
 let loading = css [
   alignItems "center",
 ];
 let title = css [
-  fontSize "24px"
+  fontSize "32px"
 ];
 let header = css [
   backgroundColor "white",
@@ -49,7 +51,7 @@ let editButton = css [
 let subHeader = css [
   alignItems "center",
   flexDirection "row",
-  fontSize "16px",
+  fontSize "20px",
   fontWeight "400",
   /* letterSpacing "1px", */
   fontVariant "small-caps",

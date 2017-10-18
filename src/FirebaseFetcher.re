@@ -92,7 +92,6 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
       |> Js.Promise.catch (fun err => {
         Js.log "booo";
         [%bs.debugger];
-        /* [%bs.raw "debugger"]; */
         reduce (fun () => `Errored err) ();
         Js.Promise.resolve ();
       })
@@ -148,5 +147,116 @@ let module Static (Config: {let name: string; type t; let query: Firebase.Query.
   let module Inner = Dynamic Config;
   let make ::fb ::pageSize=10 ::render children => {
     Inner.make ::fb ::pageSize query::Config.query refetchKey::"" ::render children
+  };
+};
+
+
+let module Stream (Collection: {let name: string; type t; let getId: t => string;}) => {
+
+  type state =
+    [ `Initial
+    | `Loaded (list Collection.t)
+    | `Errored Js.Promise.error ];
+
+  type action =
+    [`Errored Js.Promise.error
+    | `Updated (array (Firebase.Query.docChange Collection.t)) ];
+
+  let component = ReasonReact.reducerComponentWithRetainedProps ("FirebaseFetcher:" ^ Collection.name);
+
+  let module FBCollection = Firebase.Collection Collection;
+
+  let orr orr fn opt => switch opt { | None => orr | Some x => fn x };
+
+  let make ::fb ::query ::refetchKey="" ::render _children => {
+    let collection = FBCollection.get fb;
+    let unlisten = ref None;
+
+    let fetch state reduce => {
+      switch (!unlisten) {
+      | Some fn => fn ()
+      | None => ()
+      };
+      Js.log2 "fetching" Collection.name;
+      let module Q = Firebase.Query;
+      let q = Firebase.asQuery collection |> query;
+
+      unlisten := Some (
+        Q.onSnapshot q
+        (fun snapshot => {
+          (reduce (fun _ => `Updated (Q.docChanges snapshot))) ()
+        })
+        (fun error => {
+          (reduce (fun _ => `Errored error)) ()
+        })
+      )
+    };
+
+    ReasonReact.{
+      ...component,
+      retainedProps: refetchKey,
+      initialState: fun () => `Initial,
+      didMount: fun {state, reduce} => {
+        fetch state reduce;
+        ReasonReact.NoUpdate
+      },
+      willReceiveProps: fun {state, reduce, retainedProps} => {
+        if (retainedProps !== refetchKey) {
+          fetch state reduce;
+        };
+        state
+      },
+      willUnmount: fun _ => {
+        switch (!unlisten) {
+        | Some fn => fn ()
+        | None => ()
+        };
+      },
+      reducer: fun (action: action) (state: state) => {
+        switch (action: action) {
+        | `Errored error => ReasonReact.Update (`Errored error)
+        | `Updated changes => {
+          let docs = switch state {
+          | `Errored _
+          | `Initial => []
+          | `Loaded docs => docs
+          };
+          let module Q = Firebase.Query;
+          let docs = Array.fold_left
+          (fun docs change => {
+            switch (Q.type_ change) {
+            | "added" => {
+              let doc = Q.doc change |> Firebase.data;
+              [doc, ...docs]
+            }
+            | "removed" => {
+              let id = Q.doc change |> Firebase.data |> Collection.getId;
+              List.filter (fun d => (Collection.getId d) != id) docs
+            }
+            | "changed" => {
+              let doc = Q.doc change |> Firebase.data;
+              let id = doc |> Collection.getId;
+              List.map (fun d => (Collection.getId d) == id ? doc : d) docs
+            }
+            | _ => failwith "Invalid change type"
+            }
+          })
+          docs
+          changes;
+          ReasonReact.Update (`Loaded docs);
+        }
+        }
+      },
+      render: fun {state, reduce} => {
+        render ::state
+      }
+    }
+  };
+};
+
+let module StaticStream (Config: {let name: string; type t; let query: Firebase.Query.query t => Firebase.Query.query t; let getId: t => string;}) => {
+  let module Inner = Stream Config;
+  let make ::fb ::render children => {
+    Inner.make ::fb query::Config.query refetchKey::"" ::render children
   };
 };

@@ -3,7 +3,7 @@ open Utils;
 
 let ingredientsMap list => {
   let map = Js.Dict.empty ();
-  Array.iter
+  List.iter
   (fun ing => Js.Dict.set map ing##id ing)
   list;
   map
@@ -18,6 +18,7 @@ let module Styles = {
     fontStyle "italic",
   ];
   let comment = css [
+    padding "2px",
     fontStyle "italic",
     color "#777",
   ];
@@ -118,7 +119,10 @@ let render ::ingredients ::allIngredients ::onChange => {
             value=(ingredient##comments |> Js.Null.to_opt |> optOr "")
             onChange=(fun text => setComments i ingredient text)
             onReturn=(fun _ _ => addEmptyAfter i)
-            className=Glamor.(css[borderColor "rgb(200, 200, 200)"])
+            className=Glamor.(css[
+              border "1px solid rgb(200, 200, 200)",
+              padding "4px",
+            ])
           />
         </td>
         <td>

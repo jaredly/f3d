@@ -71,7 +71,7 @@ let make ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
       (spacer 8)
       (Meta.metaLine meta::recipe##meta source::recipe##source)
       (spacer 16)
-      <div className=Glamor.(css[fontStyle "italic", whiteSpace "pre-wrap"])>
+      <div className=Glamor.(css[whiteSpace "pre-wrap"])>
         (orr "" (Js.Null.to_opt recipe##description) |> ifEmpty "No description" |> str)
       </div>
       (spacer 32)
@@ -130,7 +130,13 @@ let failedLoading err => {
 
 /** Data loading part */
 let module RecipeFetcher = FirebaseFetcher.Single Models.Recipe;
-let module IngredientsFetcher = FirebaseFetcher.Static { include Models.Ingredient; let query q => q; };
+
+let module IngredientsFetcher = FirebaseFetcher.StaticStream {
+  include Models.Ingredient;
+  let query q => q;
+  let getId ing => ing##id;
+};
+
 let make ::fb ::navigate ::id children => {
   Js.log id;
   RecipeFetcher.make ::fb ::id
@@ -138,11 +144,10 @@ let make ::fb ::navigate ::id children => {
   render::(fun ::state => {
     <IngredientsFetcher
       fb
-      pageSize=1000
-      render=(fun state::ingredients fetchMore::_ => {
+      render=(fun state::ingredients => {
         switch (doubleState state ingredients) {
         | `Initial => loadingRecipe ()
-        | `Loaded (recipe, (_, ingredients)) => make ::recipe ::ingredients ::fb ::id [||] |> ReasonReact.element
+        | `Loaded (recipe, ingredients) => make ::recipe ::ingredients ::fb ::id [||] |> ReasonReact.element
         | `Errored err => failedLoading err
         }
       })
