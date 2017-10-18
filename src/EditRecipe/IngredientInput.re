@@ -178,6 +178,7 @@ let make ::ingredientsMap ::value ::onChange ::addIngredient ::className=? _chil
     <div className=Styles.container>
       <input
         value=text
+        placeholder="Select ingredient"
         className=(Styles.input ^ " " ^ (isTextDifferent ? Styles.badInput : ""))
         onChange=(reduce (fun evt => SetText (Utils.evtValue evt)))
         onBlur=(fun _ => {

@@ -24,42 +24,46 @@ let module Styles = {
   ];
 };
 
+let blankIngredient () => {
+  "id": uuid(),
+  "ingredient": Models.Text "",
+  "amount": Js.null,
+  "unit": Js.null,
+  "comments": Js.null,
+};
+
 let clone: Js.t 'a => Js.t 'a = fun obj => {
   Js.Obj.assign (Js.Obj.empty ()) obj
 };
 
 let render ::fb ::ingredients ::allIngredients ::onChange => {
 
-  let setIngredient i (ingredient: Models.maybeRecipeIngredient) (idOrText: Models.idOrText) => {
+  let change fn i (ingredient: Models.maybeRecipeIngredient) => {
     let ingredient = Obj.magic (clone ingredient);
-    ingredient##ingredient #= idOrText;
+    fn (ingredient);
     let ingredients = Array.copy ingredients;
-    ingredients.(i) = ingredient;
+    if (i == Array.length ingredients) {
+      Js.Array.push ingredient ingredients |> ignore;
+    } else {
+      ingredients.(i) = ingredient;
+    };
     onChange ingredients;
   };
 
-  let setUnit i (ingredient: Models.maybeRecipeIngredient) (value: string) => {
-    let ingredient = Obj.magic (clone ingredient);
-    ingredient##unit #= (value === "" ? Js.null : Js.Null.return value);
-    let ingredients = Array.copy ingredients;
-    ingredients.(i) = ingredient;
-    onChange ingredients;
+  let setIngredient (idOrText: Models.idOrText) => {
+    change (fun ing => ing##ingredient #= idOrText)
   };
 
-  let setComments i (ingredient: Models.maybeRecipeIngredient) (value: string) => {
-    let ingredient = Obj.magic (clone ingredient);
-    ingredient##comments #= (value === "" ? Js.null : Js.Null.return value);
-    let ingredients = Array.copy ingredients;
-    ingredients.(i) = ingredient;
-    onChange ingredients;
+  let setUnit (value: string) => {
+    change (fun ing => ing##unit #= (value === "" ? Js.null : Js.Null.return value))
   };
 
-  let setAmount i (ingredient: Models.maybeRecipeIngredient) (value: option float) => {
-    let ingredient = Obj.magic (clone ingredient);
-    ingredient##amount #= (Js.Null.from_opt value);
-    let ingredients = Array.copy ingredients;
-    ingredients.(i) = ingredient;
-    onChange ingredients;
+  let setComments (value: string) => {
+    change (fun ing => ing##comments #= (value === "" ? Js.null : Js.Null.return value))
+  };
+
+  let setAmount (value: option float) => {
+    change (fun ing => ing##amount #= (Js.Null.from_opt value))
   };
 
   let remove i => {
@@ -96,15 +100,17 @@ let render ::fb ::ingredients ::allIngredients ::onChange => {
         <td>
           <AmountInput
             value=(ingredient##amount |> Js.Null.to_opt)
-            onChange=(fun value => setAmount i ingredient value)
+            onChange=(fun value => setAmount value i ingredient)
             className=Glamor.(css[width "70px"])
+            placeholder="Num"
           />
         </td>
         <td className=Glamor.(css[width "8px"]) />
         <td>
           <input
             value=(ingredient##unit |> Js.Null.to_opt |> optOr "")
-            onChange=(fun evt => setUnit i ingredient (evtValue evt))
+            onChange=(fun evt => setUnit (evtValue evt) i ingredient)
+            placeholder="Unit"
           />
         </td>
         <td className=Glamor.(css[width "16px"]) />
@@ -132,14 +138,14 @@ let render ::fb ::ingredients ::allIngredients ::onChange => {
               Firebase.set doc newIngredient
               |> Js.Promise.then_ (fun _ => Js.Promise.resolve id)
             })
-            onChange=(fun id => setIngredient i ingredient id)
+            onChange=(fun id => setIngredient id i ingredient)
           />
         </td>
         <td className=Glamor.(css[width "16px"]) />
         <td>
           <Textarea
             value=(ingredient##comments |> Js.Null.to_opt |> optOr "")
-            onChange=(fun text => setComments i ingredient text)
+            onChange=(fun text => setComments text i ingredient)
             onReturn=(fun _ _ => addEmptyAfter i)
             className=Glamor.(css[
               border "1px solid rgb(200, 200, 200)",
@@ -148,7 +154,9 @@ let render ::fb ::ingredients ::allIngredients ::onChange => {
           />
         </td>
         <td>
-          <button
+          (i === Array.length ingredients
+          ? ReasonReact.nullElement
+          : <button
             onClick=(fun _ => remove i)
             className=Glamor.(css[
               backgroundColor "transparent",
@@ -161,17 +169,25 @@ let render ::fb ::ingredients ::allIngredients ::onChange => {
             ])
           >
             (str "remove")
-          </button>
+          </button>)
         </td>
       </tr>
     })
-  ingredients
+  /* ingredients */
+  (Js.Array.concat [|blankIngredient ()|] ingredients)
   /* |> Array.mapi (fun i row => <tr key={string_of_int i}>row</tr>) */
   |> spacedArray (fun i => <tr
     key=(string_of_int i ^ "s") 
     className=Glamor.(css[height "16px"])
   />)
   |> ReasonReact.arrayToElement)
+  <tr>
+  <td>
+  <button onClick=(fun _ => addEmptyAfter (Array.length ingredients - 1))>
+    (str "Add ingredient")
+  </button>
+  </td>  
+  </tr>
   </tbody>
   </table>
 };

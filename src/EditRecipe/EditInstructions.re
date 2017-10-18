@@ -50,13 +50,20 @@ let clone: Js.t 'a => Js.t 'a = fun obj => {
   Js.Obj.assign (Js.Obj.empty ()) obj
 };
 
+let blankInstruction: Models.instruction = {"text": "", "ingredientsUsed": Js.Dict.empty ()};
+
 let render ::instructions ::onChange => {
 
-  let setText i (value: string) => {
-    let instruction = Obj.magic (clone instructions.(i));
+  let setText i (instruction: Models.instruction) (value: string) => {
+    [%guard let true = i < Array.length instructions || value !== ""][@else ()];
+    let instruction = Obj.magic (clone instruction);
     instruction##text #= value;
     let instructions = Array.copy instructions;
-    instructions.(i) = instruction;
+    if (i >= Array.length instructions) {
+      Js.Array.push instruction instructions |> ignore;
+    } else {
+      instructions.(i) = instruction;
+    };
     onChange instructions;
   };
 
@@ -77,6 +84,11 @@ let render ::instructions ::onChange => {
     onChange instructions;
   };
 
+  let removeFirst () => {
+    let instructions = Js.Array.sliceFrom 1 instructions;
+    onChange instructions;
+  };
+
   <div className=Styles.container>
     (Array.mapi
       (fun i instruction =>
@@ -94,7 +106,7 @@ let render ::instructions ::onChange => {
                   addInstruction (i + 1) (Js.String.trim post);
                 })
                 onDelete=(fun text => {
-                  [%guard let true = i > 0][@else ()];
+                  [%guard let true = i > 0][@else removeFirst ()];
                   removeToPrev i text;
                 })
                 value
@@ -102,11 +114,11 @@ let render ::instructions ::onChange => {
               />
             })
             value=instruction##text
-            onChange=(fun value => setText i value)
+            onChange=(fun value => setText i instruction value)
           />
         </div>
       )
-    instructions
+    (Js.Array.concat [|blankInstruction|] instructions)
     |> spacedArray (fun i => spacer key::(string_of_int i ^ "s") 16)
     |> ReasonReact.arrayToElement)
   </div>

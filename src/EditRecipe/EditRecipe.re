@@ -49,6 +49,19 @@ type action =
 
 let clone: Js.t 'a => Js.t 'a = fun obj => Js.Obj.assign (Js.Obj.empty ()) obj;
 
+let makeTitleSearch title => {
+  let tokens = SearchIndex.tokens title;
+  let obj = Js.Dict.empty ();
+  Array.iter (fun tok => Js.Dict.set obj tok Js.true_) tokens;
+  obj;
+};
+
+let makeIngredientsUsed ingredients => {
+  let obj = Js.Dict.empty ();
+  Array.iter (fun ing => Js.Dict.set obj ing##ingredient Js.true_) ingredients;
+  obj;
+};
+
 let updateRecipe recipe {title, description, source, meta, ingredients, instructions} => {
   let recipe = clone recipe |> Obj.magic;
   recipe##title #= title;
@@ -57,6 +70,8 @@ let updateRecipe recipe {title, description, source, meta, ingredients, instruct
   recipe##ingredients #= (ingredients |> Array.map Models.reallyRecipeIngredient);
   recipe##instructions #= instructions;
   recipe##source #= source;
+  recipe##titleSearch #= (makeTitleSearch title);
+  recipe##ingredientsUsed #= (makeIngredientsUsed recipe##ingredients);
   let recipe: Models.recipe = recipe;
   recipe
 };
@@ -96,6 +111,7 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
         <input
           disabled=(Js.Boolean.to_js_boolean saving)
           className=Styles.title
+          placeholder="Recipe title"
           value=title
           onChange=(reduce (fun evt => SetTitle (evtValue evt)))
         />

@@ -13,7 +13,7 @@ let loading = css [
 ];
 let title = css [
   fontSize "44px",
-  fontFamily "Abril Fatface",
+  fontFamily "Abril Fatface, sans-serif",
 ];
 let header = css [
   backgroundColor "white",

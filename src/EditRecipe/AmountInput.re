@@ -84,7 +84,7 @@ type action = Set string | Reset;
 
 let component = ReasonReact.reducerComponentWithRetainedProps "AmountInput";
 
-let make ::value ::onChange ::className=? _ => ReasonReact.{
+let make ::value ::onChange ::className=? ::placeholder=? _ => ReasonReact.{
   ...component,
   initialState: fun _ => (makeText value),
   retainedProps: value,
@@ -113,6 +113,7 @@ let make ::value ::onChange ::className=? _ => ReasonReact.{
     <input
       value=state
       className=?className
+      placeholder=?placeholder
       onKeyDown=(fun evt => switch (ReactEventRe.Keyboard.key evt) {
       | "ArrowUp" => {
         ReactEventRe.Keyboard.preventDefault evt;

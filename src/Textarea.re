@@ -18,14 +18,14 @@ external setDisplay: Dom.element => string => unit = "display" [@@bs.set] [@@bs.
 
 let getShadowHeight value node => {
   let style = getComputedStyle node;
-  if (Js.String.trim value === "") {
+  /* if (Js.String.trim value === "") {
     let lineHeight = parseFloat (style##lineHeight === "normal" ? style##fontSize : style##lineHeight);
     let paddingTop = parseFloat style##paddingTop;
     let paddingBottom = parseFloat style##paddingBottom;
     (string_of_float (lineHeight +. paddingTop +. paddingBottom)) ^ "px";
-  } else {
+  } else { */
     style##height;
-  }
+  /* } */
 };
 
 let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::onBlur=? ::className=? _children => {
@@ -120,7 +120,7 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
             ()
           )
         >
-          {str @@ value ^ " "}
+          {str @@ (value === "" ? "M" : value ^ " ")}
         </div>
       </div>
     }

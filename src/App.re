@@ -23,7 +23,7 @@ let make ::fb ::auth _children => {
           `Exact ("/login", (fun navigate => <LogInPage auth navigate />)),
         ]
         : [
-
+          `Exact ("/add", (fun navigate => <AddRecipe fb navigate />)),
         ];
       let routes = routes @ basicRoutes;
       <Router

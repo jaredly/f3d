@@ -7,6 +7,7 @@ let clone: Js.t 'a => Js.t 'a = fun obj => {
 
 let inputStyle = Glamor.(css [
   width "50px",
+  textAlign "center",
 ]);
 
 
@@ -44,10 +45,11 @@ let render ::meta ::onChange ::source ::onChangeSource => {
   ]; */
 
   <div>
-  <div className=Glamor.(css[flexDirection "row"])>
+  <div className=Glamor.(css[flexDirection "row", flexWrap "wrap"])>
     <div>
       (str "Oven Temp:")
     </div>
+    (spacer 4)
     <IntInput
       value=(Js.Null.to_opt meta##ovenTemp)
       className=inputStyle
@@ -61,6 +63,7 @@ let render ::meta ::onChange ::source ::onChangeSource => {
     <div>
       (str "Total time:")
     </div>
+    (spacer 4)
     <IntInput
       value=(Js.Null.to_opt meta##totalTime)
       className=inputStyle
@@ -74,6 +77,7 @@ let render ::meta ::onChange ::source ::onChangeSource => {
     <div>
       (str "Prep time:")
     </div>
+    (spacer 4)
     <IntInput
       value=(Js.Null.to_opt meta##prepTime)
       className=inputStyle
@@ -87,6 +91,7 @@ let render ::meta ::onChange ::source ::onChangeSource => {
     <div>
       (str "Cook time:")
     </div>
+    (spacer 4)
     <IntInput
       value=(Js.Null.to_opt meta##cookTime)
       className=inputStyle
@@ -97,8 +102,10 @@ let render ::meta ::onChange ::source ::onChangeSource => {
       })
     />
   </div>
+  (spacer 16)
   <input
     value=(Js.Null.to_opt source |> optOr "")
+    placeholder="Source"
     onChange=(fun evt => {
       let text = (evtValue evt);
       if (text == "") {

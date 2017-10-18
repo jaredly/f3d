@@ -84,7 +84,7 @@ let module Dynamic (Collection: {let name: string; type t;}) => {
       |> Js.Promise.then_
       (fun snap => {
         let snaps = (Firebase.Query.docs snap);
-        let items = Array.map Firebase.data snaps;
+        let items = Array.map (fun doc => {Js.log doc; Firebase.data doc}) snaps;
         let total = Array.append current items;
         reduce (fun () => Array.length items === pageSize ? `Loaded (Some snaps.(Array.length snaps - 1), total) : `Loaded (None, total)) ();
         Js.Promise.resolve ();
