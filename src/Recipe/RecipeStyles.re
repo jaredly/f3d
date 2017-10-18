@@ -6,13 +6,14 @@ let container = css [
   maxWidth "100%",
   alignSelf "center",
   fontSize "20px",
-  letterSpacing "1px",
+  /* letterSpacing "1px", */
 ];
 let loading = css [
   alignItems "center",
 ];
 let title = css [
-  fontSize "32px"
+  fontSize "44px",
+  fontFamily "Abril Fatface",
 ];
 let header = css [
   backgroundColor "white",
@@ -51,7 +52,7 @@ let editButton = css [
 let subHeader = css [
   alignItems "center",
   flexDirection "row",
-  fontSize "20px",
+  fontSize "36px",
   fontWeight "400",
   /* letterSpacing "1px", */
   fontVariant "small-caps",

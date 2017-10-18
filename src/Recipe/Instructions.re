@@ -8,7 +8,7 @@ let module Styles = {
     fontSize "20px",
     lineHeight "32px",
     whiteSpace "pre-wrap",
-    letterSpacing "1px",
+    /* letterSpacing "1px", */
   ];
 };
 

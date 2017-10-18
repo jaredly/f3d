@@ -66,10 +66,10 @@ let render ::batches ::ingredients ::allIngredients => {
     })
   ingredients
   /* |> Array.mapi (fun i row => <tr key={string_of_int i}>row</tr>) */
-  |> spacedArray (fun i => <tr
+  /* |> spacedArray (fun i => <tr
     key=(string_of_int i ^ "s") 
     className=Glamor.(css[height "8px"])
-  />)
+  />) */
   |> ReasonReact.arrayToElement)
   </tbody>
   </table>

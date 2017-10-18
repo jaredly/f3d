@@ -6,9 +6,9 @@ let module Styles = {
   include RecipeStyles;
   /** TODO extend header, change top padding to be different */
   let title = css [
-    fontSize "24px",
+    fontSize "44px",
     fontWeight "inherit",
-    fontFamily "inherit",
+    fontFamily "Abril Fatface",
     flex "1",
     padding "0",
     margin "0",

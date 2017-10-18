@@ -9,26 +9,50 @@ let humanTime time => {
   }
 };
 
+let module Styles = {
+  open Glamor;
+  let item = css [
+    flexDirection "row"
+  ];
+  let label = css [
+    fontWeight "600",
+    marginRight "8px",
+  ];
+  let value = css [];
+};
+
 let metaLine ::meta ::source => {
   let items = [
     maybe meta##ovenTemp (fun temp =>
-      <div key="temp">
-        (str @@ "Oven Temp: " ^ (string_of_int temp) ^ {j|°F|j})
+      <div key="temp" className=Styles.item>
+        <div className=Styles.label>(str "Oven temp:")</div>
+        <div className=Styles.value>
+        (str @@ (string_of_int temp) ^ {j|°F|j})
+        </div>
       </div>
     ),
     maybe meta##totalTime (fun time =>
-      <div key="total">
-        (str @@ "Total time: " ^ (humanTime time))
+      <div key="total" className=Styles.item>
+        <div className=Styles.label>(str "Total time:")</div>
+        <div className=Styles.value>
+        (str @@ (humanTime time))
+        </div>
       </div>
     ),
     maybe meta##prepTime (fun time =>
-      <div key="prep">
-        (str @@ "Prep time: " ^ (humanTime time))
+      <div key="prep" className=Styles.item>
+        <div className=Styles.label>(str "Prep time:")</div>
+        <div className=Styles.value>
+        (str @@ (humanTime time))
+        </div>
       </div>
     ),
     maybe meta##cookTime (fun time =>
-      <div key="cook">
-        (str @@ "Cook time: " ^ (humanTime time))
+      <div key="cook" className=Styles.item>
+        <div className=Styles.label>(str "Cook time:")</div>
+        <div className=Styles.value>
+        (str @@ (humanTime time))
+        </div>
       </div>
     ),
     maybe source (fun source => (
