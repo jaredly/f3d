@@ -129,8 +129,8 @@ let render ::fb ::ingredients ::allIngredients ::onChange => {
                 "diets": [||],
                 "aisle": Js.null,
               };
-              Firebase.set doc newIngredient |> ignore;
-              id
+              Firebase.set doc newIngredient
+              |> Js.Promise.then_ (fun _ => Js.Promise.resolve id)
             })
             onChange=(fun id => setIngredient i ingredient id)
           />

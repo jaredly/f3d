@@ -38,6 +38,10 @@ let module Styles = {
     ],
   ];
 
+  let addResult = css [
+    color "#666",
+  ];
+
   let selectedResult = css [
     backgroundColor "#eee",
   ];
@@ -62,7 +66,8 @@ let getResults ::map ::text => {
   |> Js.String.includes text);
 };
 
-let showResults ::results ::selection ::onSelect => {
+let showResults ::results ::selection ::onSelect ::onNew => {
+  let numResults = Array.length results;
   <div className=Styles.list>
     (Array.mapi
     (fun i ing => (
@@ -79,6 +84,15 @@ let showResults ::results ::selection ::onSelect => {
     ))
     results
     |> ReasonReact.arrayToElement)
+      <div
+        className=(Styles.result ^ " " ^ Styles.addResult ^ " " ^ (selection == numResults ? Styles.selectedResult : ""))
+        onMouseDown=(fun evt => {
+          ReactEventRe.Mouse.preventDefault evt;
+          onNew ();
+        })
+      >
+        (str "New ingredient")
+      </div>
   </div>
 };
 
@@ -96,8 +110,8 @@ type action =
   | GoDown
   ;
 
-let selectUp selection len => selection <= 0 ? len - 1 : selection - 1;
-let selectDown selection len => selection + 1 >= len ? 0 : selection + 1;
+let selectUp selection len => selection <= 0 ? len : selection - 1;
+let selectDown selection len => selection + 1 > len ? 0 : selection + 1;
 
 let component = ReasonReact.reducerComponentWithRetainedProps "AmountInput";
 
@@ -132,7 +146,6 @@ let make ::ingredientsMap ::value ::onChange ::addIngredient ::className=? _chil
   },
   willReceiveProps: fun {retainedProps, reduce, state} => {
     if (retainedProps != value) {
-      /* let text = Js.Dict.get ingredientsMap value |> optMap (fun ing => ing##name) |> optOr ""; */
       let text = getText value ingredientsMap;
       {
         text,
@@ -161,11 +174,11 @@ let make ::ingredientsMap ::value ::onChange ::addIngredient ::className=? _chil
       results |> ignore;
       !result
     };
-    /* let results = isOpen ? Some (getResults map::ingredientsMap ::text) : None; */
+    let isTextDifferent = switch value { | Models.Text _ => true | _ => false };
     <div className=Styles.container>
       <input
         value=text
-        className=(Styles.input ^ " " ^ (switch value { | Models.Text _ => true | _ => false } ? Styles.badInput : ""))
+        className=(Styles.input ^ " " ^ (isTextDifferent ? Styles.badInput : ""))
         onChange=(reduce (fun evt => SetText (Utils.evtValue evt)))
         onBlur=(fun _ => {
           switch value {
@@ -201,7 +214,15 @@ let make ::ingredientsMap ::value ::onChange ::addIngredient ::className=? _chil
           | "ArrowDown" => (Some GoDown)
           | "Escape" => (Some Close)
           | "Enter" => {
-            onChange (Models.Id results.(selection)##id);
+            if (selection === Array.length results) {
+              addIngredient text
+              |> Js.Promise.then_ (fun id => {
+                onChange (Models.Id id);
+                Js.Promise.resolve ();
+              }) |> ignore;
+            } else {
+              onChange (Models.Id results.(selection)##id);
+            };
             None
           }
           | _ => None
@@ -227,6 +248,12 @@ let make ::ingredientsMap ::value ::onChange ::addIngredient ::className=? _chil
         } else {
           onChange (Models.Id ing##id);
         }
+      }) onNew::(fun () => {
+        addIngredient text
+        |> Js.Promise.then_ (fun id => {
+          onChange (Models.Id id);
+          Js.Promise.resolve ();
+        }) |> ignore;
       })
       : ReasonReact.nullElement
       )
