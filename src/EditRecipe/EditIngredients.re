@@ -28,7 +28,7 @@ let clone: Js.t 'a => Js.t 'a = fun obj => {
   Js.Obj.assign (Js.Obj.empty ()) obj
 };
 
-let render ::ingredients ::allIngredients ::onChange => {
+let render ::fb ::ingredients ::allIngredients ::onChange => {
 
   let setIngredient i (ingredient: Models.maybeRecipeIngredient) (idOrText: Models.idOrText) => {
     let ingredient = Obj.magic (clone ingredient);
@@ -72,7 +72,7 @@ let render ::ingredients ::allIngredients ::onChange => {
   let addEmptyAfter i => {
     let ingredients = Array.copy ingredients;
     Js.Array.spliceInPlace pos::(i + 1) remove::0 add::[|
-    {"id": "" /* TODO random */, "ingredient": Models.Text "", "amount": Js.null, "unit": Js.null, "comments": Js.null}
+    {"id": uuid(), "ingredient": Models.Text "", "amount": Js.null, "unit": Js.null, "comments": Js.null}
     |] ingredients
     |> ignore;
     /** TODO transfer focus... maybe with a nextFocus::(i + 1) on the onChange?
@@ -82,6 +82,8 @@ let render ::ingredients ::allIngredients ::onChange => {
   };
 
   let map = ingredientsMap allIngredients;
+  [%guard let Some uid = Firebase.Auth.fsUid fb][@else ReasonReact.nullElement];
+
   <table className=Glamor.(css[
     borderCollapse "collapse",
     verticalAlign "top",
@@ -110,6 +112,26 @@ let render ::ingredients ::allIngredients ::onChange => {
           <IngredientInput
             value=ingredient##ingredient
             ingredientsMap=map
+            addIngredient=(fun text => {
+              let id = uuid();
+              let module C = Firebase.Collection(Models.Ingredient);
+              let collection = C.get fb;
+              let doc = Firebase.doc collection id;
+              let newIngredient = {
+                "id": id,
+                "name": text,
+                "authorId": uid,
+                "plural": Js.null,
+                "defaultUnit": Js.null,
+                "alternativeNames": [||],
+                "created": Js.Date.now(),
+                "calories": Js.null,
+                "diets": [||],
+                "aisle": Js.null,
+              };
+              Firebase.set doc newIngredient |> ignore;
+              id
+            })
             onChange=(fun id => setIngredient i ingredient id)
           />
         </td>

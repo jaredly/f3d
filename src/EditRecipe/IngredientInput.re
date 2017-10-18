@@ -108,7 +108,7 @@ let getText value ingredientsMap => {
   }
 };
 
-let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonReact.{
+let make ::ingredientsMap ::value ::onChange ::addIngredient ::className=? _children => ReasonReact.{
   ...component,
   initialState: fun _ => {
     let text = switch value {
@@ -221,8 +221,12 @@ let make ::ingredientsMap ::value ::onChange ::className=? _children => ReasonRe
       </div>
       (isOpen ?
       showResults ::results ::selection onSelect::(fun ing => {
-        (reduce (fun _ => Close)) ();
-        onChange (Models.Id ing##id)
+        if (Models.Id ing##id == value) {
+          (reduce (fun _ => SetText ing##name)) ();
+          (reduce (fun _ => Close)) ();
+        } else {
+          onChange (Models.Id ing##id);
+        }
       })
       : ReasonReact.nullElement
       )

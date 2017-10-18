@@ -11,6 +11,7 @@ external useFirestore: unit = "" [@@bs.module "firebase/firestore"];
 external firestore: firebase => firestore = "" [@@bs.send];
 external auth: firebase => auth = "" [@@bs.send];
 external enablePersistence: firestore => Js.Promise.t unit = "" [@@bs.send];
+external app: firestore => firebase = "" [@@bs.get];
 
 let module Auth = {
   type user;
@@ -20,6 +21,9 @@ let module Auth = {
   external email: user => string = "" [@@bs.get];
   external signInWithEmailAndPassword: auth => string => string => (Js.Promise.t user) = "" [@@bs.send];
   external onAuthStateChanged: auth => (Js.nullable user => unit) => unit = "" [@@bs.send];
+  external uid: user => string = "" [@@bs.get];
+
+  let fsUid fs => (app fs) |> auth |> currentUser |> Js.Nullable.to_opt |> Utils.optMap uid;
 };
 
 type collection 't;

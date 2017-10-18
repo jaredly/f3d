@@ -132,6 +132,7 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
       (EditIngredients.render
         ::ingredients
         ::allIngredients
+        ::fb
         onChange::(reduce (fun ingredients => SetIngredients ingredients))
       )
       (spacer 32)
@@ -147,26 +148,3 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel _child
     </div>
   }
 };
-
-
-/* 
-/** Data loading part */
-let module RecipeFetcher = FirebaseFetcher.Single Models.Recipe;
-let module IngredientsFetcher = FirebaseFetcher.Static { include Models.Ingredient; let query q => q; };
-let make ::fb ::navigate ::id children => {
-  Js.log id;
-  RecipeFetcher.make ::fb ::id
-  render::(fun ::state => {
-    <IngredientsFetcher
-      fb
-      pageSize=1000
-      render=(fun state::ingredients fetchMore::_ => {
-        switch (doubleState state ingredients) {
-        | `Initial => loadingRecipe ()
-        | `Loaded (recipe, (_, ingredients)) => make ::recipe ::ingredients ::fb ::id [||] |> ReasonReact.element
-        | `Errored err => failedLoading err
-        }
-      })
-    />
-  }) children
-} */

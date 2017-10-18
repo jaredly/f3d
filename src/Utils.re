@@ -1,4 +1,6 @@
 
+let uuid: unit => string = [%bs.raw{|function() {return Math.random().toString(16).slice(2)}|}];
+
 let str = ReasonReact.stringToElement;
 let spring = <div style=ReactDOMRe.Style.(make flexGrow::"1" ()) />;
 let spacer ::key=? num => <div key=?key style=ReactDOMRe.Style.(make flexBasis::(string_of_int num ^ "px") ()) />;
