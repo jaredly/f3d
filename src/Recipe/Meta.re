@@ -1,5 +1,6 @@
 
 open Utils;
+open BaseUtils;
 
 let humanTime time => {
   if (time < 60) {

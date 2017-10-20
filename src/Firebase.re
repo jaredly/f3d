@@ -23,7 +23,7 @@ let module Auth = {
   external onAuthStateChanged: auth => (Js.nullable user => unit) => unit = "" [@@bs.send];
   external uid: user => string = "" [@@bs.get];
 
-  let fsUid fs => (app fs) |> auth |> currentUser |> Js.Nullable.to_opt |> Utils.optMap uid;
+  let fsUid fs => (app fs) |> auth |> currentUser |> Js.Nullable.to_opt |> BaseUtils.optMap uid;
 };
 
 type collection 't;

@@ -28,7 +28,7 @@ let getShadowHeight value node => {
   /* } */
 };
 
-let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::onBlur=? ::className=? _children => {
+let make ::value ::onChange ::onPaste=? ::containerClassName=? ::onReturn=? ::onDelete=? ::onBlur=? ::className=? _children => {
   let shadow = ref None;
   let textarea = ref None;
 
@@ -39,7 +39,7 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
     setHeight textarea height;
   };
 
-  let setRef dest node => Js.Null.to_opt node |> optMap (fun node => dest := Some node) |> ignore;
+  let setRef dest node => Js.Null.to_opt node |> BaseUtils.optMap (fun node => dest := Some node) |> ignore;
 
   let handleReturn evt => {
     [%guard let Some(onReturn) = onReturn][@else ()];
@@ -70,8 +70,8 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
     didUpdate: fun _ => resize (),
     didMount: fun _ => {
       resize ();
-      !shadow |> optMap (fun shadow => setPosition shadow "absolute") |> ignore;
-      !textarea |> optMap (fun shadow => setDisplay shadow "block") |> ignore;
+      !shadow |> BaseUtils.optMap (fun shadow => setPosition shadow "absolute") |> ignore;
+      !textarea |> BaseUtils.optMap (fun shadow => setDisplay shadow "block") |> ignore;
       ReasonReact.NoUpdate
     },
     render: fun _ => {
@@ -80,6 +80,7 @@ let make ::value ::onChange ::containerClassName=? ::onReturn=? ::onDelete=? ::o
       ) className=?containerClassName>
         <textarea
           className=?className
+          onPaste=?onPaste
           ref={setRef textarea}
           onChange={fun evt => onChange (evtValue evt)}
           onBlur=?onBlur

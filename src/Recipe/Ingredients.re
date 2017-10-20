@@ -1,5 +1,6 @@
 
 open Utils;
+open BaseUtils;
 
 let ingredientsMap list => {
   let map = Js.Dict.empty ();
@@ -63,7 +64,11 @@ let render ::batches ::ingredients ::allIngredients ::making => {
             />
           </td>
         }})
-        <td className=Glamor.(css[textAlign "right"])>
+        <td className=Glamor.(css[
+          textAlign "right",
+          fontFamily "Source Sans Pro",
+          fontWeight "200"
+        ])>
           (maybe ingredient##amount (fun amount => {
             (str @@ fractionify (amount *. batches))
           }) |> orr ReasonReact.nullElement)

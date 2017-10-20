@@ -1,5 +1,6 @@
 
 open Utils;
+open BaseUtils;
 
 let clone: Js.t 'a => Js.t 'a = fun obj => {
   Js.Obj.assign (Js.Obj.empty ()) obj

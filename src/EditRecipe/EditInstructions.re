@@ -52,7 +52,7 @@ let clone: Js.t 'a => Js.t 'a = fun obj => {
 
 let blankInstruction: Models.instruction = {"text": "", "ingredientsUsed": Js.Dict.empty ()};
 
-let render ::instructions ::onChange => {
+let render ::instructions ::instructionHeaders ::onChange => {
 
   let setText i (instruction: Models.instruction) (value: string) => {
     [%guard let true = i < Array.length instructions || value !== ""][@else ()];
@@ -64,7 +64,7 @@ let render ::instructions ::onChange => {
     } else {
       instructions.(i) = instruction;
     };
-    onChange instructions;
+    onChange (instructionHeaders, instructions);
   };
 
   let addInstruction i (value: string) => {
@@ -72,7 +72,7 @@ let render ::instructions ::onChange => {
     Js.Array.spliceInPlace pos::i remove::0 add::[|
     {"text": value, "ingredientsUsed": Js.Dict.empty ()}
     |] instructions |> ignore;
-    onChange instructions;
+    onChange (instructionHeaders, instructions);
   };
 
   let removeToPrev i (value: string) => {
@@ -81,12 +81,12 @@ let render ::instructions ::onChange => {
     let instructions = Array.copy instructions;
     instructions.(i - 1) = instruction;
     Js.Array.spliceInPlace pos::i remove::1 add::[||] instructions |> ignore;
-    onChange instructions;
+    onChange (instructionHeaders, instructions);
   };
 
   let removeFirst () => {
     let instructions = Js.Array.sliceFrom 1 instructions;
-    onChange instructions;
+    onChange (instructionHeaders, instructions);
   };
 
   <div className=Styles.container>
@@ -96,13 +96,16 @@ let render ::instructions ::onChange => {
           (str (string_of_int (i + 1) ^ ". "))
           (spacer 4)
           <BlurryInput
-            render=(fun ::value ::onChange ::onBlur => {
+            render=(fun ::value onChange::onChangeInner ::onBlur => {
               <Textarea
                 className=Styles.instructionText
                 containerClassName=Styles.textContainer
-                onChange
+                onChange=onChangeInner
+                onPaste=(PasteUtils.parseInstructions (fun instructions => {
+                  onChange ([||], instructions);
+                }))
                 onReturn=(fun pre post => {
-                  onChange (Js.String.trim pre);
+                  onChangeInner (Js.String.trim pre);
                   addInstruction (i + 1) (Js.String.trim post);
                 })
                 onDelete=(fun text => {

@@ -23,9 +23,12 @@ type maybeRecipeIngredient = Js.t {.
   comments: nu string
 };
 
-let maybeRecipeIngredient ing => {
+let maybeRecipeIngredient ::guess=? ing => {
   "id": ing##id,
-  "ingredient": Id (ing##ingredient),
+  "ingredient": switch guess {
+  | Some text => Text text
+  | None => ing##ingredient === "" ? Text "" : Id (ing##ingredient)
+  },
   "amount": ing##amount,
   "unit": ing##unit,
   "comments": ing##comments,
@@ -108,6 +111,8 @@ type tag = Js.t {.
 
 let module Tag = { let name = "tags"; type t = tag };
 
+type header = Js.t {.pos: int, text: string};
+
 /** The main types */
 
 type recipe = Js.t {.
@@ -121,17 +126,19 @@ type recipe = Js.t {.
   created: float,
   updated: float,
   imageUrl: nu string,
-  tags: Js.Dict.t string,
+  tags: Js.Dict.t Js.boolean,
 
   source: nu string,
   instructions: array instruction,
+  instructionHeaders: array header,
   ingredients: array recipeIngredient,
+  ingredientHeaders: array header,
   ingredientsUsed: Js.Dict.t Js.boolean,
   description: nu string,
 
   meta: meta,
 
-  comments: nu (array (Js.t {.
+  comments: (array (Js.t {.
     id: string,
     authorId: string,
     created: float,
@@ -152,6 +159,7 @@ type madeIt = Js.t {.
   removedIngredients: array string,
   images: array string,
   created: float,
+  rating: int,
 
   meta: meta
 };

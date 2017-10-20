@@ -5,7 +5,7 @@ type state =
   | Saving
   | Editing;
 
-let blankRecipe id authorId => {
+let blankRecipe: string => string => Models.recipe = fun id authorId => {
   let now = Js.Date.now ();
   let empty = Js.Dict.empty ();
   {
@@ -18,6 +18,8 @@ let blankRecipe id authorId => {
     "tags": empty,
     "source": Js.null,
     "instructions": [||],
+    "instructionHeaders": [||],
+    "ingredientHeaders": [||],
     "ingredients": [||],
     "ingredientsUsed": empty,
     "description": Js.null,
@@ -44,7 +46,7 @@ let make ::ingredients ::fb ::navigate _children => ReasonReact.{
   reducer: fun action _ => ReasonReact.Update action,
   render: fun {state, reduce} => {
     [%guard let Some uid = Firebase.Auth.fsUid fb][@else ReasonReact.nullElement];
-    let id = uuid();
+    let id = BaseUtils.uuid();
     <EditRecipe
       saving=(state === Saving)
       recipe=(blankRecipe id uid)

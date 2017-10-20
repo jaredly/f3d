@@ -15,7 +15,7 @@ const init = () => {
     }).catch(err => console.log(err, 'userdata')),
     // */
 
-    /*
+    //*
     ...data.ingredients.map(ingredient => {
       ingredient.authorId = uid
       ingredient.alternativeNames = []
@@ -52,6 +52,10 @@ const init = () => {
       delete recipe.prepTime
       delete recipe.totalTime
       delete recipe.ovenTemp
+      delete recipe.lists
+
+      recipe.ingredientHeaders = []
+      recipe.instructionHeaders = []
 
       const stopwords = require('stopword/lib/stopwords_en.js').words
       const stopMap = stopwords.reduce((m, w) => (m[w] = true, m), {})

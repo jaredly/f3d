@@ -1,5 +1,6 @@
 
 open Utils;
+open BaseUtils;
 
 let fractions = [
   (1. /. 2., {j|1/2|j}),
@@ -77,14 +78,14 @@ let makeFloat text => {
 };
 
 let makeText num => {
-  num |> Utils.optMap fractionify |> Utils.optOr ""
+  num |> BaseUtils.optMap fractionify |> BaseUtils.optOr ""
 };
 
 type action = Set string | Reset;
 
 let component = ReasonReact.reducerComponentWithRetainedProps "AmountInput";
 
-let make ::value ::onChange ::className=? ::placeholder=? _ => ReasonReact.{
+let make ::value ::onChange ::className=? ::onPaste=? ::placeholder=? _ => ReasonReact.{
   ...component,
   initialState: fun _ => (makeText value),
   retainedProps: value,
@@ -114,6 +115,7 @@ let make ::value ::onChange ::className=? ::placeholder=? _ => ReasonReact.{
       value=state
       className=?className
       placeholder=?placeholder
+      onPaste=?onPaste
       onKeyDown=(fun evt => switch (ReactEventRe.Keyboard.key evt) {
       | "ArrowUp" => {
         ReactEventRe.Keyboard.preventDefault evt;
