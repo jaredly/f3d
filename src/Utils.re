@@ -93,3 +93,20 @@ let smallUnit unit => {
   };
   loop unitShortNames;
 };
+
+let unitSpeakableNames = [
+  ("cup", "cups", ["cup", "cups"]),
+  ("teaspoon", "teaspoons", ["teaspoon", "tablespoons", "tsp", "tsps"]),
+  ("tablespoon", "tablespoons", ["tablespoon", "tablespoons", "tbs"]),
+  ("ounce", "ounces", ["ounce", "ounces"]),
+];
+
+let speakableUnit unit isPlural => {
+  let canon = Js.String.toLowerCase unit;
+  let rec loop names => switch names {
+  | [] => unit
+  | [(singular, plural, longs), ...rest] when List.mem canon longs => isPlural ? plural : singular
+  | [_, ...rest] => loop rest
+  };
+  loop unitSpeakableNames;
+};

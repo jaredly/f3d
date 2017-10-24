@@ -3,9 +3,26 @@ open Utils;
 
 let component = ReasonReact.reducerComponent "DeleteButton";
 
-let button = Glamor.(css[
-
+let buttonBase = Glamor.([
+  backgroundColor "#cfc",
+  cursor "pointer",
+  border "none",
+  fontFamily "inherit",
+  fontSize "inherit",
+  fontWeight "inherit",
+  Selector ":hover" [
+    backgroundColor "#afa",
+  ]
 ]);
+
+let button = Glamor.css buttonBase;
+
+let redButton = Glamor.(css (buttonBase @ [
+  backgroundColor "#fcc",
+  Selector ":hover" [
+    backgroundColor "#faa",
+  ]
+]));
 
 let make ::onDelete _ => ReasonReact.{
   ...component,
@@ -14,15 +31,18 @@ let make ::onDelete _ => ReasonReact.{
   render: fun {state, reduce} => {
     state
     ?
-    <div className=Glamor.(css[flexDirection "row"])>
+    <div className=Glamor.(css[
+      flexDirection "row",
+    ])>
       <button
         className=button
         onClick=(reduce (fun _ => false))
       >
         (str "Just kidding")
       </button>
+      (spacer 32)
       <button
-        className=button
+        className=redButton
         onClick=(fun _ => onDelete ())
       >
         (str "Really delete")
@@ -31,7 +51,7 @@ let make ::onDelete _ => ReasonReact.{
     :
     <div className=Glamor.(css[flexDirection "row"])>
       <button
-        className=button
+        className=redButton
         onClick=(reduce (fun _ => true))
       >
         (str "Delete")

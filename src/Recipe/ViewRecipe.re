@@ -34,7 +34,8 @@ let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
   }),
 
   render: fun {state: (batches, making), reduce} => {
-    [%guard let false = making === Editing || making === Saving][@else
+    let uid = Firebase.Auth.fsUid fb;
+    [%guard let false = (making === Editing || making === Saving) && uid !== None][@else
       <EditRecipe
         saving=(making === Saving)
         allIngredients=ingredients
@@ -78,9 +79,11 @@ let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
         <button className=Styles.button onClick=(reduce (fun _ => ToggleMaking))>
           (str (making !== Normal ? "Stop making" : "Make"))
         </button>
-        <button className=Styles.button onClick=(reduce (fun _ => StartEditing))>
-          (str "Edit")
-        </button>
+        (uid === None
+        ? ReasonReact.nullElement
+        : <button className=Styles.button onClick=(reduce (fun _ => StartEditing))>
+            (str "Edit")
+          </button>)
       </div>
       (spacer 8)
       (Meta.metaLine
@@ -98,24 +101,30 @@ let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
         <div className=Glamor.(css[
           fontSize "20px",
           flexDirection "row",
+          flex "1",
         ])>
-        <AmountInput
-          value=(Some batches)
-          onChange=(fun value => value |> optMap (fun (value: float) => (reduce (fun _ => SetBatches value) ())) |> ignore)
-          className=Glamor.(css [
-            width "40px",
-          ])
-        />
-        (spacer 8)
-        <div className=Glamor.(css[
-          textTransform "none",
-          fontVariant "none",
-          fontWeight "200",
-        ])>
-          (str (batches === 1. ? "batch" : "batches"))
+          <AmountInput
+            value=(Some batches)
+            onChange=(fun value => value |> optMap (fun (value: float) => (reduce (fun _ => SetBatches value) ())) |> ignore)
+            className=Glamor.(css [
+              width "40px",
+            ])
+          />
+          (spacer 8)
+          <div className=Glamor.(css[
+            textTransform "none",
+            fontVariant "none",
+            fontWeight "200",
+          ])>
+            (str (batches === 1. ? "batch" : "batches"))
+          </div>
+          (spring)
+          <Listener
+            ingredients=recipe##ingredients
+            allIngredients=ingredients
+            instructions=recipe##instructions
+          />
         </div>
-        </div>
-        /** TODO num input */
       </div>
       (spacer 16)
       (Ingredients.render

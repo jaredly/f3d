@@ -55,7 +55,7 @@ let make ::auth ::navigate _children => ReasonReact.{
     <div className=Styles.container>
       (spacer 16)
       <a href="#/" className=Styles.logo>
-        (str "Foood")
+        (str "Hello React Vienna")
       </a>
       spring
       (uid === None ? ReasonReact.nullElement : <a href="#/add" className=Styles.topMenu>

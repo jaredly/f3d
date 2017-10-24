@@ -191,11 +191,6 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel ::onDe
         onChange::(reduce (fun (headers, instructions) => SetInstructions (headers, instructions)))
       )
       (spacer 64)
-      {[%guard let Some onDelete = onDelete][@else ReasonReact.nullElement];
-        <DeleteButton
-          onDelete
-        />
-      }
       <ImportInput
         fb
         allIngredients
@@ -210,6 +205,13 @@ let make ::saving ::recipe ::allIngredients ::fb ::id ::onSave ::onCancel ::onDe
           ingredientHeaders: [||], /** TODO import headers too */
         }))
       />
+      (spacer 32)
+      {[%guard let Some onDelete = onDelete][@else ReasonReact.nullElement];
+        <DeleteButton
+          onDelete
+        />
+      }
+      (spacer 64)
     </div>
   }
 };

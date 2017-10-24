@@ -20,7 +20,7 @@ let module Styles = {
   ];
   let comment = css [
     fontStyle "italic",
-    maxWidth "50vw",
+    flex "1",
     color "#777",
   ];
 };
@@ -67,6 +67,7 @@ let render ::batches ::ingredients ::allIngredients ::making => {
         <td className=Glamor.(css[
           textAlign "right",
           fontFamily "Source Sans Pro",
+          whiteSpace "nowrap",
           fontWeight "200"
         ])>
           (maybe ingredient##amount (fun amount => {
