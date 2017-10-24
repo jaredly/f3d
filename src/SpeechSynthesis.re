@@ -9,11 +9,11 @@ let speak: string => (unit => unit) => unit = [%bs.raw {|
     var u = new SpeechSynthesisUtterance(text.slice(0, 500));
     var voiceName = 'Google UK English Female'
     voiceName = 'Google US English'
-    if (localStorage.deutch === 'true') {
+    /* if (localStorage.deutch === 'true') {
       voiceName = 'Google Deutsch'
-    }
+    } */
     u.voice = speechSynthesis.getVoices().filter(s => s.voiceURI === voiceName)[0]
-    u.rate = 0.8
+    /* u.rate = 0.8 */
     var called = false
     var interval = setInterval(() => {
       if (called) return

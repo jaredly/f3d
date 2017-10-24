@@ -119,6 +119,12 @@ let make ::navigate ::recipe ::ingredients ::fb ::id _children => ReasonReact.{
             (str (batches === 1. ? "batch" : "batches"))
           </div>
           (spring)
+          <Speaker
+            instructions=recipe##instructions
+            ingredients=recipe##ingredients
+            allIngredients=ingredients
+          />
+          (spacer 16)
           <Listener
             ingredients=recipe##ingredients
             allIngredients=ingredients
