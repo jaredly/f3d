@@ -1,0 +1,13 @@
+{
+  "name": "firebase-react",
+  "reason" : {"react-jsx": 2},
+  "namespace": false,
+  "bsc-flags": ["-bs-super-errors"],
+  "bs-dependencies": [
+    "reason-react",
+    "bs-firebase"
+  ],
+  "refmt": 3,
+  "sources": ["src"],
+  "ppx-flags": []
+}

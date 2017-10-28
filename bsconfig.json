@@ -8,7 +8,9 @@
   "bsc-flags": ["-bs-super-errors"],
   "bs-dependencies": [
     "reason-react",
-    "bs-glamor"
+    "bs-glamor",
+    "bs-firebase",
+    "bs-firebase-react"
   ],
   "refmt": 3,
   "sources": ["src", "src/Recipe", "src/EditRecipe"],

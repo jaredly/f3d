@@ -1,0 +1,10 @@
+{
+  "name": "firebase",
+  "reason" : {"react-jsx": 2},
+  "namespace": false,
+  "bsc-flags": ["-bs-super-errors"],
+  "bs-dependencies": [],
+  "refmt": 3,
+  "sources": ["src"],
+  "ppx-flags": []
+}

@@ -19,6 +19,13 @@ type auth;
 
 [@bs.get] external app : firestore => firebase = "";
 
+let optMap = (fn, value) =>
+  switch value {
+  | None => None
+  | Some(v) => Some(fn(v))
+  };
+
+
 module Auth = {
   type user;
   [@bs.get] external currentUser : auth => Js.nullable(user) = "";
@@ -30,7 +37,7 @@ module Auth = {
   [@bs.send] external onAuthStateChanged : (auth, Js.nullable(user) => unit) => unit = "";
   [@bs.get] external uid : user => string = "";
   let fsUid = (fs) =>
-    app(fs) |> auth |> currentUser |> Js.Nullable.to_opt |> BaseUtils.optMap(uid);
+    app(fs) |> auth |> currentUser |> Js.Nullable.to_opt |> optMap(uid);
 };
 
 type collection('t);
