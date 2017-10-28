@@ -1,16 +1,29 @@
-
 Firebase.useFirestore;
 
-external config: Firebase.config = "../../../config.js" [@@bs.module];
-let fb = Firebase.initializeApp config;
+[@bs.module] external config : Firebase.config = "../../../config.js";
+
+let fb = Firebase.initializeApp(config);
 
 [%bs.raw "window.fb = fb"];
-external hack: unit = "../../../src/hack.js" [@@bs.module];
+
+[@bs.module] external hack : unit = "../../../src/hack.js";
+
 hack;
 
-Firebase.enablePersistence (Firebase.firestore fb)
-|> Js.Promise.catch (fun err => {Js.log2 "error" err; Js.Promise.resolve ()})
-|> Js.Promise.then_ (fun () => {
-  ReactDOMRe.renderToElementWithId <App fb=(Firebase.firestore fb) auth=(Firebase.auth fb) /> "root";
-  Js.Promise.resolve ();
-}) |> ignore;
+Firebase.enablePersistence(Firebase.firestore(fb))
+|> Js.Promise.catch(
+     (err) => {
+       Js.log2("error", err);
+       Js.Promise.resolve()
+     }
+   )
+|> Js.Promise.then_(
+     () => {
+       ReactDOMRe.renderToElementWithId(
+         <App fb=(Firebase.firestore(fb)) auth=(Firebase.auth(fb)) />,
+         "root"
+       );
+       Js.Promise.resolve()
+     }
+   )
+|> ignore;

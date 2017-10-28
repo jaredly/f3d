@@ -1,8 +1,10 @@
+/*** This causes the voices to load */
+let x = [%bs.raw {|console.log(speechSynthesis.getVoices())|}];
 
-/** This causes the voices to load */
-let x = [%bs.raw{|console.log(speechSynthesis.getVoices())|}];
-
-let speak: string => (unit => unit) => unit = [%bs.raw {|
+let speak: (string, unit => unit) => unit =
+  [@bs]
+  [%bs.raw
+    {|
   function(text, done) {
     console.log('speaking', text)
     speechSynthesis.cancel()
@@ -36,20 +38,22 @@ let speak: string => (unit => unit) => unit = [%bs.raw {|
     }
     speechSynthesis.speak(u)
   }
-|}][@bs];
+|}
+  ];
 
-let speakSeveral: array string => (unit => unit) => unit = fun items ondone => {
-  let rec loop i => {
-    if (i >= Array.length items) {
-      ondone ()
-    } else {
-      speak items.(i) (fun () => loop (i + 1))
-    }
+let speakSeveral: (array(string), unit => unit) => unit =
+  (items, ondone) => {
+    let rec loop = (i) =>
+      if (i >= Array.length(items)) {
+        ondone()
+      } else {
+        speak(items[i], () => loop(i + 1))
+      };
+    loop(0)
   };
-  loop 0;
-};
 
-let recognize: (Js.null string => unit) => (unit => unit) = [%bs.raw {|
+let recognize: (Js.null(string) => unit, unit) => unit = [%bs.raw
+  {|
   function(done) {
     console.log('recognizing');
     var r = new webkitSpeechRecognition();
@@ -70,9 +74,11 @@ let recognize: (Js.null string => unit) => (unit => unit) = [%bs.raw {|
     r.start()
     return () => {isDone = true; r.abort()}
   }
-|}];
+|}
+];
 
-let beep: (unit => unit) = [%bs.raw {|
+let beep: unit => unit = [%bs.raw
+  {|
   function () {
 
     var context = new AudioContext();
@@ -96,35 +102,37 @@ let beep: (unit => unit) = [%bs.raw {|
       }, 100)
     }, 100)
 }
-|}];
+|}
+];
 
-let ingredientText map ring => {
+let ingredientText = (map, ring) => {
   open BaseUtils;
-  let ing = Js.Dict.get map ring##ingredient;
-  [%guard let Some ing = ing][@else ""];
-  ing##name ^ "."
+  let ing = Js.Dict.get(map, ring##ingredient);
+  [@else ""] [%guard let Some(ing) = ing];
+  ing##name ++ "."
 };
 
-let fullIngredientText map ring => {
+let fullIngredientText = (map, ring) => {
   open BaseUtils;
-  let ing = Js.Dict.get map ring##ingredient;
-  [%guard let Some ing = ing][@else ""];
-  let amount = ring##amount |> Js.Null.to_opt
-  |> optMap (fun amount => Utils.fractionify amount ^ " ") |> optOr "";
-  let plural = ring##amount |> Js.Null.to_opt |> optMap (fun a => a != 1.) |> optOr false;
-  let unit = ring##unit |> Js.Null.to_opt
-  |> optMap (fun unit => Utils.speakableUnit unit plural ^ " ") |> optOr "";
-  let comments = ring##comments |> Js.Null.to_opt
-  |> optMap (fun comments => " " ^ comments) |> optOr "";
-  amount ^ unit ^ ing##name ^ comments ^ "."
+  let ing = Js.Dict.get(map, ring##ingredient);
+  [@else ""] [%guard let Some(ing) = ing];
+  let amount =
+    ring##amount
+    |> Js.Null.to_opt
+    |> optMap((amount) => Utils.fractionify(amount) ++ " ")
+    |> optOr("");
+  let plural = ring##amount |> Js.Null.to_opt |> optMap((a) => a != 1.) |> optOr(false);
+  let unit =
+    ring##unit
+    |> Js.Null.to_opt
+    |> optMap((unit) => Utils.speakableUnit(unit, plural) ++ " ")
+    |> optOr("");
+  let comments =
+    ring##comments |> Js.Null.to_opt |> optMap((comments) => " " ++ comments) |> optOr("");
+  amount ++ (unit ++ (ing##name ++ (comments ++ ".")))
 };
 
-let ingredientsText map ingredients => {
-  Js.Array.joinWith "\n" (Array.map
-  (ingredientText map)
-  ingredients)
-};
+let ingredientsText = (map, ingredients) =>
+  Js.Array.joinWith("\n", Array.map(ingredientText(map), ingredients));
 
-let handleCommand command map ingredients instructions => {
-  
-};
+let handleCommand = (command, map, ingredients, instructions) => {};

@@ -1,8 +1,9 @@
-
-let startMoving ::positions ::key ::margin ::onDrop evt => {
-  ReactEventRe.Mouse.preventDefault evt;
+let startMoving = (~positions, ~key, ~margin, ~onDrop, evt) => {
+  ReactEventRe.Mouse.preventDefault(evt);
   /* Js.log2 "moving" key; */
-  [%bs.raw {|function(positions, key, margin, onDrop){
+  [@bs]
+  [%bs.raw
+    {|function(positions, key, margin, onDrop){
     /* console.log('key', key, positions) */
 
     var indicator = document.createElement('div')
@@ -44,5 +45,11 @@ let startMoving ::positions ::key ::margin ::onDrop evt => {
 
     window.addEventListener('mousemove', handler)
     window.addEventListener('mouseup', destroy)
-  }|}] positions key margin onDrop [@@bs];
+  }|}
+  ](
+    positions,
+    key,
+    margin,
+    onDrop
+  )
 };
