@@ -164,8 +164,8 @@ let make ::allIngredients ::ingredients ::instructions _ => ReasonReact.{
   initialState: fun () => {currently: `Off, currentIngredient: 0, currentInstruction: 0, unlisten: ref None},
   reducer: fun action state => (switch action {
   | TurnOn => ReasonReact.UpdateWithSideEffects {...state, currently: `Listening} (fun {state, reduce} => {
-    (handleCommand reduce (Ingredients.ingredientsMap allIngredients) ingredients instructions state (Js.Null.return "what is the first instruction"))
-    /* state.unlisten := Some (listen (handleCommand reduce (Ingredients.ingredientsMap allIngredients) ingredients instructions state)) */
+    /* (handleCommand reduce (Ingredients.ingredientsMap allIngredients) ingredients instructions state (Js.Null.return "what is the first instruction")) */
+    state.unlisten := Some (listen (handleCommand reduce (Ingredients.ingredientsMap allIngredients) ingredients instructions state))
   })
   | TurnOff => ReasonReact.UpdateWithSideEffects {...state, currently: `Off} (fun {state} => {
     switch (!state.unlisten) {

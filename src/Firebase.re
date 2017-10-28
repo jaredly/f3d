@@ -6,6 +6,7 @@ type auth;
 
 /* external config: apiKey::string => authDomain::string => projectId::string => config = "" [@@bs.obj]; */
 
+
 external initializeApp: config => firebase = "" [@@bs.module "firebase"];
 external useFirestore: unit = "" [@@bs.module "firebase/firestore"];
 external firestore: firebase => firestore = "" [@@bs.send];
