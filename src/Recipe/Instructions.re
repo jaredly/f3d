@@ -30,7 +30,7 @@ let render = (~instructions, ~making) =>
             (
               switch making {
               | None => ReasonReact.nullElement
-              | Some((set, onChange)) =>
+              | Some((set, _onChange)) =>
                 let checked = IntSet.mem(i, set);
                 <div
                   style=(

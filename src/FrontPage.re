@@ -10,7 +10,7 @@ type state = (list(string), list(string), string);
 let make = (~fb, ~navigate, _children) =>
   ReasonReact.{
     ...component,
-    reducer: (action, state) => ReasonReact.Update(action),
+    reducer: (action, _state) => ReasonReact.Update(action),
     initialState: () => SearchBar.empty,
     render: ({state, reduce}) =>
       <div className=Glamor.(css([maxWidth("100%"), width("1000px"), alignSelf("center")]))>

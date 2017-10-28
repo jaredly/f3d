@@ -40,7 +40,7 @@ let make = (~auth, ~navigate, _children) =>
       let uid = Firebase.Auth.currentUser(auth) |> Js.Nullable.to_opt;
       <div className=Styles.container>
         (spacer(16))
-        <a href="#/" className=Styles.logo> (str("Hello React Vienna")) </a>
+        <a href="#/" className=Styles.logo> (str("Foood")) </a>
         spring
         (
           uid === None ?

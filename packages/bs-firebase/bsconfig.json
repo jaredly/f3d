@@ -1,5 +1,5 @@
 {
-  "name": "firebase",
+  "name": "bs-firebase",
   "reason" : {"react-jsx": 2},
   "namespace": false,
   "bsc-flags": ["-bs-super-errors"],
