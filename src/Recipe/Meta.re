@@ -58,12 +58,12 @@ let metaLine = (~meta, ~source) => {
           href=source
           target="_blank"
           rel="noreferrer noopener"
-          className=Glamor.(css([textDecoration("none")]))>
+          className=Glamor.(css([textDecoration("none"), color(Shared.action)]))>
           (str("source"))
         </a>
     )
   ];
-  <div className=Glamor.(css([flexDirection("row")]))>
+  <div className=Glamor.(css([flexDirection("row"), flexWrap("wrap")]))>
     (
       items
       |> filterMaybe

@@ -89,7 +89,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
-          <button className=Styles.button onClick=(reduce((_) => ToggleMaking))>
+          <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
             (str(making !== Normal ? "Stop making" : "Make"))
           </button>
           (
@@ -127,12 +127,12 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               (str(batches === 1. ? "batch" : "batches"))
             </div>
             spring
-            <Speaker
+            /* <Speaker
               instructions=recipe##instructions
               ingredients=recipe##ingredients
               allIngredients=ingredients
             />
-            (spacer(16))
+            (spacer(16)) */
             <Listener
               ingredients=recipe##ingredients
               allIngredients=ingredients

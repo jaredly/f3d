@@ -24,6 +24,8 @@ let make = (~fb, ~auth, _children) =>
           [`Exact(("/login", (navigate) => <LogInPage auth navigate />))] :
           [`Exact(("/add", (navigate) => <AddRecipe fb navigate />))];
       let routes = routes @ basicRoutes;
-      <Router routes render=((child, navigate) => <div> <Header auth navigate /> child </div>) />
+      <Router routes render=((child, navigate) => <div
+        style=ReactDOMRe.Style.(make(~color=Shared.dark, ()))
+      > <Header auth navigate /> child </div>) />
     }
   };

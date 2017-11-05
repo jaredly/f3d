@@ -21,19 +21,33 @@ let header =
     paddingTop("8px")
   ]);
 
-let button =
-  css([
+let buttonStyles = [
     fontSize("inherit"),
     border("none"),
     backgroundColor("transparent"),
     padding("0"),
     margin("0"),
     fontWeight("inherit"),
-    color("#777"),
+    color(Shared.action),
+    fontWeight("200"),
     cursor("pointer"),
     padding("8px 16px"),
-    Selector(":hover", [color("black")])
-  ]);
+    Selector(":hover", [color("black")]),
+    outline("none"),
+    transition(".1s ease box-shadow, .1s ease transform"),
+    Selector(":hover", [
+      boxShadow("0 1px 5px #aaa"),
+      transform("translateY(-1px)"),
+    ]),
+  ];
+
+let button =
+  css(buttonStyles);
+
+let primaryButton = css( buttonStyles @ [
+  backgroundColor(Shared.action),
+  color(Shared.light),
+]);
 
 let editButton =
   css([

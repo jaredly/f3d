@@ -19,7 +19,7 @@ module Styles = {
       flexDirection("row"),
       alignItems("center"),
       lineHeight("1"),
-      backgroundColor("#333"),
+      backgroundColor(Shared.dark),
       color("white"),
       marginBottom("16px")
     ]);
@@ -29,13 +29,23 @@ module Styles = {
     css([cursor("pointer"), padding("16px"), textDecoration("none"), color("currentColor")]);
   let menuItem =
     css([padding("16px 24px"), cursor("pointer"), Selector(":hover", [backgroundColor("#555")])]);
+  let loginButton = css([
+    padding("16px"),
+    cursor("pointer"),
+    textDecoration("none"),
+    color("currentColor"),
+    Selector(":hover", [backgroundColor("#555")])
+  ]);
+  let username = css([
+    padding("16px"),
+    cursor("pointer"),
+    Selector(":hover", [backgroundColor("#555")])
+  ]);
 };
 
 let make = (~auth, ~navigate, _children) =>
   ReasonReact.{
     ...component,
-    /* initialState: fun () => (name auth), */
-    /* reducer: fun action _ => ReasonReact.Update action, */
     render: (_) => {
       let uid = Firebase.Auth.currentUser(auth) |> Js.Nullable.to_opt;
       <div className=Styles.container>
@@ -57,24 +67,14 @@ let make = (~auth, ~navigate, _children) =>
                   <div
                     className=Styles.menuItem
                     key="Logout"
-                    onClick=(
-                      (_) =>
-                        /* (reduce (fun _ => None)) (); */
-                        Firebase.Auth.signOut(auth)
-                    )>
+                    onClick=((_) => Firebase.Auth.signOut(auth))>
                     (str("Logout"))
                   </div>
                 |])
               )>
               <div
                 key="name"
-                className=Glamor.(
-                            css([
-                              padding("16px"),
-                              cursor("pointer"),
-                              Selector(":hover", [backgroundColor("#555")])
-                            ])
-                          )>
+                className=Styles.username>
                 (str(name))
               </div>
             </Menu>
@@ -83,15 +83,7 @@ let make = (~auth, ~navigate, _children) =>
               dest="/login"
               navigate
               text="Login"
-              className=Glamor.(
-                          css([
-                            padding("16px"),
-                            cursor("pointer"),
-                            textDecoration("none"),
-                            color("currentColor"),
-                            Selector(":hover", [backgroundColor("#555")])
-                          ])
-                        )
+              className=Styles.loginButton
             />
           }
         )

@@ -221,17 +221,7 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
       },
     render: ({state, reduce}) =>
       <button
-        className=Glamor.(
-                    css([
-                      backgroundColor("transparent"),
-                      border("none"),
-                      cursor("pointer"),
-                      fontSize("inherit"),
-                      fontFamily("inherit"),
-                      fontWeight("inherit"),
-                      Selector(":hover", [backgroundColor("#eee")])
-                    ])
-                  )
+        className=RecipeStyles.button
         onClick=(
           (_) =>
             switch state.currently {
@@ -253,3 +243,15 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
         )
       </button>
   };
+
+/* Glamor.(
+                    css([
+                      backgroundColor("transparent"),
+                      border("none"),
+                      cursor("pointer"),
+                      fontSize("inherit"),
+                      fontFamily("inherit"),
+                      fontWeight("inherit"),
+                      Selector(":hover", [backgroundColor("#eee")])
+                    ])
+                  ) */

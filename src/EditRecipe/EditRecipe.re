@@ -17,7 +17,7 @@ module Styles = {
       borderBottom("1px solid #aaa"),
       outline("none")
     ]);
-  let saveButton = css([color("green"), fontWeight("400")]);
+  let saveButton = RecipeStyles.primaryButton;
   let disabledbutton =
     css([
       fontWeight("200"),
