@@ -167,6 +167,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
           )
         )
         (spacer(64))
+        <MadeItEntry.Adder recipe />
       </div>
     }
   };
