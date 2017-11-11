@@ -1,9 +1,15 @@
 open Glamor;
 
-let container =
-  css
-    ([padding("0 16px"), width("800px"), maxWidth("100%"), alignSelf("center"), fontSize("20px")]);
-    /* letterSpacing "1px", */
+let container = css ([
+  position("relative"),
+  width("800px"),
+  maxWidth("100%"),
+  alignSelf("center"),
+  fontSize("20px"),
+  Selector("@media(max-width:1100px)", [
+    padding("0 16px"),
+  ])
+]);
 
 let loading = css([alignItems("center")]);
 
@@ -20,6 +26,8 @@ let header =
     paddingBottom("8px"),
     paddingTop("8px")
   ]);
+
+let row = css([flexDirection("row")]);
 
 let buttonStyles = [
     fontSize("inherit"),
@@ -49,6 +57,37 @@ let primaryButton = css( buttonStyles @ [
   color(Shared.light),
 ]);
 
+let smallButton = css([
+  fontSize("inherit"),
+  border("none"),
+  backgroundColor("transparent"),
+  padding("0"),
+  margin("0"),
+  fontWeight("inherit"),
+  color(Shared.action),
+  fontWeight("200"),
+  cursor("pointer"),
+  padding("4px 16px"),
+  Selector(":hover", [color("black")]),
+  outline("none"),
+  borderBottom("2px solid transparent"),
+  transition(".1s ease border-bottom-color"),
+  Selector(":hover", [
+    borderBottom("2px solid #ccc")
+  ]),
+]);
+
+let rightSide = css([
+  position("absolute"),
+  flexDirection("row"),
+  left("100%"),
+  marginLeft("8px"),
+  Selector("@media(max-width:1100px)", [
+    position("static"),
+    marginLeft("0")
+  ])
+]);
+
 let editButton =
   css([
     textDecoration("none"),
@@ -63,8 +102,9 @@ let subHeader =
   css([
     alignItems("center"),
     flexDirection("row"),
-    fontSize("36px"),
-    fontWeight("400"),
+    fontSize("24px"),
+    fontWeight("600"),
+    position("relatiev"),
     /* letterSpacing "1px", */
-    fontVariant("small-caps")
+    /* fontVariant("small-caps") */
   ]);

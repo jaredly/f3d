@@ -69,17 +69,29 @@ type meta = {
   "yieldUnit": nu(string)
 };
 
-
 /*** Database types */
 type userData = {
   .
-  "flickrToken": nu(Flickr.token), "following": array(string), "homepageLists": array(string)
+  "flickrToken": nu(Flickr.token),
+  "following": array(string),
+  "homepageLists": array(string)
   /*** TODO what else here? */
 };
 
 module UserData = {
   let name = "userDatas";
   type t = userData;
+};
+
+type publicUserData = {
+  .
+  "name": string
+  /* TODO profile pic or something? */
+};
+
+module PublicUserData = {
+  let name = "publicUserData";
+  type t = publicUserData;
 };
 
 type ingredient = {
@@ -134,12 +146,15 @@ type recipe = {
   "ingredients": array(recipeIngredient),
   "ingredientHeaders": array(header),
   "ingredientsUsed": Js.Dict.t(Js.boolean),
+  "images": nu(array(string)),
+  "rating": nu(int),
+  "notes": nu(string),
   "description": nu(string),
   "meta": meta,
-  "comments":
-    array(
-      {. "id": string, "authorId": string, "created": float, "replyTo": nu(string), "text": string}
-    )
+  "comments": array({.
+    "id": string, "authorId": string,
+    "created": float, "replyTo": nu(string), "text": string
+  })
 };
 
 module Recipe = {
@@ -147,18 +162,35 @@ module Recipe = {
   type t = recipe;
 };
 
-type madeIt = {
-  .
+type madeIt = {.
   "id": string,
-  "authorId": string,
   "recipeId": string,
-  "notes": string,
+  "authorId": string,
+
+  "collaborators": Js.Dict.t(Js.boolean), /* gets copied from main recipe? if its private */
+  "isPrivate": Js.boolean,
+
+  "created": float,
+  "updated": float,
+
+  "imageUrl": nu(string), /* Will just be the first one prolly */
+  "images": array(string),
+
+  /* first pass: not allow editing */
+  "instructions": array(instruction),
+  "instructionHeaders": array(header),
+
   "ingredients": array(recipeIngredient),
   "ingredientHeaders": array(header),
-  "images": array(string),
-  "created": float,
-  "rating": int,
-  "meta": meta
+
+  "batches": float,
+  "ateWithRecipes": array(string), /* recipe ids */
+  /** I like this :D */
+
+  /* first pass: just these */
+  "notes": string,
+  "rating": nu(int),
+  "meta": meta,
 };
 
 module MadeIt = {

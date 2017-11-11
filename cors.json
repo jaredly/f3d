@@ -1,0 +1,7 @@
+[
+  {
+    "origin": ["http://localhost:7434", "https://foood.jaredforsyth.com"],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  }
+]

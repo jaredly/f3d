@@ -21,7 +21,7 @@ type style = {
 
 [@bs.set] [@bs.scope "style"] external setDisplay : (Dom.element, string) => unit = "display";
 
-let getShadowHeight = (value, node) => {
+let getShadowHeight = (_value, node) => {
   let style = getComputedStyle(node);
   /* if (Js.String.trim value === "") {
        let lineHeight = parseFloat (style##lineHeight === "normal" ? style##fontSize : style##lineHeight);

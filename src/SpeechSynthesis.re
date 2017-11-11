@@ -11,9 +11,6 @@ let speak: (string, unit => unit) => unit =
     var u = new SpeechSynthesisUtterance(text.slice(0, 500));
     var voiceName = 'Google UK English Female'
     voiceName = 'Google US English'
-    /* if (localStorage.deutch === 'true') {
-      voiceName = 'Google Deutsch'
-    } */
     u.voice = speechSynthesis.getVoices().filter(s => s.voiceURI === voiceName)[0]
     /* u.rate = 0.8 */
     var called = false
@@ -74,6 +71,34 @@ let recognize: (Js.null(string) => unit, unit) => unit = [%bs.raw
     r.start()
     return () => {isDone = true; r.abort()}
   }
+|}
+];
+
+let beep2: unit => unit = [%bs.raw
+  {|
+  function () {
+
+    var context = new AudioContext();
+    var oscillator = context.createOscillator();
+    var gainNode = context.createGain();
+
+    oscillator.frequency.value = 240;
+    oscillator.type = 'sine';
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination)
+    gainNode.gain.setTargetAtTime(0, context.currentTime, 0);
+    gainNode.gain.setTargetAtTime(1, context.currentTime, 0.03);
+    oscillator.start();
+
+    setTimeout(() => {
+      gainNode.gain.setTargetAtTime(0, context.currentTime, 0.015);
+      setTimeout(() => {
+        oscillator.stop()
+        context.close()
+      }, 100)
+    }, 100)
+}
 |}
 ];
 

@@ -13,6 +13,20 @@ type doc('t);
 [@bs.send] external enablePersistence : firestore => Js.Promise.t(unit) = "";
 [@bs.get] external app : firestore => firebase = "";
 
+/** TODO maybe use this */
+let module Storage = {
+  type storage;
+  type ref;
+  type snapshot;
+  type file;
+  [@bs.send] external get : firebase => storage = "";
+  [@bs.send] external ref : storage => ref = "";
+  [@bs.send] external child : ref => string => ref = "";
+  [@bs.send] external put : ref => file => Js.Promise.t(snapshot) = "";
+  [@bs.send] external delete : ref => Js.Promise.t(unit) = "";
+  [@bs.send] external getDownloadURL : ref => Js.Promise.t(string) = "";
+};
+
 let optMap = (fn, value) =>
   switch value {
   | None => None

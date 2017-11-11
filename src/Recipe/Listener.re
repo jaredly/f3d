@@ -54,13 +54,20 @@ let speakMany = (reduce, items) => {
 let parseCommand = (command, map, ingredients) =>
   switch command {
   | "what's the first instruction"
+  | "what's the first construction"
   | "what is the first instruction"
+  | "what is the first construction"
+  | "first construction"
+  | "first step"
   | "first instruction" => `FirstInstruction
   | "repeat that"
   | "repeat"
   | "again" => `Repeat
   | "what's the next instruction"
+  | "what's the next step"
   | "what is the next instruction"
+  | "what is the next step"
+  | "next step"
   | "next instruction" => `NextInstruction
   | "what are the rest of the instructions"
   | "rest of instructions"
@@ -136,7 +143,11 @@ let handleCommand = (reduce, map, ingredients, instructions, state, text) => {
   | `IngredientNotFound(name) => speak(reduce, "I can't find " ++ (name ++ " in the recipe"))
   | `Ingredient((ings: array(Models.recipeIngredient))) =>
     speakMany(reduce, Array.map(SpeechSynthesis.fullIngredientText(map), ings))
-  | `UnknownCommand(command) => speak(reduce, "Unknown command: " ++ command)
+  | `UnknownCommand(_command) => {
+    SpeechSynthesis.beep2();
+    reduce((_) => DoneSpeaking)()
+  }
+        /* speak(reduce, "Unknown command: " ++ command) */
   | `FirstInstruction =>
     (reduce((_) => StartSpeakingAt((state.currentIngredient, 0))))();
     SpeechSynthesis.speak(instructions[0]##text, reduce((_) => DoneSpeaking))

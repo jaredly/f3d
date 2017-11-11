@@ -30,7 +30,9 @@ module Styles = {
 type state = {
   title: string,
   description: string,
+  notes: string,
   meta: Models.meta,
+  rating: Js.null(int),
   source: Js.null(string),
   ingredients: array(Models.maybeRecipeIngredient),
   ingredientHeaders: array(Models.header),
@@ -40,6 +42,7 @@ type state = {
 
 type action =
   | SetDescription(string)
+  | SetNotes(string)
   | SetSource(Js.null(string))
   | SetIngredients((array(Models.header), array(Models.maybeRecipeIngredient)))
   | SetInstructions((array(Models.header), array(Models.instruction)))
@@ -69,6 +72,8 @@ let updateRecipe =
       {
         title,
         description,
+        notes,
+        /* rating, */
         source,
         meta,
         ingredients,
@@ -80,6 +85,9 @@ let updateRecipe =
   let recipe = clone(recipe) |> Obj.magic;
   recipe##title#=title;
   recipe##description#=description;
+  recipe##notes#=notes;
+  /* TODO data upgrade */
+  /* recipe##rating#=rating; */
   recipe##meta#=meta;
   recipe##ingredients#=(ingredients |> Array.map(Models.reallyRecipeIngredient));
   recipe##instructions#=instructions;
@@ -104,6 +112,8 @@ let make =
       meta: recipe##meta,
       source: recipe##source,
       description: recipe##description |> Js.Null.to_opt |> BaseUtils.optOr(""),
+      notes: recipe##notes |> Js.Null.to_opt |> BaseUtils.optOr(""),
+      rating: recipe##rating,
       ingredients: recipe##ingredients |> Array.map(Models.maybeRecipeIngredient),
       ingredientHeaders: recipe##ingredientHeaders,
       instructions: recipe##instructions,
@@ -128,6 +138,7 @@ let make =
           }
         | Import(state) => state
         | SetDescription(description) => {...state, description}
+        | SetNotes(notes) => {...state, notes}
         }
       ),
     render:
@@ -137,6 +148,7 @@ let make =
             {
               title,
               description,
+              notes,
               ingredients,
               ingredientHeaders,
               instructions,
@@ -211,8 +223,7 @@ let make =
         />
         (spacer(32 - 2 /* correct for border */))
         <div className=Styles.subHeader>
-           (str("ingredients")) (spacer(32)) </div>
-          /*** TODO num input */
+           (str("Ingredients")) (spacer(32)) </div>
         (spacer(16))
         (
           EditIngredients.render(
@@ -230,7 +241,7 @@ let make =
           )
         )
         (spacer(32))
-        <div className=Styles.subHeader> (str("instructions")) </div>
+        <div className=Styles.subHeader> (str("Instructions")) </div>
         (spacer(16))
         (
           EditInstructions.render(
@@ -239,6 +250,22 @@ let make =
             ~onChange=reduce(((headers, instructions)) => SetInstructions((headers, instructions)))
           )
         )
+        (spacer(32))
+        <div className=Styles.subHeader> (str("Notes")) </div>
+        (spacer(16))
+        <Textarea
+          value=notes
+          onChange=(reduce((text) => SetNotes(text)))
+          className=Glamor.(
+                      css([
+                        border("none"),
+                        borderBottom("1px solid #aaa"),
+                        outline("none"),
+                        fontStyle("italic"),
+                        padding("0")
+                      ])
+                    )
+        />
         (spacer(64))
         <ImportInput
           fb
@@ -255,6 +282,8 @@ let make =
                     meta: recipe##meta,
                     ingredients: recipe##ingredients,
                     description: recipe##description,
+                    notes: "",
+                    rating: Js.null,
                     ingredientHeaders: [||]
                   }) /*** TODO import headers too */
             )

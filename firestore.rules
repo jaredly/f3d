@@ -29,6 +29,11 @@ service cloud.firestore {
       	|| request.auth.uid in resource.data.collaborators
     }
 
+    match /publicUserData/{userId} {
+      allow write: if userId == request.auth.uid;
+      allow read;
+    }
+
     match /userData/{userId} {
 	    allow read, write: if userId == request.auth.uid;
     }

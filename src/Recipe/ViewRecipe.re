@@ -89,6 +89,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
+          <div className=Styles.rightSide>
           <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
             (str(making !== Normal ? "Stop making" : "Make"))
           </button>
@@ -99,6 +100,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
                 (str("Edit"))
               </button>
           )
+          </div>
         </div>
         (spacer(8))
         (Meta.metaLine(~meta=recipe##meta, ~source=recipe##source))
@@ -108,7 +110,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         </div>
         (spacer(32))
         <div className=Styles.subHeader>
-          (str("ingredients"))
+          (str("Ingredients"))
           (spacer(32))
           <div className=Glamor.(css([fontSize("20px"), flexDirection("row"), flex("1")]))>
             <AmountInput
@@ -127,6 +129,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               (str(batches === 1. ? "batch" : "batches"))
             </div>
             spring
+            <div className=Styles.rightSide>
             /* <Speaker
               instructions=recipe##instructions
               ingredients=recipe##ingredients
@@ -138,6 +141,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               allIngredients=ingredients
               instructions=recipe##instructions
             />
+            </div>
           </div>
         </div>
         (spacer(16))
@@ -154,7 +158,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
           )
         )
         (spacer(32))
-        <div className=Styles.subHeader> (str("instructions")) </div>
+        <div className=Styles.subHeader> (str("Instructions")) </div>
         (spacer(16))
         (
           Instructions.render(
@@ -166,8 +170,35 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               }
           )
         )
-        (spacer(64))
-        <MadeItEntry.Adder recipe />
+        (spacer(32))
+        <div className=Styles.subHeader> (str("Notes")) </div>
+        (spacer(16))
+        <div className=Glamor.(css([whiteSpace("pre-wrap")]))>
+          (orr("", Js.Null.to_opt(recipe##notes)) |> ifEmpty("No notes") |> str)
+        </div>
+        (spacer(32))
+        <div className=Styles.subHeader> (str("Experiences")) </div>
+        (spacer(16))
+        <MadeItEntry.Adder
+          recipe
+          onAdd=((madeIt) => {
+            Js.log("adding");
+            module FB = Firebase.Collection(Models.MadeIt);
+            let collection = FB.get(fb);
+            let doc = Firebase.doc(collection, madeIt##id);
+            Firebase.set(doc, madeIt)
+            |> Js.Promise.then_(
+                  () => {
+                    (reduce((_) => DoneSaving))();
+                    Js.Promise.resolve()
+                  }
+                )
+            |> ignore;
+          })
+        />
+        (spacer(32))
+        <ViewMadeIts id=recipe##id fb />
+        (spacer(128))
       </div>
     }
   };

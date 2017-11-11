@@ -23,6 +23,9 @@ let blankRecipe: (string, string) => Models.recipe =
       "ingredients": [||],
       "ingredientsUsed": empty,
       "description": Js.null,
+      "notes": Js.null,
+      "images": Js.null,
+      "rating": Js.null,
       "comments": [||],
       "meta": {
         "cookTime": Js.null,
@@ -105,7 +108,7 @@ module IngredientsFetcher =
     }
   );
 
-let make = (~fb, ~navigate, children) =>
+let make = (~fb, ~navigate, _children) =>
   IngredientsFetcher.make(
     ~fb,
     ~render=
