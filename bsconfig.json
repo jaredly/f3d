@@ -5,17 +5,17 @@
 {
   "name" : "f3d",
   "reason" : {"react-jsx" : 2},
-  "bsc-flags": ["-bs-super-errors"],
+  "bsc-flags": ["-bs-super-errors -w -27-33-102-26-32"],
   "bs-dependencies": [
     "reason-react",
     "bs-glamor",
     "bs-firebase",
+    "bs-moment",
     "bs-firebase-react"
   ],
   "refmt": 3,
-  "sources": ["src", "src/Recipe", "src/EditRecipe"],
+  "sources": ["src", "src/Recipe", "src/EditRecipe", "src/Shared", "src/FFI"],
   "ppx-flags": [
-    "./node_modules/.bin/ppx_guard",
-    "./node_modules/.bin/reason_async"
+    "./node_modules/.bin/ppx_guard"
   ]
 }

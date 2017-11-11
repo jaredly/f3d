@@ -143,7 +143,11 @@ let module Form = {
     },
     render: ({reduce, state: {notes, rating} as state}) => {
       <div className=Styles.container>
-        <input/>
+        <DatePicker
+          selected=(MomentRe.momentNow())
+          onChange=((_) => ())
+          placeholderText="Awesome"
+        />
         <div className=Styles.label> (str("Rating")) </div>
         (spacer(16))
         <RatingWidget

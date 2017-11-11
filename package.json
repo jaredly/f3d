@@ -16,21 +16,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bs-firebase": "file:./packages/bs-firebase",
+    "bs-firebase-react": "file:./packages/bs-firebase-react",
     "bs-glamor": "^0.1.3",
+    "bs-moment": "^0.1.8",
     "cheerio": "^1.0.0-rc.2",
     "firebase": "^4.5.0",
     "json-loader": "^0.5.7",
     "porter-stemmer": "^0.9.1",
-    "ppx_autoserialize": "git+https://github.com/jaredly/ppx_autoserialize.git",
-    "ppx_guard": "git+https://github.com/jaredly/ppx_guard.git",
+    "ppx_guard": "file:../../experiments/ppx_guard",
     "react": "^15.4.2",
+    "react-datepicker": "^0.60.2",
     "react-dom": "^15.4.2",
     "reason-react": ">=0.2.1",
-    "reason_async": "git+https://github.com/jaredly/reason_async.git",
     "stopword": "^0.1.8"
   },
   "devDependencies": {
-    "bs-platform": "^1.8.3",
+    "bs-platform": "^2.0.0",
     "webpack": "^1.14.0"
   }
 }

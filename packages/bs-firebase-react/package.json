@@ -1,3 +1,6 @@
 {
-  "name": "bs-firebase-react"
+  "name": "bs-firebase-react",
+  "dependencies": {
+    "bs-firebase": "file:../bs-firebase"
+  }
 }
