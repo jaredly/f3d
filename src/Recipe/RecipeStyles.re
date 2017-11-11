@@ -42,17 +42,25 @@ let buttonStyles = [
     padding("8px 16px"),
     Selector(":hover", [color("black")]),
     outline("none"),
-    transition(".1s ease box-shadow, .1s ease transform"),
-    Selector(":hover", [
-      boxShadow("0 1px 5px #aaa"),
-      transform("translateY(-1px)"),
-    ]),
   ];
 
-let button =
-  css(buttonStyles);
+let button = css(buttonStyles @ [
+  borderBottom("2px solid white"),
+  /* transition(".1s ease box-shadow, .1s ease transform"), */
+  transition(".1s ease border-bottom-color, .1s ease transform"),
+  Selector(":hover", [
+    borderBottomColor(Shared.action),
+    /* boxShadow("0 1px 0px " ++ Shared.action), */
+    /* transform("translateY(-1px)"), */
+  ]),
+]);
 
 let primaryButton = css( buttonStyles @ [
+  transition(".1s ease box-shadow, .1s ease transform"),
+  Selector(":hover", [
+    boxShadow("0 1px 5px #aaa"),
+    transform("translateY(-1px)"),
+  ]),
   backgroundColor(Shared.action),
   color(Shared.light),
 ]);
@@ -81,6 +89,7 @@ let rightSide = css([
   position("absolute"),
   flexDirection("row"),
   left("100%"),
+  top("0"),
   marginLeft("8px"),
   Selector("@media(max-width:1100px)", [
     position("static"),

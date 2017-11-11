@@ -14,7 +14,10 @@
     "bs-firebase-react"
   ],
   "refmt": 3,
-  "sources": ["src", "src/Recipe", "src/EditRecipe", "src/Shared", "src/FFI"],
+  "sources": [{
+    "dir": "src",
+    "subdirs": true
+  }],
   "ppx-flags": [
     "./node_modules/.bin/ppx_guard"
   ]

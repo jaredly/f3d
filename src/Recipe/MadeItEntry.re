@@ -1,66 +1,5 @@
 open Utils;
 
-let module RatingWidget = {
-  let module Styles = {
-    open Glamor;
-    let buttonStyles = [
-      fontSize("16px"),
-      border("none"),
-      backgroundColor("#fff"),
-      padding("0"),
-      margin("0"),
-      fontWeight("inherit"),
-      color(Shared.action),
-      fontWeight("200"),
-      cursor("pointer"),
-      padding("4px 8px"),
-      Selector(":hover", [color("black")]),
-      outline("none"),
-      borderBottom("2px solid transparent"),
-      transition(".1s ease border-bottom-color"),
-      Selector(":hover", [
-        borderBottom("2px solid #ccc")
-      ]),
-    ];
-
-    let button = css(buttonStyles @ [
-
-    ]);
-
-    let activeButton = css(buttonStyles @ [
-      borderBottom("2px solid " ++ Shared.action),
-      Selector(":hover", [
-        borderBottom("2px solid " ++ Shared.action)
-      ]),
-    ]);
-  };
-
-  let component = ReasonReact.statelessComponent("RatingWidget");
-  let ratings = [|
-    "Won't make again",
-    "Might try again, but needs adjustments",
-    "Want to make again",
-    "Will definitely make again",
-    "Will make regularly"
-  |];
-  let make = (~rating, ~onChange, _children) => {
-    ...component,
-    render: (_) => {
-      <div>
-        (Array.mapi((i, text) => {
-          <div
-            key=(string_of_int(i))
-            className=(Some(i) == rating ? Styles.activeButton : Styles.button)
-            onClick=((_) => Some(i) == rating ? onChange(None) : onChange(Some(i)))
-          >
-            (str(text))
-          </div>
-        }, ratings) |> ReasonReact.arrayToElement)
-      </div>
-    }
-  };
-};
-
 let module Form = {
   let module Styles = {
     open Glamor;
@@ -84,6 +23,7 @@ let module Form = {
     notes: string,
     rating: option(int),
     meta: Models.meta,
+    created: MomentRe.Moment.t,
 
     /*
     ingredients: array(Models.maybeRecipeIngredient),
@@ -95,22 +35,22 @@ let module Form = {
     images: array(string),
     imageUrl: Js.null(string),
 
-    created: float,
     */
   };
 
   type action =
     | SetText(string)
     | SetRating(option(int))
+    | SetCreated(MomentRe.Moment.t)
     ;
   let component = ReasonReact.reducerComponent("MadeItEntry");
-  let makeFullMadeIt = (~recipe, ~state as {notes, rating, meta}): Models.madeIt => {
+  let makeFullMadeIt = (~recipe, ~state as {notes, rating, meta, created}): Models.madeIt => {
     "id": BaseUtils.uuid(),
     "recipeId": recipe##id,
     "authorId": recipe##authorId, /** TODO different */
     "collaborators": recipe##collaborators,
     "isPrivate": recipe##isPrivate,
-    "created": Js.Date.now(),
+    "created": MomentRe.Moment.valueOf(created),
     "updated": Js.Date.now(),
     "imageUrl": Js.null,
     "images": [||],
@@ -134,20 +74,27 @@ let module Form = {
       ingredientHeaders: recipe##ingredientHeaders,
       images: [||],
       */
+      created: MomentRe.momentNow(),
       rating: None,
       meta: recipe##meta
     },
     reducer: (action, state) => switch(action) {
     | SetText(notes) => ReasonReact.Update({...state, notes})
     | SetRating(rating) => ReasonReact.Update({...state, rating})
+    | SetCreated(created) => ReasonReact.Update({...state, created})
     },
-    render: ({reduce, state: {notes, rating} as state}) => {
+
+    render: ({reduce, state: {notes, rating, created} as state}) => {
       <div className=Styles.container>
-        <DatePicker
-          selected=(MomentRe.momentNow())
-          onChange=((_) => ())
-          placeholderText="Awesome"
-        />
+        <div className=RecipeStyles.row>
+          <div className=Styles.label> (str("Date")) </div>
+          (spacer(16))
+          <DatePicker
+            selected=created
+            onChange=reduce((time) => SetCreated(time))
+            placeholderText="Awesome"
+          />
+        </div>
         <div className=Styles.label> (str("Rating")) </div>
         (spacer(16))
         <RatingWidget
@@ -167,7 +114,7 @@ let module Form = {
           onClick=((_) => onSave(makeFullMadeIt(~recipe, ~state)))
           className=RecipeStyles.primaryButton
         >
-          (str("Save"))
+          (str("Add"))
         </button>
         <button
           onClick=((_) => onCancel())
@@ -186,7 +133,7 @@ let module Adder = {
   let component = ReasonReact.reducerComponent("MadeItEntry");
   let make = (~recipe, ~onAdd, _children) => {
     ...component,
-    initialState: (_) => false,
+    initialState: (_) => true,
     reducer: ((), state) => ReasonReact.Update(!state),
     render: ({state, reduce}) => {
       <div className=Glamor.(css([

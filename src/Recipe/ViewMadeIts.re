@@ -24,6 +24,12 @@ let make = (~madeits, ~fb, _children) => {
             </div>
             (spacer(16))
             (str(madeit##created |> Js.Date.fromFloat |> Js.Date.toDateString))
+            (spring)
+            (switch (Js.Null.to_opt(madeit##rating)) {
+            | None => ReasonReact.nullElement
+            | Some(rating) => RatingWidget.showStars(~active=true, ~rating)
+            })
+            (spacer(8))
             <div className=RecipeStyles.rightSide>
             <button className=RecipeStyles.smallButton>
               (str("edit"))

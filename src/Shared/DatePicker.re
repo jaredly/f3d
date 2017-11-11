@@ -1,5 +1,7 @@
 [@bs.module] external reactDatePicker : ReasonReact.reactClass = "react-datepicker";
 
+[%%bs.raw "require('react-datepicker/dist/react-datepicker.css');"];
+
 let make = (
   ~placeholderText: string,
   ~selected: MomentRe.Moment.t,

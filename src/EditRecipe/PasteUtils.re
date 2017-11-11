@@ -13,7 +13,7 @@ let splitNumbers = (lines) => {
   Array.iter(
     (line) =>
       if (Js.String.match(rx, line) !== None) {
-        Js.Array.push(Js.String.sliceToEnd(2, line) |> Js.String.trim, result) |> ignore
+        Js.Array.push(Js.String.sliceToEnd(~from=2, line) |> Js.String.trim, result) |> ignore
       } else if (result == [||]) {
         Js.Array.push(Js.String.trim(line), result) |> ignore
       } else {

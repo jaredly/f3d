@@ -18,6 +18,16 @@ div {
   min-height: 0;
 }
 
+.react-datepicker-popper div,
+.react-datepicker-wrapper div {
+  display: block;
+}
+.react-datepicker-popper .react-datepicker__day-name,
+.react-datepicker-popper .react-datepicker__day,
+.react-datepicker-popper .react-datepicker__time-name {
+  display: inline-block;
+}
+
 textarea, input {
   font-family: inherit;
   font-size: inherit;

@@ -89,7 +89,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
-          <div className=Styles.rightSide>
+          <div className=(Styles.rightSide ++ " " ++ Glamor.(css([bottom("0"), alignItems("flex-end")])))>
           <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
             (str(making !== Normal ? "Stop making" : "Make"))
           </button>
@@ -112,7 +112,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         <div className=Styles.subHeader>
           (str("Ingredients"))
           (spacer(32))
-          <div className=Glamor.(css([fontSize("20px"), flexDirection("row"), flex("1")]))>
+          <div className=Glamor.(css([position("relative"), fontSize("20px"), flexDirection("row"), flex("1")]))>
             <AmountInput
               value=(Some(batches))
               onChange=(
