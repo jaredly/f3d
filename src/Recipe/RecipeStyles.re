@@ -48,7 +48,7 @@ let button = css(buttonStyles @ [
   borderBottom("2px solid white"),
   paddingBottom("6px"),
   /* transition(".1s ease box-shadow, .1s ease transform"), */
-  transition(".1s ease border-bottom-color, .1s ease transform"),
+  transition(".2s ease border-bottom-color"),
   Selector(":hover", [
     borderBottomColor(Shared.action),
     /* boxShadow("0 1px 0px " ++ Shared.action), */

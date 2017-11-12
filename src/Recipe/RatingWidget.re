@@ -89,7 +89,7 @@ let component = ReasonReact.statelessComponent("RatingWidget");
 let ratings = [|
   "Won't make again",
   "Might try again, but needs adjustments",
-  "Want to make again",
+  "Might make again",
   "Will definitely make again",
   "Will make regularly"
 |];

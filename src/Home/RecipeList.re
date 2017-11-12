@@ -22,12 +22,12 @@ module Styles = {
     backgroundColor("#fafafa"),
     margin("8px"),
     padding("8px"),
-    height("32px"),
+    height("44px"),
     border("1px solid #fafafa")];
   let container = css([flexDirection("column"), flexWrap("wrap"), justifyContent("flex-start")]);
   let time = css([
     fontSize("16px"),
-    /* fontFamily("sans-serif"), */
+    fontFamily("sans-serif"),
   ]);
 };
 
@@ -54,7 +54,7 @@ let showRecipe = (fb, navigate, recipe) => <div
     fb
     id=recipe##id
   />
-  (spacer(8))
+  (spacer(16))
   <div>
     (str(recipe##title))
   </div>

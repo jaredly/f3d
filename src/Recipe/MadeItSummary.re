@@ -41,9 +41,11 @@ let module Styles = {
   let colors = [|
     "hsl(0, 100%, 62%)",
     "hsl(30, 100%, 62%)",
-    "hsl(60, 100%, 62%)",
+    /* "hsl(60, 100%, 62%)", */
     "hsl(211, 100%, 62%)",
-    "hsl(120, 100%, 62%)",
+    /* "hsl(120, 100%, 62%)", */
+    "hsl(173, 65%, 44%)",
+    "hsl(120, 58%, 47%)",
   |];
   let mine = Array.map((c) => css(base @ [
     borderColor(c),
@@ -112,7 +114,7 @@ let showSummary = (~mine, ~theirs) => {
 
 let isMine = (uid, madeit) => {
   madeit##authorId === uid
-  || Js.Array.includes(uid, madeit##ateWithPeople)
+  || Js.Array.includes(uid, (BaseUtils.magicDefault([||], madeit##ateWithPeople)))
 };
 
 let isNotMine = (uid, madeit) => !isMine(uid, madeit);
