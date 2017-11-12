@@ -174,7 +174,7 @@ let make =
           <input
             value=state
             onChange=(reduce((evt) => evtValue(evt)))
-            placeholder="Search by ingredient, tag, or title"
+            placeholder="Search by ingredient" /* ", tag, or title" */
             /* disabled=(not enabled |> Js.Boolean.to_js_boolean) */
             className=Styles.input
           />

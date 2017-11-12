@@ -75,7 +75,7 @@ let rec range = (~at=0, i) => at === i ? [] : [at, ...range(~at=at + 1, i)];
 
 let showStars = (~active, ~rating) => {
   (Array.map((n) => {
-    <div className=(switch (n <= rating, active) {
+    <div key=string_of_int(n) className=(switch (n <= rating, active) {
     | (true, true) => Styles.activeStar
     | (false, true) => Styles.activeLightStar
     | (true, false) => Styles.inactiveStar

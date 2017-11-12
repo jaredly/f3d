@@ -12,6 +12,7 @@ module Styles = {
   let container = css([padding("16px"), border("2px solid #eee")]);
 };
 
+
 type state = {
   notes: string,
   rating: option(int),
@@ -26,7 +27,6 @@ type state = {
 
    images: array(string),
    imageUrl: Js.null(string),
-
    */
 };
 

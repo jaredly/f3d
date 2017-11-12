@@ -1,42 +1,87 @@
-let str = ReasonReact.stringToElement;
+open Utils;
 
-let boxAttrs =
-  Glamor.[
-    width("200px"),
-    height("200px"),
-    margin("8px"),
-    padding("16px"),
+module Styles = {
+  open Glamor;
+  let base = [
+    padding("8px 16px"),
+    flexDirection("row"),
     fontSize("24px"),
     lineHeight("36px"),
-    overflow("hidden"),
-    border("1px solid #aaa")
   ];
+  let recipe = css @@ base @ [
+    cursor("pointer"),
+    paddingLeft("14px"),
+    borderLeft("2px solid white"),
+    transition(".3s ease border-left-color"),
+    Selector(":hover", [
+    borderLeftColor(Shared.actionLight),
+      /* backgroundColor("#eee"), */
+    ]),
+  ];
+  let blankRecipe = css @@ base @ [
+    backgroundColor("#fafafa"),
+    margin("8px"),
+    padding("8px"),
+    height("32px"),
+    border("1px solid #fafafa")];
+  let container = css([flexDirection("column"), flexWrap("wrap"), justifyContent("flex-start")]);
+  let time = css([
+    fontSize("16px"),
+    /* fontFamily("sans-serif"), */
+  ]);
+};
 
-let box = Glamor.css(boxAttrs);
+let empty =
+  <div className=Styles.container>
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+    <div className=Styles.blankRecipe />
+  </div>;
 
-let emptyBox = Glamor.(css([backgroundColor("#fafafa"), ...boxAttrs]));
+let showRecipe = (fb, navigate, recipe) => <div
+  key=recipe##id
+  className=Styles.recipe
+  onClick=((_) => navigate("/recipe/" ++ recipe##id))
+>
+  <MadeItSummary
+    fb
+    id=recipe##id
+  />
+  (spacer(8))
+  <div>
+    (str(recipe##title))
+  </div>
+  (spring)
+  (spacer(16))
+  <div className=Styles.time>
+    (str(recipe##meta##totalTime |> Js.Null.to_opt |> BaseUtils.optMap(BaseUtils.hoursMinutes) |> BaseUtils.optOr("")))
+  </div>
+  /* <div>
+    (str(recipe##created |> Js.Date.fromFloat |> Js.Date.toLocaleDateString))
+  </div> */
+</div>;
 
-let make = (~recipes) =>
-  <div className=Glamor.(css([flexDirection("row"), flexWrap("wrap")]))>
+let showRecipes = (~fb, ~navigate, ~recipes, ~loadingMore, ~fetchMore) =>
+  <div className=Styles.container>
     (
       ReasonReact.arrayToElement(
-        switch recipes {
-        | None => [|
-            <div className=emptyBox key="1" />,
-            <div className=emptyBox key="2" />,
-            <div className=emptyBox key="3" />,
-            <div className=emptyBox key="4" />,
-            <div className=emptyBox key="5" />,
-            <div className=emptyBox key="6" />,
-            <div className=emptyBox key="7" />,
-            <div className=emptyBox key="8" />
-          |]
-        | Some(recipes) =>
-          Array.map(
-            (recipe) => <div key=recipe##id className=box> (str(recipe##title)) </div>,
-            recipes
-          )
-        }
+        Array.map(
+          showRecipe(fb, navigate),
+          recipes
+        )
       )
     )
+    (loadingMore
+    ? <UtilComponents.OnVisible trigger=fetchMore>
+      (str("Loading..."))
+    </UtilComponents.OnVisible>
+    : ReasonReact.nullElement)
+    (spacer(128))
   </div>;

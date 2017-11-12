@@ -97,7 +97,7 @@ module Dynamic = (Collection: {let name: string; type t;}) => {
          )
       |> Js.Promise.catch(
            (err) => {
-             Js.log("booo");
+             Js.log2("booo", err);
              [%bs.debugger];
              reduce(() => `Errored(err), ());
              Js.Promise.resolve()
@@ -184,7 +184,10 @@ module Stream = (Collection: {let name: string; type t; let getId: t => string;}
           Q.onSnapshot(
             q,
             (snapshot) => (reduce((_) => `Updated(Q.docChanges(snapshot))))(),
-            (error) => (reduce((_) => `Errored(error)))()
+            (error) => {
+              Js.log2("Failed to load", error);
+              (reduce((_) => `Errored(error)))()
+            }
           )
         )
     };

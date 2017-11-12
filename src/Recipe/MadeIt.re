@@ -4,6 +4,7 @@ module Styles = {
   open Glamor;
   let container =
     css([borderTop("2px solid " ++ Shared.action), position("relative"), paddingTop("8")]);
+  let notes = css([whiteSpace("pre-wrap")]);
 };
 
 let view = (~uid, ~fb, ~madeit, ~onEdit) =>
@@ -33,7 +34,7 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
       )
     </div>
     (spacer(8))
-    <div> (str(madeit##notes)) </div>
+    <div className=Styles.notes> (str(madeit##notes)) </div>
   </div>;
 
 let component = ReasonReact.statelessComponent("MadeIt");

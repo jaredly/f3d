@@ -371,15 +371,17 @@ let parseInstructionsText = (text) => {
 let parseInstructions = (onPaste, evt) => {
   let text = getData(evt, "text/plain") |> Js.String.trim;
   [@else ()] [%guard let Some(items) = parseInstructionsText(text)];
-  ReactEventRe.Clipboard.preventDefault(evt);
-  onPaste(items)
+  if (Array.length(items) > 1) {
+    ReactEventRe.Clipboard.preventDefault(evt);
+    onPaste(items)
+  }
 };
 
 let parseIngredients = (allIngredients, onPaste, evt) => {
   let text = getData(evt, "text/plain") |> Js.String.trim;
 
   /*** TODO maybe make this check more sophisticated */
-  [@else ()] [%guard let None = Js.String.match([%bs.re {|/^[\d\s]+$/|}], text)];
+  [@else ()] [%guard let None = Js.String.match([%bs.re {|/^[\.\/\d\s]+$/|}], text)];
   let partsRe = [%bs.re {|/\ninstructions\n/i|}];
   let parts = Js.String.splitByRe(partsRe, text);
   let (ingText, instText) =

@@ -24,6 +24,14 @@ let magicDefault = (default, v) => {
   }
 };
 
+let hoursMinutes = (num) => {
+  if (num < 60) {
+    string_of_int(num) ++ "m"
+  } else {
+    string_of_int(num / 60) ++ "h " ++ string_of_int(num mod 60) ++ "m"
+  }
+};
+
 let optMap = (fn, value) =>
   switch value {
   | None => None
