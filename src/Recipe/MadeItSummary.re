@@ -28,8 +28,9 @@ let module Styles = {
     textAlign("center"),
     fontSize("12px"),
     borderRadius("9px"),
-    border("5px solid #aaa"),
+    /* border("1px solid #aaa"), */
   ];
+  /** old "full circle" colors */
   let colors = [|
     "hsl(0, 100%, 92%)",
     "hsl(30, 100%, 92%)",
@@ -37,16 +38,54 @@ let module Styles = {
     "hsl(211, 100%, 92%)",
     "hsl(120, 100%, 92%)",
   |];
-  let mine = Array.map((color) => css(base @ [
-    borderColor(color),
-    backgroundColor(color)
+  let colors = [|
+    "hsl(0, 100%, 62%)",
+    "hsl(30, 100%, 62%)",
+    "hsl(60, 100%, 62%)",
+    "hsl(211, 100%, 62%)",
+    "hsl(120, 100%, 62%)",
+  |];
+  let mine = Array.map((c) => css(base @ [
+    borderColor(c),
+    color(c),
+    /* backgroundColor(c) */
   ]), colors);
-  let theirs = Array.map((color) => css(base @ [
-    borderColor(color),
+  let theirs = Array.map((c) => css(base @ [
+    color(c),
+    borderColor(c),
   ]), colors);
   let empty = css(base @ [
     visibility("hidden")
   ]);
+};
+
+let ringStars = (num) => {
+  let r = 10.;
+  <div style=ReactDOMRe.Style.(make(
+    ~position="relative",
+    ~height="16px",
+    ~width="16px",
+    ~fontSize="8px",
+    ~lineHeight="8px",
+    ()
+  ))>
+    (range(5)
+    |> List.map((i) => {
+      let theta = float_of_int(i) /. 5. *. Js.Math._PI *. 2. +. Js.Math._PI;
+      let x = cos(theta) *. r +. r -. 4.;
+      let y = sin(theta) *. r +. r -. 4.;
+      <div style=ReactDOMRe.Style.(make(
+        ~position="absolute",
+        /* ~color=(i < num ? "black" : "#aaa"), */
+        ~opacity=(i < num ? "1.0" : "0.2"),
+        ~top=string_of_float(y) ++ "px",
+        ~left=string_of_float(x) ++ "px",
+        ()
+      ))>
+        (str({j|★|j}))
+      </div>
+    }) |> Array.of_list |> ReasonReact.arrayToElement)
+  </div>
 };
 
 let showSummary = (~mine, ~theirs) => {
@@ -57,12 +96,14 @@ let showSummary = (~mine, ~theirs) => {
       /* best score I've given it */
       let best = bestScore(mine);
       <div className=Styles.mine[best]>
-        (str(string_of_int(best + 1)))
+        /* (str(string_of_int(best + 1))) */
+        (ringStars(best + 1))
       </div>
     } else {
       let best = bestScore(theirs);
       <div className=Styles.theirs[best]>
-        (str(string_of_int(best + 1)))
+        /* (str(string_of_int(best + 1))) */
+        (ringStars(best + 1))
       </div>
     }
   }

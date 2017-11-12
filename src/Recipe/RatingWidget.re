@@ -71,7 +71,6 @@ let module Styles = {
   ]);
 };
 
-let rec range = (~at=0, i) => at === i ? [] : [at, ...range(~at=at + 1, i)];
 
 let showStars = (~active, ~rating) => {
   (Array.map((n) => {
@@ -83,7 +82,7 @@ let showStars = (~active, ~rating) => {
     })>
       (str({j|★|j}))
     </div>
-  }, range(5) |> Array.of_list) |> ReasonReact.arrayToElement)
+  }, BaseUtils.range(5) |> Array.of_list) |> ReasonReact.arrayToElement)
 };
 
 let component = ReasonReact.statelessComponent("RatingWidget");

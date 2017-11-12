@@ -14,6 +14,8 @@ module IntSet =
     }
   );
 
+let rec range = (~at=0, i) => at === i ? [] : [at, ...range(~at=at + 1, i)];
+
 let uuid: unit => string = [%bs.raw {|function() {return Math.random().toString(16).slice(2)}|}];
 
 let magicDefault = (default, v) => {
