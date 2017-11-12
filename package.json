@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bsb -make-world -w",
     "serve": "cd public && http-server -p 7434 -c-1",
+    "deploy": "cd public && surge -d foood.jaredforsyth.com .",
     "build": "bsb -make-world",
     "webpack": "webpack -w",
     "clean": "bsb -clean-world"

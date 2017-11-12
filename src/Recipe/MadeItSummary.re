@@ -65,6 +65,7 @@ let ringStars = (num) => {
     ~position="relative",
     ~height="16px",
     ~width="16px",
+    ~zIndex="-1",
     ~fontSize="8px",
     ~lineHeight="8px",
     ()
