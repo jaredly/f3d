@@ -32,7 +32,6 @@ type state = {
   description: string,
   notes: string,
   meta: Models.meta,
-  rating: Js.null(int),
   source: Js.null(string),
   ingredients: array(Models.maybeRecipeIngredient),
   ingredientHeaders: array(Models.header),
@@ -73,7 +72,6 @@ let updateRecipe =
         title,
         description,
         notes,
-        /* rating, */
         source,
         meta,
         ingredients,
@@ -85,7 +83,7 @@ let updateRecipe =
   let recipe = clone(recipe) |> Obj.magic;
   recipe##title#=title;
   recipe##description#=description;
-  recipe##notes#=notes;
+  recipe##notes#=(notes |> BaseUtils.magicDefault(""));
   /* TODO data upgrade */
   /* recipe##rating#=rating; */
   recipe##meta#=meta;
@@ -113,7 +111,6 @@ let make =
       source: recipe##source,
       description: recipe##description |> Js.Null.to_opt |> BaseUtils.optOr(""),
       notes: recipe##notes |> Js.Null.to_opt |> BaseUtils.optOr(""),
-      rating: recipe##rating,
       ingredients: recipe##ingredients |> Array.map(Models.maybeRecipeIngredient),
       ingredientHeaders: recipe##ingredientHeaders,
       instructions: recipe##instructions,
@@ -283,7 +280,6 @@ let make =
                     ingredients: recipe##ingredients,
                     description: recipe##description,
                     notes: "",
-                    rating: Js.null,
                     ingredientHeaders: [||]
                   }) /*** TODO import headers too */
             )

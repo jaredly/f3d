@@ -14,9 +14,8 @@ module Single = (Config: {let name: string; type t;}) => {
              if (Firebase.exists(snap)) {
                reduce((_) => `Loaded(Firebase.data(snap)), ())
              } else {
-               Js.log
-                 ("Deleted")
-                 /*** TODO something useful? */
+               Js.log("Deleted")
+                /*** TODO something useful? */
              };
              Js.Promise.resolve()
            }
@@ -229,11 +228,14 @@ module Stream = (Collection: {let name: string; type t; let getId: t => string;}
                 | "removed" =>
                   let id = Q.doc(change) |> Firebase.data |> Collection.getId;
                   List.filter((d) => Collection.getId(d) != id, docs)
-                | "changed" =>
+                | "modified" =>
                   let doc = Q.doc(change) |> Firebase.data;
                   let id = doc |> Collection.getId;
                   List.map((d) => Collection.getId(d) == id ? doc : d, docs)
-                | _ => failwith("Invalid change type")
+                | change => {
+                  Js.log2("unexpected change type", change);
+                  failwith("Invalid change type")
+                }
                 },
               docs,
               changes

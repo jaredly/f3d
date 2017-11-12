@@ -25,7 +25,7 @@ let blankRecipe: (string, string) => Models.recipe =
       "description": Js.null,
       "notes": Js.null,
       "images": Js.null,
-      "rating": Js.null,
+      /* "rating": Js.null, */
       "comments": [||],
       "meta": {
         "cookTime": Js.null,

@@ -42,6 +42,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
       ),
     render: ({state: (batches, making), reduce}) => {
       let uid = Firebase.Auth.fsUid(fb);
+      let canEdit = uid == Some(recipe##authorId);
       [@else
         <EditRecipe
           saving=(making === Saving)
@@ -85,21 +86,24 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
           )
         />
       ]
-      [%guard let false = (making === Editing || making === Saving) && uid !== None];
+      [%guard let false = (making === Editing || making === Saving) && canEdit];
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
-          <div className=(Styles.rightSide ++ " " ++ Glamor.(css([bottom("0"), alignItems("flex-end")])))>
-          <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
-            (str(making !== Normal ? "Stop making" : "Make"))
-          </button>
-          (
-            uid === None ?
-              ReasonReact.nullElement :
-              <button className=Styles.button onClick=(reduce((_) => StartEditing))>
-                (str("Edit"))
-              </button>
-          )
+          <div
+            className=(
+              Styles.rightSide ++ " " ++ Glamor.(css([bottom("0"), alignItems("flex-end")]))
+            )>
+            <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
+              (str(making !== Normal ? "Stop making" : "Make"))
+            </button>
+            (
+              canEdit ?
+                <button className=Styles.button onClick=(reduce((_) => StartEditing))>
+                  (str("Edit"))
+                </button> :
+                ReasonReact.nullElement
+            )
           </div>
         </div>
         (spacer(8))
@@ -112,7 +116,15 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         <div className=Styles.subHeader>
           (str("Ingredients"))
           (spacer(32))
-          <div className=Glamor.(css([position("relative"), fontSize("20px"), flexDirection("row"), flex("1")]))>
+          <div
+            className=Glamor.(
+                        css([
+                          position("relative"),
+                          fontSize("20px"),
+                          flexDirection("row"),
+                          flex("1")
+                        ])
+                      )>
             <AmountInput
               value=(Some(batches))
               onChange=(
@@ -130,18 +142,19 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
             </div>
             spring
             <div className=Styles.rightSide>
-            /* <Speaker
-              instructions=recipe##instructions
-              ingredients=recipe##ingredients
-              allIngredients=ingredients
-            />
-            (spacer(16)) */
-            <Listener
-              ingredients=recipe##ingredients
-              allIngredients=ingredients
-              instructions=recipe##instructions
-            />
-            </div>
+              /* <Speaker
+                   instructions=recipe##instructions
+                   ingredients=recipe##ingredients
+                   allIngredients=ingredients
+                 />
+                 (spacer(16)) */
+
+                <Listener
+                  ingredients=recipe##ingredients
+                  allIngredients=ingredients
+                  instructions=recipe##instructions
+                />
+              </div>
           </div>
         </div>
         (spacer(16))
@@ -179,23 +192,12 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         (spacer(32))
         <div className=Styles.subHeader> (str("Experiences")) </div>
         (spacer(16))
-        <MadeItEntry.Adder
-          recipe
-          onAdd=((madeIt) => {
-            Js.log("adding");
-            module FB = Firebase.Collection(Models.MadeIt);
-            let collection = FB.get(fb);
-            let doc = Firebase.doc(collection, madeIt##id);
-            Firebase.set(doc, madeIt)
-            |> Js.Promise.then_(
-                  () => {
-                    (reduce((_) => DoneSaving))();
-                    Js.Promise.resolve()
-                  }
-                )
-            |> ignore;
-          })
-        />
+        (
+          switch uid {
+          | None => ReasonReact.nullElement
+          | Some(uid) => <MadeItEntry.Adder recipe uid fb />
+          }
+        )
         (spacer(32))
         <ViewMadeIts id=recipe##id fb />
         (spacer(128))

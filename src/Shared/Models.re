@@ -147,8 +147,7 @@ type recipe = {
   "ingredientHeaders": array(header),
   "ingredientsUsed": Js.Dict.t(Js.boolean),
   "images": nu(array(string)),
-  "rating": nu(int),
-  "notes": nu(string),
+  "notes": nu(string), /* TODO update models */
   "description": nu(string),
   "meta": meta,
   "comments": array({.
@@ -185,6 +184,7 @@ type madeIt = {.
 
   "batches": float,
   "ateWithRecipes": array(string), /* recipe ids */
+  "ateWithPeople": array(string), /* TODO: update current models */
   /** I like this :D */
 
   /* first pass: just these */
@@ -196,6 +196,36 @@ type madeIt = {.
 module MadeIt = {
   let name = "madeIts";
   type t = madeIt;
+  let fromRecipe = (recipe: recipe, authorId: string) => {
+    "id": BaseUtils.uuid(),
+    "recipeId": recipe##id,
+    "authorId": authorId,
+    "collaborators": recipe##collaborators,
+    "isPrivate": Js.false_,
+
+    "created": Js.Date.now(),
+    "updated": Js.Date.now(),
+
+    "imageUrl": Js.null,
+    "images": [||],
+
+    /* first pass: not allow editing */
+    "instructions": recipe##instructions,
+    "instructionHeaders": recipe##instructionHeaders,
+
+    "ingredients": recipe##ingredients,
+    "ingredientHeaders": recipe##ingredientHeaders,
+
+    "batches": 1.,
+    "ateWithRecipes": [||],
+    "ateWithPeople": [||],
+    /** I like this :D */
+
+    /* first pass: just these */
+    "notes": "",
+    "rating": Js.null,
+    "meta": recipe##meta
+  };
 };
 
 type list = {

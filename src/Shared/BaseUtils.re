@@ -16,6 +16,14 @@ module IntSet =
 
 let uuid: unit => string = [%bs.raw {|function() {return Math.random().toString(16).slice(2)}|}];
 
+let magicDefault = (default, v) => {
+  if (Obj.magic(v) |> Js.Null_undefined.test) {
+    default
+  } else {
+    v
+  }
+};
+
 let optMap = (fn, value) =>
   switch value {
   | None => None
