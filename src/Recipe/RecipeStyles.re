@@ -24,7 +24,8 @@ let header =
     zIndex("10"),
     top("0px"),
     paddingBottom("8px"),
-    paddingTop("8px")
+    paddingTop("8px"),
+    borderBottom("1px solid " ++ Shared.dark)
   ]);
 
 let row = css([flexDirection("row")]);
@@ -40,6 +41,7 @@ let buttonStyles = [
     fontWeight("200"),
     cursor("pointer"),
     padding("8px 16px"),
+    borderRadius("0"),
     Selector(":hover", [color("black")]),
     outline("none"),
   ];
@@ -81,6 +83,7 @@ let smallButton = css([
   outline("none"),
   borderBottom("2px solid transparent"),
   transition(".1s ease border-bottom-color"),
+  borderRadius("0"),
   Selector(":hover", [
     borderBottom("2px solid #ccc")
   ]),
@@ -102,6 +105,7 @@ let editButton =
   css([
     textDecoration("none"),
     color("currentColor"),
+    borderRadius("0"),
     padding("8px 16px"),
     cursor("pointer"),
     color("#777"),
@@ -113,6 +117,7 @@ let subHeader =
     alignItems("center"),
     flexDirection("row"),
     fontSize("24px"),
+    marginTop("16px"),
     fontWeight("600"),
     position("relatiev"),
     /* letterSpacing "1px", */

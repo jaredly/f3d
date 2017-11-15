@@ -159,6 +159,42 @@ type recipe = {
 module Recipe = {
   let name = "recipes";
   type t = recipe;
+
+  let blank: (string, string) => recipe = (id, authorId) => {
+    let now = Js.Date.now();
+    let empty = Js.Dict.empty();
+    {
+      "id": id,
+      "title": "",
+      "titleSearch": empty,
+      "created": now,
+      "updated": now,
+      "imageUrl": Js.null,
+      "tags": empty,
+      "source": Js.null,
+      "instructions": [||],
+      "instructionHeaders": [||],
+      "ingredientHeaders": [||],
+      "ingredients": [||],
+      "ingredientsUsed": empty,
+      "description": Js.null,
+      "notes": Js.null,
+      "images": Js.null,
+      /* "rating": Js.null, */
+      "comments": [||],
+      "meta": {
+        "cookTime": Js.null,
+        "prepTime": Js.null,
+        "totalTime": Js.null,
+        "ovenTemp": Js.null,
+        "yield": Js.null,
+        "yieldUnit": Js.null
+      },
+      "authorId": authorId,
+      "collaborators": empty,
+      "isPrivate": Js.Boolean.to_js_boolean(false)
+    }
+  };
 };
 
 type madeIt = {.

@@ -67,7 +67,12 @@ let metaLine = (~meta, ~source) => {
     (
       items
       |> filterMaybe
-      |> spacedItems((i) => spacer(~key=string_of_int(i), 16))
+      |> spacedItems((i) =>
+      <div key=string_of_int(i) style=ReactDOMRe.Style.(make(~padding="0 16px", ()))>
+        (str({j|·|j}))
+      </div>
+      /* spacer(~key=string_of_int(i), 16) */
+      )
       |> Array.of_list
       |> ReasonReact.arrayToElement
     )

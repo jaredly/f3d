@@ -4,43 +4,6 @@ type state =
   | Saving
   | Editing;
 
-let blankRecipe: (string, string) => Models.recipe =
-  (id, authorId) => {
-    let now = Js.Date.now();
-    let empty = Js.Dict.empty();
-    {
-      "id": id,
-      "title": "",
-      "titleSearch": empty,
-      "created": now,
-      "updated": now,
-      "imageUrl": Js.null,
-      "tags": empty,
-      "source": Js.null,
-      "instructions": [||],
-      "instructionHeaders": [||],
-      "ingredientHeaders": [||],
-      "ingredients": [||],
-      "ingredientsUsed": empty,
-      "description": Js.null,
-      "notes": Js.null,
-      "images": Js.null,
-      /* "rating": Js.null, */
-      "comments": [||],
-      "meta": {
-        "cookTime": Js.null,
-        "prepTime": Js.null,
-        "totalTime": Js.null,
-        "ovenTemp": Js.null,
-        "yield": Js.null,
-        "yieldUnit": Js.null
-      },
-      "authorId": authorId,
-      "collaborators": empty,
-      "isPrivate": Js.Boolean.to_js_boolean(false)
-    }
-  };
-
 let component = ReasonReact.reducerComponent("Recipe");
 
 let make = (~ingredients, ~fb, ~navigate, _children) =>
@@ -53,7 +16,7 @@ let make = (~ingredients, ~fb, ~navigate, _children) =>
       let id = BaseUtils.uuid();
       <EditRecipe
         saving=(state === Saving)
-        recipe=(blankRecipe(id, uid))
+        recipe=(Models.Recipe.blank(id, uid))
         allIngredients=ingredients
         fb
         id

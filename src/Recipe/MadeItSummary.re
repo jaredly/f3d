@@ -61,6 +61,15 @@ let module Styles = {
   ]);
 };
 
+let stringOfFloat = x => {
+  let s = string_of_float(x);
+  if (Js.String.endsWith(".", s)) {
+    s ++ "0"
+  } else {
+    s
+  }
+};
+
 let ringStars = (num) => {
   let r = 10.;
   <div style=ReactDOMRe.Style.(make(
@@ -81,8 +90,8 @@ let ringStars = (num) => {
         ~position="absolute",
         /* ~color=(i < num ? "black" : "#aaa"), */
         ~opacity=(i < num ? "1.0" : "0.2"),
-        ~top=string_of_float(y) ++ "px",
-        ~left=string_of_float(x) ++ "px",
+        ~top=stringOfFloat(y) ++ "px",
+        ~left=stringOfFloat(x) ++ "px",
         ()
       ))>
         (str({j|★|j}))

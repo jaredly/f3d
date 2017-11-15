@@ -21,6 +21,58 @@ type state =
 
 let component = ReasonReact.reducerComponent("Recipe");
 
+let saveRecipe = (~fb, ~recipe, onDone) => {
+  module FB = Firebase.Collection(Models.Recipe);
+  let collection = FB.get(fb);
+  let doc = Firebase.doc(collection, recipe##id);
+  Firebase.set(doc, recipe)
+  |> Js.Promise.then_(
+       () => {
+         onDone();
+         Js.Promise.resolve()
+       }
+     )
+  |> ignore
+};
+
+let deleteRecipe = (~fb, ~recipe, onDone) => {
+  module FB = Firebase.Collection(Models.Recipe);
+  let collection = FB.get(fb);
+  let doc = Firebase.doc(collection, recipe##id);
+  Firebase.delete(doc)
+  |> Js.Promise.then_(
+       () => {
+         onDone();
+         Js.Promise.resolve()
+       }
+     )
+  |> ignore
+};
+
+let renderEditor =
+    (~making, ~ingredients, ~self as {ReasonReact.reduce}, ~fb, ~recipe, ~id, ~navigate) =>
+  <EditRecipe
+    saving=(making === Saving)
+    allIngredients=ingredients
+    recipe
+    fb
+    id
+    onCancel=(reduce((_) => StopEditing))
+    onSave=(
+      (recipe) => {
+        (reduce((_) => StartSaving))();
+        saveRecipe(~fb, ~recipe, () => (reduce((_) => DoneSaving))());
+        ()
+      }
+    )
+    onDelete=(
+      () => {
+        deleteRecipe(~fb, ~recipe, () => navigate("/"));
+        ()
+      }
+    )
+  />;
+
 let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
   ReasonReact.{
     ...component,
@@ -40,59 +92,26 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         | SetBatches(batches) => (batches, making)
         }
       ),
-    render: ({state: (batches, making), reduce}) => {
+    render: ({state: (batches, making), reduce} as self) => {
       let uid = Firebase.Auth.fsUid(fb);
       let canEdit = uid == Some(recipe##authorId);
-      [@else
-        <EditRecipe
-          saving=(making === Saving)
-          allIngredients=ingredients
-          recipe
-          fb
-          id
-          onCancel=(reduce((_) => StopEditing))
-          onSave=(
-            (recipe) => {
-              (reduce((_) => StartSaving))();
-              module FB = Firebase.Collection(Models.Recipe);
-              let collection = FB.get(fb);
-              let doc = Firebase.doc(collection, recipe##id);
-              Firebase.set(doc, recipe)
-              |> Js.Promise.then_(
-                   () => {
-                     (reduce((_) => DoneSaving))();
-                     Js.Promise.resolve()
-                   }
-                 )
-              |> ignore;
-              ()
-            }
-          )
-          onDelete=(
-            () => {
-              module FB = Firebase.Collection(Models.Recipe);
-              let collection = FB.get(fb);
-              let doc = Firebase.doc(collection, recipe##id);
-              Firebase.delete(doc)
-              |> Js.Promise.then_(
-                   () => {
-                     navigate("/");
-                     Js.Promise.resolve()
-                   }
-                 )
-              |> ignore;
-              ()
-            }
-          )
-        />
-      ]
+      [@else renderEditor(~making, ~ingredients, ~self, ~fb, ~recipe, ~id, ~navigate)]
       [%guard let false = (making === Editing || making === Saving) && canEdit];
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
           <div
             className=(
-              Styles.rightSide ++ " " ++ Glamor.(css([bottom("0"), alignItems("flex-end")]))
+              Styles.rightSide
+              ++ " "
+              ++ Glamor.(
+                   css([
+                     bottom("0"),
+                     alignItems("flex-end"),
+                     paddingBottom("16px"),
+                     backgroundColor("white")
+                   ])
+                 )
             )>
             <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
               (str(making !== Normal ? "Stop making" : "Make"))

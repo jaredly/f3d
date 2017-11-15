@@ -25,7 +25,10 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
         switch uid {
         | Some(uid) when uid === madeit##authorId =>
           <div className=RecipeStyles.rightSide>
-            <button onClick=(ignoreArg(onEdit)) className=RecipeStyles.smallButton>
+            <button onClick=(ignoreArg(onEdit)) className=(
+              RecipeStyles.smallButton ++ " " ++
+              Glamor.(css([marginTop("8px")]))
+            )>
               (str("edit"))
             </button>
           </div>
