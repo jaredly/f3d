@@ -11,7 +11,8 @@
     "deploy": "cd public && surge -d foood.jaredforsyth.com .",
     "build": "bsb -make-world",
     "webpack": "webpack -w",
-    "clean": "bsb -clean-world"
+    "clean": "bsb -clean-world",
+    "halp": "which ocamlfind"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +36,7 @@
     "style-loader": "^0.19.0"
   },
   "devDependencies": {
-    "bs-platform": "^2.0.0",
+    "bs-platform": "git+https://github.com/bsansouci/bsb-native",
     "webpack": "^1.14.0"
   }
 }
