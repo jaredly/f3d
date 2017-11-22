@@ -16,6 +16,6 @@ let make = (~fb, ~navigate, _children) =>
       <div className=Glamor.(css([maxWidth("100%"), width("1000px"), alignSelf("center")]))>
         (LoadedSearchBar.render(fb, state, reduce((x) => x)))
         <div className=Glamor.(css([flexBasis("16px")])) />
-        <SearchingRecipeList fb search=state navigate />
+        <RecipeSearcher render=RecipeList.showRecipes fb search=state navigate />
       </div>
   };

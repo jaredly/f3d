@@ -3,10 +3,15 @@ open Utils;
 module Styles = {
   open Glamor;
   let container = css([maxWidth("100%"), width("800px"), alignSelf("center")]);
-  let item = css(RecipeStyles.leftBorderItem @ [color("currentColor"), textDecoration("none")]);
+  let item = css([flexDirection("row"), alignItems("center")]);
+  let link = css(RecipeStyles.leftBorderItem @ [color("currentColor"), textDecoration("none"),
+  flex("1"),
+  ]);
   let textContainer = "";
   let addText = "";
 };
+
+let recipeCount = (recipes) => Js.Dict.values(recipes) |> Js.Array.filter(Js.to_bool) |> Array.length;
 
 let showLists = (~addList, ~lists, ~uid, ~navigate) =>
   <div className=Styles.container>
@@ -40,7 +45,11 @@ let showLists = (~addList, ~lists, ~uid, ~navigate) =>
       |> Array.of_list
       |> Array.map(
            (list) =>
-             <Link key=list##id className=Styles.item navigate dest=("/list/" ++ list##id) text=list##title />
+           <div className=Styles.item>
+             <Link key=list##id className=Styles.link navigate dest=("/list/" ++ list##id) text=list##title />
+             (str(string_of_int(recipeCount(list##recipes))))
+             (spacer(16))
+            </div>
          )
       |> ReasonReact.arrayToElement
     )

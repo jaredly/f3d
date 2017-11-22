@@ -6,7 +6,6 @@ module Single = (Config: {let name: string; type t;}) => {
   let make = (~fb, ~id, ~listen=false, ~render, _children) => {
     let collection = FBCollection.get(fb);
     let fetch = (_status, reduce) => {
-      Js.log2("fetching", Config.name);
       Firebase.doc(collection, id)
       |> Firebase.get
       |> Js.Promise.then_(
@@ -105,7 +104,6 @@ module Dynamic = (Collection: {let name: string; type t;}) => {
          )
       |> ignore;
     let fetch = (state, reduce, clear) => {
-      Js.log2("fetching", Collection.name);
       module Q = Firebase.Query;
       let q = Firebase.asQuery(collection) |> query |> Q.limit(pageSize);
       let (q, current) =

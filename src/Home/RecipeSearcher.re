@@ -1,13 +1,11 @@
 /* type state = Loading | Loaded (array Models.recipe); */
 open Utils;
 
-let showError = (_err) => <div> (str("Failed to fetch")) </div>;
+let showError = (_err) => <div> (str("Failed to search")) </div>;
 
 module Fetcher = FirebaseFetcher.Dynamic(Models.Recipe);
 
-let component = ReasonReact.statelessComponent("SearchingRecipeList");
-
-let make = (~fb, ~search, ~navigate, _children) => {
+let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~search, ~navigate, _children) => {
   let (text: string, ingredients, tags) = search;
   let refetchKey =
     text
@@ -46,23 +44,20 @@ let make = (~fb, ~search, ~navigate, _children) => {
         }
       }
     );
-  ReasonReact.{
-    ...component,
-    render: (_self) =>
-      <Fetcher
-        fb
-        pageSize=20
-        refetchKey
-        query
-        render=(
-          (~state, ~fetchMore) =>
-            switch state {
-            | `Initial => RecipeList.empty
-            | `Loaded(snap, recipes) =>
-              RecipeList.showRecipes(~fb, ~navigate, ~recipes, ~loadingMore=snap !== None, ~fetchMore)
-            | `Errored(err) => showError(err)
-            }
-        )
-      />
-  }
+
+    Fetcher.make(
+      ~fb,
+      ~pageSize=20,
+      ~refetchKey,
+      ~query,
+      ~render=(
+        (~state, ~fetchMore) =>
+          switch state {
+          | `Initial => initial
+          | `Errored(err) => showError(err)
+          | `Loaded(snap, recipes) => render(~fb, ~navigate, ~recipes, ~loadingMore=snap !== None, ~fetchMore)
+          }
+      ),
+      [||]
+    )
 };

@@ -8,3 +8,4 @@ public/bundle.js
 src/dump.js
 src/dump_query.gql
 .bsb.lock
+packages/bs-firebase/src/Fakebase.re

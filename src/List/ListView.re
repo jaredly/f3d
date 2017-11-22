@@ -50,7 +50,7 @@ let showList = (~fb, ~list, ~uid, ~navigate) => {
   <div className=Styles.container>
     <div>
       <div className=RecipeStyles.title> (str(list##title))</div>
-      <div>(str("To add to this list, navigate to a recipe and select 'add to list' in the right sidebar."))</div>
+      <div>(str("To add to this list, navigate to a recipe and select this list in the right sidebar."))</div>
       (spacer(32))
       <div>
         (Js.Dict.keys(list##recipes)

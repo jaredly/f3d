@@ -33,6 +33,7 @@ let toggleRecipe = (list: Models.list, recipeId: string) => {
   Js.Dict.set(newRecipes, recipeId, !isMember(list##recipes, recipeId) |> Js.Boolean.to_js_boolean);
   let newList = Js.Obj.assign(Js.Obj.empty(), list);
   newList##recipes #= newRecipes;
+  newList##updated #= (Js.Date.now());
   newList;
 };
 
