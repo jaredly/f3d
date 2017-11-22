@@ -53,6 +53,7 @@ let showRecipe = (fb, navigate, recipe) => <div
   <MadeItSummary
     fb
     id=recipe##id
+    uid=(Firebase.Auth.fsUid(fb))
   />
   (spacer(16))
   <div>

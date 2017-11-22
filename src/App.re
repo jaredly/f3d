@@ -17,15 +17,31 @@ let make = (~fb, ~auth, _children) =>
     render: ({state}) => {
       let basicRoutes = [
         `Prefix(("/recipe/", (navigate, id) => <ViewRecipe fb navigate id />)),
+        `Prefix(("/list/", (navigate, id) => <ListView fb navigate id />)),
         `NotFound((navigate) => <FrontPage fb navigate />)
       ];
       let routes =
-        state === None ?
-          [`Exact(("/login", (navigate) => <LogInPage auth navigate />))] :
-          [`Exact(("/add", (navigate) => <AddRecipe fb navigate />))];
+        state
+        |> BaseUtils.optFold(
+             (user) => {
+               let uid = Firebase.Auth.uid(user);
+               [
+                 `Exact(("/add", (navigate) => <AddRecipe fb uid navigate />)),
+                 `Exact(("/lists", (navigate) => <UserLists fb uid navigate />)),
+               ]
+             },
+             [`Exact(("/login", (navigate) => <LogInPage auth navigate />))]
+           );
       let routes = routes @ basicRoutes;
-      <Router routes render=((child, navigate) => <div
-        style=ReactDOMRe.Style.(make(~color=Shared.dark, ()))
-      > <Header auth navigate /> child </div>) />
+      <Router
+        routes
+        render=(
+          (child, navigate) =>
+            <div style=ReactDOMRe.Style.(make(~color=Shared.dark, ()))>
+              <Header auth navigate />
+              child
+            </div>
+        )
+      />
     }
   };

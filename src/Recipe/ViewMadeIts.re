@@ -8,6 +8,23 @@ module MadeItsFetcher =
     }
   );
 
+let myMadeItForRecipe = (render, ~fb, ~id, ~uid, children: array(ReasonReact.reactElement)) =>
+  MadeItsFetcher.make(
+    ~fb,
+    ~refetchKey=id,
+    ~query=
+      (q) =>
+        Firebase.Query.whereStr("recipeId", ~op="==", id, q)
+        |> BaseUtils.optFold(
+          (uid) => Firebase.Query.whereStr("authorId", ~op="==", uid),
+          Firebase.Query.whereBool("isPrivate", ~op="==", Js.false_),
+          uid
+        )
+        |> Firebase.Query.orderBy(~fieldPath="updated", ~direction="desc"),
+    ~render=(~state) => render(~state, ~fb, ~uid),
+    children
+  );
+
 let madeItForRecipe = (render, ~fb, ~id, children: array(ReasonReact.reactElement)) =>
   MadeItsFetcher.make(
     ~fb,

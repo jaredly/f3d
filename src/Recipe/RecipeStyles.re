@@ -11,6 +11,20 @@ let container = css ([
   ])
 ]);
 
+let leftBorderItem = [
+  padding("8px 16px"),
+  fontSize("24px"),
+  flex("1"),
+  cursor("pointer"),
+  paddingLeft("14px"),
+  borderLeft("2px solid white"),
+  transition(".1s ease border-left-color"),
+  Selector(":hover", [
+    borderLeftColor(Shared.actionLight),
+    /* backgroundColor("#eee"), */
+  ]),
+];
+
 let loading = css([alignItems("center")]);
 
 let title = css([fontSize("44px"), flex("1"), fontFamily("Abril Fatface, sans-serif")]);

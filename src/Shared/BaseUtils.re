@@ -46,6 +46,14 @@ let optBind = (fn, value) =>
   | Some(v) => fn(v)
   };
 
+let optFold = (fn, default, value) =>
+  switch value {
+  | None => default
+  | Some(v) => fn(v)
+  };
+
+let optFoldReact = (fn, value) => optFold(fn, ReasonReact.nullElement, value);
+
 let optOr = (default, value) =>
   switch value {
   | None => default

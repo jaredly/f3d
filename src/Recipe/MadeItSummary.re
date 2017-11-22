@@ -59,6 +59,10 @@ let module Styles = {
   let empty = css(base @ [
     visibility("hidden")
   ]);
+  let best = css(base @ [
+    color(Shared.action),
+    borderColor(Shared.action),
+  ])
 };
 
 let stringOfFloat = x => {
@@ -100,7 +104,19 @@ let ringStars = (num) => {
   </div>
 };
 
-let showSummary = (~mine, ~theirs) => {
+let showSummary = (madeits) => {
+  if (madeits == []) {
+    <div className=Styles.empty />
+  } else {
+    let best = bestScore(madeits);
+    <div className=Styles.best>
+      /* (str(string_of_int(best + 1))) */
+      (ringStars(best + 1))
+    </div>
+  }
+};
+
+/* let showSummary = (~mine, ~theirs) => {
   if (mine == [] && theirs === []) {
     <div className=Styles.empty />
   } else {
@@ -119,7 +135,7 @@ let showSummary = (~mine, ~theirs) => {
       </div>
     }
   }
-};
+}; */
 
 let isMine = (uid, madeit) => {
   madeit##authorId === uid
@@ -129,20 +145,20 @@ let isMine = (uid, madeit) => {
 let isNotMine = (uid, madeit) => !isMine(uid, madeit);
 
 let make =
-  ViewMadeIts.madeItForRecipe(
-    (~state, ~fb) =>
+  ViewMadeIts.myMadeItForRecipe(
+    (~state, ~fb, ~uid) =>
       switch state {
       | `Initial => <div className=Styles.empty />
       | `Loaded(madeits) =>
-        let uid = Firebase.Auth.fsUid(fb);
+        /* let uid = Firebase.Auth.fsUid(fb);
         let mine = uid
           |> optMap((uid) => List.filter(isMine(uid), madeits))
           |> optOr([]);
         let theirs = switch uid {
         | None => madeits
         | Some(uid) => List.filter(isNotMine(uid), madeits)
-        };
-        showSummary(~mine, ~theirs)
+        }; */
+        showSummary(madeits)
       | `Errored(err) =>
         Js.log2("Failed to load madeits", err);
         <div> (str("")) </div>

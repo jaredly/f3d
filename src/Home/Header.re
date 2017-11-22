@@ -51,12 +51,13 @@ let make = (~auth, ~navigate, _children) =>
       <div className=Styles.container>
         (spacer(16))
         <a href="#/" className=Styles.logo> (str("Foood")) </a>
+        (uid |> BaseUtils.optFoldReact(
+          (_) => <a href="#/lists" className=Styles.topMenu>(str("Lists"))</a>
+        ))
         spring
-        (
-          uid === None ?
-            ReasonReact.nullElement :
-            <a href="#/add" className=Styles.topMenu> (str("Add Recipe")) </a>
-        )
+        (uid |> BaseUtils.optFoldReact(
+          (_) => <a href="#/add" className=Styles.topMenu> (str("Add Recipe")) </a>
+        ))
         (
           switch (name(auth)) {
           | Some(name) =>

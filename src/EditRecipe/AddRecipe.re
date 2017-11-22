@@ -6,13 +6,12 @@ type state =
 
 let component = ReasonReact.reducerComponent("Recipe");
 
-let make = (~ingredients, ~fb, ~navigate, _children) =>
+let make = (~ingredients, ~fb, ~uid, ~navigate, _children) =>
   ReasonReact.{
     ...component,
     initialState: () => Editing,
     reducer: (action, _) => ReasonReact.Update(action),
     render: ({state, reduce}) => {
-      [@else ReasonReact.nullElement] [%guard let Some(uid) = Firebase.Auth.fsUid(fb)];
       let id = BaseUtils.uuid();
       <EditRecipe
         saving=(state === Saving)
@@ -71,14 +70,14 @@ module IngredientsFetcher =
     }
   );
 
-let make = (~fb, ~navigate, _children) =>
+let make = (~fb, ~uid, ~navigate, _children) =>
   IngredientsFetcher.make(
     ~fb,
     ~render=
       (~state as ingredients) =>
         switch ingredients {
         | `Initial => loadingRecipe()
-        | `Loaded(ingredients) => make(~ingredients, ~fb, ~navigate, [||]) |> ReasonReact.element
+        | `Loaded(ingredients) => make(~ingredients, ~uid, ~fb, ~navigate, [||]) |> ReasonReact.element
         | `Errored(err) => failedLoading(err)
         },
     [||]

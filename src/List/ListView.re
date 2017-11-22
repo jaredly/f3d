@@ -1,0 +1,80 @@
+open Utils;
+
+module RecipeFetcher = FirebaseFetcher.Single(Models.Recipe);
+
+let module RecipeSummary = {
+  let module Styles = {
+    open Glamor;
+    let title = css(RecipeStyles.leftBorderItem @ [
+      textDecoration("none"),
+      color("currentColor"),
+    ]);
+  };
+  let show = (recipe, navigate) => {
+    <div>
+      <Link className=Styles.title navigate dest=("/recipe/" ++ recipe##id) text=(recipe##title)/>
+    </div>
+  };
+
+  let make = (~id, ~fb, ~navigate, _children) => {
+    RecipeFetcher.make(
+      ~fb,
+      ~id,
+      ~render=(
+        (~state) => switch state {
+        | `Initial => <div/>
+        | `Errored(err) => <div>(str("Failed to load recipe"))</div>
+        | `Loaded(recipe) => show(recipe, navigate)
+        }
+      ),
+      [||]
+    )
+  }
+};
+
+let module Styles = {
+  open Glamor;
+  let container = css([maxWidth("100%"), width("800px"), alignSelf("center")]);
+  let item = css([
+    padding("8px 16px"),
+    cursor("pointer"),
+    color("currentColor"),
+    textDecoration("none"),
+    Selector(":hover", [
+      backgroundColor("#eee")
+    ])
+  ])
+};
+
+let showList = (~fb, ~list, ~uid, ~navigate) => {
+  <div className=Styles.container>
+    <div>
+      <div className=RecipeStyles.title> (str(list##title))</div>
+      <div>(str("To add to this list, navigate to a recipe and select 'add to list' in the right sidebar."))</div>
+      (spacer(32))
+      <div>
+        (Js.Dict.keys(list##recipes)
+        |> Array.map((id) => {
+          <RecipeSummary key=id id fb navigate />
+        }) |> ReasonReact.arrayToElement)
+      </div>
+    </div>
+  </div>
+};
+
+module Fetcher = FirebaseFetcher.Single(Models.List);
+let make = (~fb, ~id, ~navigate, _children) => {
+  Fetcher.make(
+    ~fb,
+    ~id,
+    ~render=(
+      (~state) =>
+        switch state {
+        | `Initial => <div/>
+        | `Loaded(list) => showList(~fb, ~list, ~uid=Firebase.Auth.fsUid(fb), ~navigate)
+        | `Errored(err) => <div>(str("Failed to load"))</div>
+        }
+    ),
+    [||]
+  )
+};

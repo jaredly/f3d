@@ -117,3 +117,5 @@ let speakableUnit = (unit, isPlural) => {
     };
   loop(unitSpeakableNames)
 };
+
+let reactMapList = (items, ~fn) => Array.of_list(items) |> Array.map(fn) |> ReasonReact.arrayToElement;
