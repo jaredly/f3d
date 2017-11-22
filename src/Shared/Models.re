@@ -279,4 +279,5 @@ type list = {
 module List = {
   let name = "lists";
   type t = list;
+  let getId = (list) => list##id;
 };

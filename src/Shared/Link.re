@@ -6,7 +6,8 @@ let make = (~navigate, ~dest, ~text, ~className=?, _) =>
     render: (_) =>
       <a
         onMouseDown=(
-          (evt) =>
+          (evt) => {
+            ReactEventRe.Mouse.stopPropagation(evt);
             if (ReactEventRe.Mouse.button(evt) === 0
                 && ReactEventRe.Mouse.metaKey(evt) === false
                 && ReactEventRe.Mouse.ctrlKey(evt) === false
@@ -14,6 +15,7 @@ let make = (~navigate, ~dest, ~text, ~className=?, _) =>
               ReactEventRe.Mouse.preventDefault(evt);
               navigate(dest)
             }
+          }
         )
         href=("#" ++ dest)
         ?className>

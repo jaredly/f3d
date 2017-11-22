@@ -176,7 +176,6 @@ module Stream = (Collection: {let name: string; type t; let getId: t => string;}
       | Some(fn) => fn()
       | None => ()
       };
-      Js.log2("fetching", Collection.name);
       module Q = Firebase.Query;
       let q = Firebase.asQuery(collection) |> query;
       unlisten :=

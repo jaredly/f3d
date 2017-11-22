@@ -113,8 +113,8 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
                    ])
                  )
             )>
-            <button className=Styles.primaryButton onClick=(reduce((_) => ToggleMaking))>
-              (str(making !== Normal ? "Stop making" : "Make"))
+            <button className=Styles.button onClick=(reduce((_) => ToggleMaking))>
+              (str(making !== Normal ? "Done" : "Make"))
             </button>
             (
               canEdit ?
@@ -126,7 +126,16 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
           </div>
         </div>
         (spacer(8))
+        <div className=Glamor.(css([position("relative")]))>
         (Meta.metaLine(~meta=recipe##meta, ~source=recipe##source))
+        ((making === Normal ? uid : None) |> BaseUtils.optFoldReact((uid) => {
+          <div className=Styles.rightSide>
+            <RecipeLists
+              fb recipeId=id navigate uid
+            />
+          </div>
+        }))
+        </div>
         (spacer(16))
         <div className=Glamor.(css([whiteSpace("pre-wrap")]))>
           (orr("", Js.Null.to_opt(recipe##description)) |> ifEmpty("No description") |> str)
@@ -160,7 +169,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               (str(batches === 1. ? "batch" : "batches"))
             </div>
             spring
-            <div className=Styles.rightSide>
+            (making !== Normal ? <div className=Styles.rightSide>
               /* <Speaker
                    instructions=recipe##instructions
                    ingredients=recipe##ingredients
@@ -173,7 +182,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
                   allIngredients=ingredients
                   instructions=recipe##instructions
                 />
-              </div>
+              </div> : ReasonReact.nullElement)
           </div>
         </div>
         (spacer(16))
