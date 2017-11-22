@@ -2,25 +2,62 @@ open Utils;
 
 let component = ReasonReact.reducerComponent("DeleteButton");
 
-let buttonBase =
-  Glamor.[
-    backgroundColor("#cfc"),
-    cursor("pointer"),
-    border("none"),
-    fontFamily("inherit"),
-    fontSize("inherit"),
-    fontWeight("inherit"),
-    Selector(":hover", [backgroundColor("#afa")])
-  ];
+module Styles = {
+  open Glamor;
+  let buttonBase =
+    RecipeStyles.buttonStyles
+    @ [
+      borderBottom("2px solid hsl(0, 100%, 90%)"),
+      whiteSpace("nowrap"),
+      paddingBottom("6px"),
+      /* transition(".1s ease box-shadow, .1s ease transform"), */
+      transition(".2s ease border-bottom-color"),
+      Selector(
+        ":hover",
+        [
+          borderBottomColor("hsl(0, 100%, 48%)")
+          /* boxShadow("0 1px 0px " ++ Shared.action), */
+          /* transform("translateY(-1px)"), */
+        ]
+      )
+      /* backgroundColor("#cfc"),
+         cursor("pointer"),
+         border("none"),
+         fontFamily("inherit"),
+         fontSize("inherit"),
+         fontWeight("inherit"),
+         Selector(":hover", [backgroundColor("#afa")]) */
+    ];
+  let button = Glamor.css(buttonBase);
+  let redButton =
+    css(
+      buttonBase
+      @ [
+        backgroundColor("hsl(0, 100%, 48%)"),
+        color(Shared.light),
+        transition(".1s ease box-shadow, .1s ease transform"),
+        borderBottom("none"),
+        Selector(":hover", [boxShadow("0 1px 5px #aaa"), transform("translateY(-1px)")])
+      ]
+    );
+  let safeButton =
+    css(
+      buttonBase
+      @ [
+        borderBottomColor("white"),
+        Selector(
+          ":hover",
+          [
+            borderBottomColor(Shared.action)
+            /* boxShadow("0 1px 0px " ++ Shared.action), */
+            /* transform("translateY(-1px)"), */
+          ]
+        )
+      ]
+    );
+};
 
-let button = Glamor.css(buttonBase);
-
-let redButton =
-  Glamor.(
-    css(buttonBase @ [backgroundColor("#fcc"), Selector(":hover", [backgroundColor("#faa")])])
-  );
-
-let make = (~onDelete, _) =>
+let make = (~onDelete, ~title="Delete", _) =>
   ReasonReact.{
     ...component,
     initialState: () => false,
@@ -28,11 +65,15 @@ let make = (~onDelete, _) =>
     render: ({state, reduce}) =>
       state ?
         <div className=Glamor.(css([flexDirection("row")]))>
-          <button className=button onClick=(reduce((_) => false))> (str("Just kidding")) </button>
+          <button className=Styles.safeButton onClick=(reduce((_) => false))>
+            (str("Just kidding"))
+          </button>
           (spacer(32))
-          <button className=redButton onClick=((_) => onDelete())> (str("Really delete")) </button>
+          <button className=Styles.redButton onClick=((_) => onDelete())>
+            (str("Really delete"))
+          </button>
         </div> :
         <div className=Glamor.(css([flexDirection("row")]))>
-          <button className=redButton onClick=(reduce((_) => true))> (str("Delete")) </button>
+          <button className=Styles.button onClick=(reduce((_) => true))> (str(title)) </button>
         </div>
   };

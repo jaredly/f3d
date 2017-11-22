@@ -85,6 +85,22 @@ let showList = (~fb, ~list, ~uid, ~navigate) => {
           <RecipeSummary key=id id fb navigate />
         }) |> ReasonReact.arrayToElement)
       </div>
+      (spacer(128))
+      <div className=Glamor.(css([alignItems("flex-end")]))>
+      <DeleteButton
+        title="Delete list"
+        onDelete=(() => {
+          let module Collection = Firebase.Collection(Models.List);
+          let collection = Collection.get(fb);
+          Firebase.delete(Firebase.doc(collection, list##id))
+          |> Js.Promise.then_((_) => {
+            navigate("/lists");
+            Js.Promise.resolve(())
+          }) |> ignore;
+
+        })
+      />
+      </div>
     </div>
   </div>
 };
