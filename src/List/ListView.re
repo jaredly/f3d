@@ -49,7 +49,34 @@ let module Styles = {
 let showList = (~fb, ~list, ~uid, ~navigate) => {
   <div className=Styles.container>
     <div>
-      <div className=RecipeStyles.title> (str(list##title))</div>
+      <BlurryInput
+        value=list##title
+        onChange=((value) => {
+          let module Collection = Firebase.Collection(Models.List);
+          let collection = Collection.get(fb);
+          let newList = Js.Obj.assign(Js.Obj.empty(), list);
+          newList##title #= value;
+          /** TODO loading state */
+          Firebase.set(Firebase.doc(collection, list##id), newList) |> ignore;
+        })
+        render=(
+          (~value, ~onChange as onChangeInner, ~onBlur) =>
+            <input
+              className=RecipeStyles.title
+              onChange=((evt) => onChangeInner(Utils.evtValue(evt)))
+              placeholder="Type new list name & hit enter"
+              onKeyDown=(
+                (evt) =>
+                  if (ReactEventRe.Keyboard.key(evt) === "Enter") {
+                    onBlur(())
+                  }
+              )
+              value
+              onBlur=(Utils.ignoreArg(onBlur))
+            />
+        )
+      />
+      /* <div className=RecipeStyles.title> (str(list##title))</div> */
       <div>(str("To add to this list, navigate to a recipe and select this list in the right sidebar."))</div>
       (spacer(32))
       <div>
