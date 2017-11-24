@@ -44,7 +44,7 @@ let component = ReasonReact.statelessComponent("MadeIt");
 
 let make = (~madeit, ~uid, ~fb, _children) =>
   UtilComponents.toggle(
-    ~initial=false,
+    ~initial=true,
     ~render=
       (~on, ~toggle) =>
         if (on) {

@@ -54,7 +54,7 @@ let make =
     setHeight(textarea, height)
   };
   let setRef = (dest, node) =>
-    Js.Null.to_opt(node) |> BaseUtils.optMap((node) => dest := Some(node)) |> ignore;
+    Js.Nullable.to_opt(node) |> BaseUtils.optMap((node) => dest := Some(node)) |> ignore;
   let handleReturn = (evt) => {
     [@else ()] [%guard let Some(onReturn) = onReturn];
     [@else ()] [%guard let Some(textarea) = textarea^];

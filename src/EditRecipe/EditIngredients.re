@@ -187,7 +187,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
           None :
           Some(
             (node) =>
-              Js.Null.to_opt(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
+              Js.Nullable.to_opt(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
           )
       )>
       <td
@@ -234,7 +234,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
           None :
           Some(
             (node) =>
-              Js.Null.to_opt(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
+              Js.Nullable.to_opt(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
           )
       )>
       <td

@@ -36,7 +36,7 @@
     "style-loader": "^0.19.0"
   },
   "devDependencies": {
-    "bs-platform": "git+https://github.com/bsansouci/bsb-native",
+    "bs-platform": "^2.1.0",
     "webpack": "^1.14.0"
   }
 }

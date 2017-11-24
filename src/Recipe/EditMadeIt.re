@@ -12,12 +12,11 @@ module Styles = {
   let container = css([padding("16px"), border("2px solid #eee")]);
 };
 
-
 type state = {
   notes: string,
   rating: option(int),
   meta: Models.meta,
-  created: MomentRe.Moment.t
+  created: MomentRe.Moment.t,
   /*
    ingredients: array(Models.maybeRecipeIngredient),
    ingredientHeaders: array(Models.header),
@@ -25,14 +24,15 @@ type state = {
    instructions: array(Models.maybeRecipeIngredient),
    instructionHeaders: array(Models.header),
 
-   images: array(string),
    imageUrl: Js.null(string),
    */
+   images: array(ImageUploader.image)
 };
 
 type action =
   | SetText(string)
   | SetRating(option(int))
+  | SetImages(array(ImageUploader.image))
   | SetCreated(MomentRe.Moment.t);
 
 let component = ReasonReact.reducerComponent("MadeItEntry");
@@ -67,14 +67,16 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
     rating: initial##rating |> Js.Null.to_opt,
     meta: initial##meta,
     created: initial##created |> MomentRe.momentWithTimestampMS,
+    images: [||],
   },
   reducer: (action, state) =>
     switch action {
     | SetText(notes) => ReasonReact.Update({...state, notes})
     | SetRating(rating) => ReasonReact.Update({...state, rating})
+    | SetImages(images) => ReasonReact.Update({...state, images})
     | SetCreated(created) => ReasonReact.Update({...state, created})
     },
-  render: ({reduce, state: {notes, rating, created} as state}) =>
+  render: ({reduce, state: {notes, rating, created, images} as state}) =>
     <div className=Styles.container>
       <div className=Styles.title> (str(title)) </div>
       (spacer(16))
@@ -94,6 +96,21 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
       <div className=Styles.label> (str("Notes")) </div>
       (spacer(16))
       <Textarea value=notes onChange=(reduce((text) => SetText(text))) />
+      (spacer(32))
+      <div className=Styles.label> (str("Images")) </div>
+      (spacer(32))
+      /* (images |> Array.map(source => <FirebaseImage fb source render=(url => {
+        <div>
+        <img src=url />
+        /** TODO add a "delete" button that deletes it. */
+        </div>
+      })/>) |> ReasonReact.arrayToElement) */
+      <ImageUploader
+        fb
+        images
+        onChange=(reduce(newImages => SetImages(newImages)))
+      />
+
       (spacer(32))
       <div className=RecipeStyles.row>
         <button
