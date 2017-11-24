@@ -1,5 +1,5 @@
 
-type blob;
+type blob = Firebase.Storage.file;
 
 type ctx;
 type canvas;
@@ -12,7 +12,10 @@ external asCanvas: Dom.element => canvas = "%identity";
 [@bs.send] external save: ctx => unit = "";
 [@bs.send] external restore: ctx => unit = "";
 [@bs.send] external rotate: ctx => float => unit = "";
+[@bs.send] external toBlob: canvas => (blob => unit) => string => float => unit = "";
+[@bs.get] external blobSize: blob => int = "size";
 
+let getContextFromCanvas = canvas => getContext(canvas, "2d");
 let getContext = (el) => {
   let canvas = asCanvas(el);
   getContext(canvas, "2d");

@@ -5,9 +5,9 @@ let make = (~id, ~fb, ~render, _children) => ReasonReact.{
   initialState: () => None,
   reducer: (action, _) => ReasonReact.Update(action),
   didMount: ({reduce}) => {
-    let reff = Firebase.Storage.get(Firebase.app(fb))
-    |> Firebase.Storage.ref;
-    Firebase.Storage.child(reff, id)
+    Firebase.Storage.get(Firebase.app(fb))
+    |> Firebase.Storage.ref
+    |> Firebase.Storage.child(id)
     |> Firebase.Storage.getDownloadURL
     |> Js.Promise.then_(url => {
       reduce(() => Some(url))();

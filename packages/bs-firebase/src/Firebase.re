@@ -21,8 +21,8 @@ let module Storage = {
   type file;
   [@bs.send] external get : firebase => storage = "";
   [@bs.send] external ref : storage => ref = "";
-  [@bs.send] external child : ref => string => ref = "";
-  [@bs.send] external put : ref => file => Js.Promise.t(snapshot) = "";
+  [@bs.send.pipe: ref] external child : string => ref = "";
+  [@bs.send.pipe: ref] external put : file => Js.Promise.t(snapshot) = "";
   [@bs.send] external delete : ref => Js.Promise.t(unit) = "";
   [@bs.send] external getDownloadURL : ref => Js.Promise.t(string) = "";
 };

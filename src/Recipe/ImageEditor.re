@@ -85,6 +85,47 @@ let transformSize = ((w, h), transform) => switch transform {
 | Clockwise90 | AntiClockwise90 => (h, w)
 };
 
+let drawTransformed = (transform, image, (w, h), ctx) => {
+  let (x, y) = switch transform {
+  | Orig => (0, 0)
+  | Clockwise90 => (0, -h)
+  | AntiClockwise90 => (-w, 0)
+  | One80 => (-w, -h)
+  };
+  Images.save(ctx);
+  switch transform {
+  | Orig => ()
+  | One80 => Images.rotate(ctx, 3.14159)
+  | Clockwise90 => Images.rotate(ctx, 3.14159 /. 2.)
+  | AntiClockwise90 => Images.rotate(ctx, -3.14159 /. 2.)
+  };
+  Images.drawImage(ctx, image, x, y, w, h);
+  Images.restore(ctx);
+};
+
+let newCanvasWithSize: ((int, int)) => (Images.canvas, unit => unit) = [%bs.raw {|
+  function(size) {
+    var canvas = document.createElement('canvas')
+    canvas.width = size[0]
+    canvas.height = size[1]
+    canvas.style.display = 'none'
+    document.body.appendChild(canvas)
+    return [canvas, () => canvas.parentNode.removeChild(canvas)]
+  }
+|}];
+
+let transformImage = (transform, image, onDone) => {
+  let oSize = shrinkToMax((Images.naturalWidth(image), Images.naturalHeight(image)), 2000);
+  let size = transformSize(oSize, transform);
+  let (canvas, dispose) = newCanvasWithSize(size);
+  drawTransformed(transform, image, oSize, Images.getContextFromCanvas(canvas));
+  Js.log2("Exporting, size", oSize);
+  Images.toBlob(canvas, (blob) => {
+    dispose();
+    onDone(blob);
+  }, "image/jpeg", 0.9)
+};
+
 let component = ReasonReact.reducerComponent("ImageEditor");
 
 let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
@@ -94,9 +135,9 @@ let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
   ), 1000); /* TODO make this min screen dimension or something, with margin */
   {
     ...component,
-    initialState: () => (size, Orig),
+    initialState: () => (Orig),
     reducer: (newState, _) => ReasonReact.Update(newState),
-    render: ({reduce, state: (size, transform)}) => {
+    render: ({reduce, state: (transform)}) => {
       <UtilComponents.Backdrop onCancel>
         <div className=Styles.container
         onClick=(evt => ReactEventRe.Mouse.stopPropagation(evt))
@@ -105,45 +146,41 @@ let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
         <Canvas
           size=transformSize(size, transform)
           render=(ctx => {
-            let (w, h) = size;
-            let (x, y) = switch transform {
-            | Orig => (0, 0)
-            | Clockwise90 => (0, -h)
-            | AntiClockwise90 => (-w, 0)
-            | One80 => (-w, -h)
-            };
-            Images.save(ctx);
-            switch transform {
-            | Orig => ()
-            | One80 => Images.rotate(ctx, 3.14159)
-            | Clockwise90 => Images.rotate(ctx, 3.14159 /. 2.)
-            | AntiClockwise90 => Images.rotate(ctx, -3.14159 /. 2.)
-            };
-            Images.drawImage(ctx, img, x, y, w, h);
-            Images.restore(ctx);
-            ()
+            drawTransformed(transform, img, size, ctx);
           })
         />
+        <div className=RecipeStyles.row>
         <button
-          onClick=(reduce((_) => (size, Orig)))
+          onClick=(reduce((_) => (Orig)))
         >
           (str("Original"))
         </button>
         <button
-          onClick=(reduce((_) => (size, Clockwise90)))
+          onClick=(reduce((_) => (Clockwise90)))
         >
           (str("Clockwise90"))
         </button>
         <button
-          onClick=(reduce((_) => (size, One80)))
+          onClick=(reduce((_) => (One80)))
         >
           (str("180"))
         </button>
         <button
-          onClick=(reduce((_) => (size, AntiClockwise90)))
+          onClick=(reduce((_) => (AntiClockwise90)))
         >
           (str("AntiClockwise90"))
         </button>
+        <button
+          onClick=(evt => {
+            switch transform {
+            | Orig => onCancel()
+            | _ => transformImage(transform, img, onDone)
+            }
+          })
+        >
+          (str("Save"))
+        </button>
+        </div>
         </div>
       </UtilComponents.Backdrop>
     }
@@ -161,6 +198,7 @@ let module ImageLoader = {
       <div>
         <img
           src=url
+          style=ReactDOMRe.Style.make(~display="none", ())
           onLoad=((_) => reduce(() => (img, true))())
           ref=?(switch img {
           | None => Some(node => Js.Nullable.to_opt(node) |> BaseUtils.optFold(node => reduce(() => (Some(node), false))(), ()))
@@ -176,7 +214,7 @@ let module ImageLoader = {
   };
 };
 
-let getBlobSize: Images.blob => Js.Promise.t((int, int)) = [%bs.raw {|
+/* let getBlobSize: Images.blob => Js.Promise.t((int, int)) = [%bs.raw {|
   function(blob) {
     return new Promise((res, rej) => {
       var img = document.createElement('img')
@@ -188,7 +226,7 @@ let getBlobSize: Images.blob => Js.Promise.t((int, int)) = [%bs.raw {|
       img.src = URL.createObjectURL(blob);
     })
   }
-|}];
+|}]; */
 
 /* let module ThingLoader = UtilComponents.Loader({type t = (int, int); });
 let make = (~onDone, ~onCancel, ~blob, _children) => ThingLoader.make(

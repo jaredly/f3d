@@ -97,6 +97,7 @@ let make = (~fb, ~images, ~onChange, _children) => {
       </button>
       (state.edit |> BaseUtils.optFoldReact(
         ((i, blob)) => <ImageEditor blob onDone=((newBlob) => {
+          reduce(() => StopEditing)();
           let images = Js.Array.copy(images);
           images[i] = NotUploaded(newBlob);
           onChange(images);
