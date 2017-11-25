@@ -53,13 +53,20 @@ let ensureSmallEnough = (blob) => {
 
 let uploadImage = (~fb, ~uid, ~blob, ~recipeId, ~madeItId) => {
   let id = BaseUtils.uuid();
-  let path = "images/" ++ recipeId ++ "/" ++ madeItId ++ "/" ++ id;
+  let path = "images/" ++ recipeId ++ "/" ++ uid ++ "/" ++ madeItId ++ "/" ++ id ++ ".jpg";
   Js.log3("Uploading", path, blob);
   Firebase.Storage.get(Firebase.app(fb))
   |> Firebase.Storage.ref
   |> Firebase.Storage.child(path)
   |> Firebase.Storage.put(blob)
-  |> Js.Promise.then_(snap => Js.Promise.resolve(path))
+  |> Js.Promise.then_(snap => {
+    Js.log2("Uploaded!", path);
+    Js.Promise.resolve(path)
+  })
+  |> Js.Promise.catch(err => {
+    Js.log3("error", path, err);
+    Js.Promise.reject(Obj.magic(err))
+  })
   /* Js.Promise.resolve("") */
   /* |> Firebase.Storage. */
 };
@@ -73,6 +80,10 @@ let ensureImagesUploaded = (~fb, ~uid, ~images, ~recipeId, ~madeItId) => {
       |> Js.Promise.then_(blob => uploadImage(~fb, ~uid, ~blob, ~recipeId, ~madeItId))
     })
   )
+  |> Js.Promise.catch(err => {
+    Js.log2("Images error", err);
+    Js.Promise.reject(Obj.magic(err))
+  })
 
 };
 

@@ -1,5 +1,5 @@
 /*** This causes the voices to load */
-let x = [%bs.raw {|console.log(speechSynthesis.getVoices())|}];
+let x = [%bs.raw {|speechSynthesis.getVoices()|}];
 
 let speak: (string, unit => unit) => unit =
   [@bs]

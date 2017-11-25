@@ -50,6 +50,7 @@ let make =
               (madeit) => <MadeIt key=madeit##id uid=(Firebase.Auth.fsUid(fb)) fb madeit />,
               madeits |> Array.of_list
             )
+            |> Js.Array.reverseInPlace
             |> ReasonReact.arrayToElement
           )
         </div>

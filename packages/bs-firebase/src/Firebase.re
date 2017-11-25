@@ -19,7 +19,7 @@ let module Storage = {
   type ref;
   type snapshot;
   type file;
-  [@bs.send] external get : firebase => storage = "";
+  [@bs.send] external get : firebase => storage = "storage";
   [@bs.send] external ref : storage => ref = "";
   [@bs.send.pipe: ref] external child : string => ref = "";
   [@bs.send.pipe: ref] external put : file => Js.Promise.t(snapshot) = "";

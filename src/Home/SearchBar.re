@@ -17,6 +17,7 @@ module Styles = {
         border("none"),
         outline("none"),
         alignSelf("stretch"),
+        maxWidth("100%"),
         flex("1"),
         fontSize("24px"),
         padding("4px")

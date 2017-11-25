@@ -1,5 +1,11 @@
 open Utils;
 
+let renderComponent = ReasonReact.statelessComponent("Render");
+let render = (render) => {
+  ...renderComponent,
+  render: (_) => render()
+};
+
 let toggleComponent = ReasonReact.reducerComponent("Toggle");
 let toggle = (~initial, ~render) => {
   ...toggleComponent,

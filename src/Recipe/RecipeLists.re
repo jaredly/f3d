@@ -47,7 +47,7 @@ let showLists = (~fb, ~recipeId, ~lists, ~uid, ~navigate) => {
     (spacer(8))
     (lists |> Array.of_list |> Array.map(
       (list) => {
-        <div className=Styles.item onClick=((evt) => {
+        <div className=Styles.item key=list##id onClick=((evt) => {
           let updatedList = toggleRecipe(list, recipeId);
           /** TODO loading state */
           Firebase.set(Firebase.doc(collection, list##id), updatedList) |> ignore;

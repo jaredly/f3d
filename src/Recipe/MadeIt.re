@@ -3,8 +3,12 @@ open Utils;
 module Styles = {
   open Glamor;
   let container =
-    css([borderTop("2px solid " ++ Shared.action), position("relative"), paddingTop("8")]);
+    css([borderTop("1px solid " ++ Shared.actionLight),
+    position("relative"),
+    marginTop("32"),
+    paddingTop("16")]);
   let notes = css([whiteSpace("pre-wrap")]);
+  let image = css([width("200px"), height("200px"), objectFit("contain")]);
 };
 
 let view = (~uid, ~fb, ~madeit, ~onEdit) =>
@@ -25,10 +29,9 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
         switch uid {
         | Some(uid) when uid === madeit##authorId =>
           <div className=RecipeStyles.rightSide>
-            <button onClick=(ignoreArg(onEdit)) className=(
-              RecipeStyles.smallButton ++ " " ++
-              Glamor.(css([marginTop("8px")]))
-            )>
+            <button
+              onClick=(ignoreArg(onEdit))
+              className=(RecipeStyles.smallButton ++ " " ++ Glamor.(css([marginTop("8px")])))>
               (str("edit"))
             </button>
           </div>
@@ -38,16 +41,29 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
     </div>
     (spacer(8))
     <div className=Styles.notes> (str(madeit##notes)) </div>
+    (spacer(8))
+    <div className=Styles.notes>
+    (str(madeit##notes))
+    </div>
+    (madeit##images != [||] ? spacer(32) : ReasonReact.nullElement)
+    <div className=RecipeStyles.row>
+    (madeit##images |>
+    Array.map(id => <FirebaseImage key=id fb id render=(url => <img src=url
+        className=Styles.image
+    />) />)
+    |> ReasonReact.arrayToElement)
+    </div>
   </div>;
 
 let component = ReasonReact.statelessComponent("MadeIt");
 
 let make = (~madeit, ~uid, ~fb, _children) =>
   UtilComponents.toggle(
-    ~initial=true,
+    ~initial=false,
     ~render=
       (~on, ~toggle) =>
-        if (on) {
+        switch (uid, on) {
+        | (Some(uid), true) =>
           <EditMadeIt
             fb
             uid
@@ -57,7 +73,33 @@ let make = (~madeit, ~uid, ~fb, _children) =>
             onCancel=toggle
             onSave=toggle
           />
-        } else {
-          view(~fb, ~uid, ~madeit, ~onEdit=toggle)
+        | _ => view(~fb, ~uid, ~madeit, ~onEdit=toggle)
         }
   );
+/*
+ ERROR
+ because I want to conditionally return differently typed components. Which sholdn't be a problem :/
+
+ let make = (~madeit, ~uid, ~fb, _children) =>
+   switch uid {
+   | None => UtilComponents.render(() => view(~fb, ~uid, ~madeit, ~onEdit=() => ()))
+   | Some(uid) =>
+       UtilComponents.toggle(
+         ~initial=true,
+         ~render=
+           (~on, ~toggle) =>
+             if (on) {
+               <EditMadeIt
+                 fb
+                 uid
+                 title="Edit experience"
+                 action="Save"
+                 initial=madeit
+                 onCancel=toggle
+                 onSave=toggle
+               />
+             } else {
+               view(~fb, ~uid=Some(uid), ~madeit, ~onEdit=toggle)
+             }
+       )
+     }; */
