@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bsb -make-world -w",
     "serve": "cd public && http-server -p 7434 -c-1",
-    "deploy": "cd public && surge -d foood.jaredforsyth.com .",
+    "deploy": "NODE_ENV=production webpack && cd public && surge -d foood.jaredforsyth.com .",
     "build": "bsb -make-world",
     "webpack": "webpack -w",
     "clean": "bsb -clean-world",
@@ -28,7 +28,7 @@
     "json-loader": "^0.5.7",
     "porter-stemmer": "^0.9.1",
     "ppx_guard": "file:../../experiments/ppx_guard",
-    "react": "^15.4.2",
+    "react": "15.6.2",
     "react-datepicker": "^0.60.2",
     "react-dom": "^15.4.2",
     "reason-react": ">=0.2.1",
@@ -36,7 +36,7 @@
     "style-loader": "^0.19.0"
   },
   "devDependencies": {
-    "bs-platform": "^2.1.0",
+    "bs-platform": "2.1.0",
     "webpack": "^1.14.0"
   }
 }
