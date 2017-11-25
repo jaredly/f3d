@@ -100,6 +100,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
+          (spacer(~className=Styles.notPhoneWidth, 16))
           <div
             className=(
               Styles.rightSide

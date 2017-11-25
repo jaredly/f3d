@@ -13,17 +13,19 @@ module Styles = {
 
 let view = (~uid, ~fb, ~madeit, ~onEdit) =>
   <div className=Styles.container>
-    <div className=RecipeStyles.row>
+    <div className=RecipeStyles.wrappingRow>
       <div className=Glamor.(css([fontWeight("600")]))> <UserName id=madeit##authorId fb /> </div>
       (spacer(16))
       (str(madeit##created |> Js.Date.fromFloat |> Js.Date.toDateString))
       spring
+      <div className=RecipeStyles.row>
       (
         switch (Js.Null.to_opt(madeit##rating)) {
         | None => ReasonReact.nullElement
         | Some(rating) => RatingWidget.showStars(~active=true, ~rating)
         }
       )
+      </div>
       (spacer(8))
       (
         switch uid {

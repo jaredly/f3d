@@ -27,7 +27,17 @@ let leftBorderItem = [
 
 let loading = css([alignItems("center")]);
 
-let title = css([fontSize("44px"), flex("1"), fontFamily("Abril Fatface, sans-serif")]);
+let phoneWidth = "@media(max-width: 400px)";
+let notPhoneWidth = "@media(min-width: 401px)";
+
+let onlyPhoneWidth = css([Selector(notPhoneWidth, [display("none")])]);
+
+let title = css([
+  fontSize("44px"), flex("1"), fontFamily("Abril Fatface, sans-serif"),
+    Selector("@media(max-width: 400px)", [
+      fontSize("32px"),
+    ]),
+]);
 
 let header =
   css([
@@ -39,10 +49,14 @@ let header =
     top("0px"),
     paddingBottom("8px"),
     paddingTop("8px"),
-    borderBottom("1px solid " ++ Shared.dark)
+    borderBottom("1px solid " ++ Shared.dark),
+    Selector(phoneWidth, [
+      flexDirection("column"),
+    ]),
   ]);
 
 let row = css([flexDirection("row")]);
+let wrappingRow = css([flexDirection("row"), flexWrap("wrap")]);
 
 let buttonStyles = [
     fontSize("inherit"),

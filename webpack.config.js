@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './lib/js/src/main.js',
@@ -12,6 +13,11 @@ module.exports = {
     path: path.join(__dirname, "public"),
     filename: 'bundle.js',
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      __DEV__: process.env.NODE_ENV !== "production",
+    }),
+  ],
   module: {
     loaders: [
       {test: /\.json$/, loader: 'json-loader'},

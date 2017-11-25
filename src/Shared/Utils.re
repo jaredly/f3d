@@ -4,8 +4,8 @@ let spring = <div style=ReactDOMRe.Style.(make(~flexGrow="1", ())) />;
 
 let ignoreArg = (fn, _) => fn();
 
-let spacer = (~key=?, num) =>
-  <div ?key style=ReactDOMRe.Style.(make(~flexBasis=string_of_int(num) ++ "px", ())) />;
+let spacer = (~className=?, ~key=?, num) =>
+  <div ?key ?className style=ReactDOMRe.Style.(make(~flexBasis=string_of_int(num) ++ "px", ())) />;
 
 let evtValue: ReactEventRe.Form.t => string =
   (event) => ReactDOMRe.domElementToObj(ReactEventRe.Form.target(event))##value;

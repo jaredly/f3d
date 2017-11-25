@@ -55,7 +55,10 @@ let make = (~render, ~routes, _children) =>
     ...component,
     initialState: () => currentHash(),
     didMount: ({state, reduce}) => {
-      onhashchange(window, (_) => (reduce(currentHash))());
+      onhashchange(window, (_) => {
+        [%bs.raw {|window.Bugsnag && (Bugsnag.context = window.location.hash, Bugsnag.refresh())|}];
+        (reduce(currentHash))()
+      });
       ReasonReact.NoUpdate
     },
     reducer: (action, state) => ReasonReact.Update(action),

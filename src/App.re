@@ -1,5 +1,13 @@
 let component = ReasonReact.reducerComponent("App");
 
+[%%bs.raw {|
+  if (window.Bugsnag) {
+    Bugsnag.notifyReleaseStages = ["production"];
+    Bugsnag.enableNotifyUnhandledRejections();
+    Bugsnag.releaseStage = __DEV__ ? 'development' : 'production'
+  }
+|}];
+
 let str = ReasonReact.stringToElement;
 
 let make = (~fb, ~auth, _children) =>
@@ -10,7 +18,10 @@ let make = (~fb, ~auth, _children) =>
     didMount: ({reduce}) => {
       Firebase.Auth.onAuthStateChanged(
         auth,
-        (user) => (reduce((_) => user |> Js.Nullable.to_opt))()
+        (user) => {
+          [%bs.raw {|window.Bugsnag && (Bugsnag.user = user)|}];
+          (reduce((_) => user |> Js.Nullable.to_opt))()
+        }
       );
       ReasonReact.NoUpdate
     },
