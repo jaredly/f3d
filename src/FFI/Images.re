@@ -33,11 +33,11 @@ let rec myAssoc = (key, items) => switch items {
 };
 
 let cachingCreateObjectURL = blob => {
-  Js.log3("getting", blob, cachedURLs^);
+  /* Js.log3("getting", blob, cachedURLs^); */
   try (myAssoc(blob, cachedURLs^)) {
   | Not_found => {
     let url = createObjectURL(blob);
-    Js.log3("Making new", url, blob);
+    /* Js.log3("Making new", url, blob); */
     cachedURLs := [(blob, url), ...cachedURLs^];
     url
   }

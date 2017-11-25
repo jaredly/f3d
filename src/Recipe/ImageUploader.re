@@ -13,7 +13,7 @@ type image =
   | NotUploaded(blob);
 
 type state = {
-  triggerInput: ref(option((unit => unit))),
+  triggerInput: option((unit => unit)),
   /* imageRefs: Js.Dict.t(Dom.element), */
   /* objectUrls: array(string), */
   edit: option((int, blob)),
@@ -24,6 +24,7 @@ type action =
   | SetStatus(status)
   | Edit(int, blob)
   | StopEditing
+  | SetTrigger(unit => unit)
   /* | SetFiles(array(string)) */
   ;
 
@@ -36,12 +37,13 @@ let module S = ReactDOMRe.Style;
 let make = (~fb, ~images, ~onChange, _children) => {
   ...component,
   initialState: () => {
-    triggerInput: ref(None),
+    triggerInput: None,
     edit: None,
     status: Initial
   },
   reducer: (action, state) => switch action {
   | SetStatus(status) => ReasonReact.Update({...state, status})
+  | SetTrigger(triggerInput) => ReasonReact.Update({...state, triggerInput: Some(triggerInput)})
   | Edit(i, blob) => ReasonReact.Update({...state, edit: Some((i, blob))})
   | StopEditing => ReasonReact.Update({...state, edit: None})
   /* | SetFiles(objectUrls) => ReasonReact.Update({...state, objectUrls}) */
@@ -81,17 +83,19 @@ let make = (~fb, ~images, ~onChange, _children) => {
 
         })
         multiple=Js.true_
-        ref=(
-          (node) =>
+        ref=?(state.triggerInput === None
+        ? Some((node) =>
             Js.Nullable.to_opt(node)
             |> BaseUtils.optFold(
-                 (node) => state.triggerInput.contents = Some(() => clickDom(node)),
+                 (node) => reduce(() => SetTrigger(() => clickDom(node)))(),
                  ()
-               )
+               ))
+        : None
         )
       />
       <button
-        onClick=?{state.triggerInput^ |> BaseUtils.optMap(Utils.ignoreArg)}
+        onClick=?{state.triggerInput |> BaseUtils.optMap(Utils.ignoreArg)}
+        disabled=(state.triggerInput === None |> Js.Boolean.to_js_boolean)
       >
         (str("Add Images"))
       </button>

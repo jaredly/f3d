@@ -6,6 +6,7 @@ let shrinkImage: Images.blob => Js.Promise.t(Images.blob) = [%bs.raw {|
   function(blob) {
     return new Promise((res, rej) => {
       setTimeout(() => rej(new Error('timeout')), 1000);
+      console.log('shrinking', blob.size)
       var image = document.createElement('img')
       image.style.display = 'none'
       document.body.appendChild(image)
@@ -51,6 +52,15 @@ let ensureSmallEnough = (blob) => {
   }
 };
 
+let failAfter = t => Js.Promise.make((~resolve, ~reject) => Js.Global.setTimeout(() => [@bs]reject(Not_found), t) |> ignore);
+
+let withTimeout = (prom, t) => {
+  Js.Promise.race([|
+    prom,
+    failAfter(t)
+  |])
+};
+
 let uploadImage = (~fb, ~uid, ~blob, ~recipeId, ~madeItId) => {
   let id = BaseUtils.uuid();
   let path = "images/" ++ recipeId ++ "/" ++ uid ++ "/" ++ madeItId ++ "/" ++ id ++ ".jpg";
@@ -58,33 +68,35 @@ let uploadImage = (~fb, ~uid, ~blob, ~recipeId, ~madeItId) => {
   Firebase.Storage.get(Firebase.app(fb))
   |> Firebase.Storage.ref
   |> Firebase.Storage.child(path)
-  |> Firebase.Storage.put(blob)
+  |> reff => withTimeout(Firebase.Storage.put(blob, reff), 30000)
   |> Js.Promise.then_(snap => {
     Js.log2("Uploaded!", path);
-    Js.Promise.resolve(path)
+    Js.Promise.resolve(Some(path))
   })
   |> Js.Promise.catch(err => {
-    Js.log3("error", path, err);
-    Js.Promise.reject(Obj.magic(err))
+    Js.log3("error uploading image", path, err);
+    Js.Promise.resolve(None)
   })
   /* Js.Promise.resolve("") */
   /* |> Firebase.Storage. */
 };
 
+let filterNils = items => Js.Array.reduce((good, item) => switch item { | None => good | Some(x) => Js.Array.concat(good, [|x|])}, [||], items);
+
 let ensureImagesUploaded = (~fb, ~uid, ~images, ~recipeId, ~madeItId) => {
   Js.Promise.all(
     images |> Array.map(image => switch image {
-    | ImageUploader.AlreadyUploaded(id) => Js.Promise.resolve(id)
+    | ImageUploader.AlreadyUploaded(id) => Js.Promise.resolve(Some(id))
     | NotUploaded(blob) =>
       ensureSmallEnough(blob)
       |> Js.Promise.then_(blob => uploadImage(~fb, ~uid, ~blob, ~recipeId, ~madeItId))
     })
   )
+  |> Js.Promise.then_(items => Js.Promise.resolve(filterNils(items)))
   |> Js.Promise.catch(err => {
     Js.log2("Images error", err);
     Js.Promise.reject(Obj.magic(err))
   })
-
 };
 
 module Styles = {

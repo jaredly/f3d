@@ -41,10 +41,6 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
     </div>
     (spacer(8))
     <div className=Styles.notes> (str(madeit##notes)) </div>
-    (spacer(8))
-    <div className=Styles.notes>
-    (str(madeit##notes))
-    </div>
     (madeit##images != [||] ? spacer(32) : ReasonReact.nullElement)
     <div className=RecipeStyles.row>
     (madeit##images |>
