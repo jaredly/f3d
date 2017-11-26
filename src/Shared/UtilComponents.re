@@ -83,7 +83,7 @@ let module OnVisible = {
           let fn = ([%bs.raw {|(function(node, cb){
             if (!window.IntersectionObserver) {
               console.warn("No intersection observer. TODO support a slower way")
-              return
+              return () => {}
             }
             let obs = new window.IntersectionObserver((entries) => {
               if (entries && entries.length == 1 && entries[0].isIntersecting) {

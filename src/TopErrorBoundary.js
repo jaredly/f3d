@@ -28,6 +28,7 @@ class ErrorBoundary extends React.Component {
           backgroundColor: "#eee",
           fontSize: '14px',
           padding: '20px',
+          overflow: 'auto',
         }
       },
       this.state.error.message,'\n\n',
