@@ -169,7 +169,7 @@ let make =
       <div className=Styles.container>
         <div className=Styles.header>
           <input
-            disabled=(Js.Boolean.to_js_boolean(saving))
+            disabled=(bool.to_js_boolean(saving))
             className=Styles.title
             placeholder="Recipe title"
             value=title
@@ -187,7 +187,7 @@ let make =
                       " " ++ (Styles.saveButton ++ (" " ++ (canSave ? "" : Styles.disabledbutton)))
                     )
                   )
-                  /* disabled=(Js.Boolean.to_js_boolean (not canSave)) */
+                  /* disabled=(bool.to_js_boolean (not canSave)) */
                   onClick=((_) => canSave ? onSave(updateRecipe(recipe, state)) : ())>
                   (str(saving ? "Saving" : "Save"))
                 </button>

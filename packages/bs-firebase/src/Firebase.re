@@ -76,7 +76,7 @@ module Query = {
   [@bs.send.pipe : query('t)] external startAfter : snapshot('t) => query('t) = "";
   [@bs.send.pipe : query('t)] external endAt : snapshot('t) => query('t) = "";
   [@bs.send.pipe : query('t)] external endBefore : snapshot('t) => query('t) = "";
-  [@bs.send.pipe : query('t)] external whereBool : (string, ~op: string, Js.boolean) => query('t) =
+  [@bs.send.pipe : query('t)] external whereBool : (string, ~op: string, bool) => query('t) =
     "where";
   [@bs.send.pipe : query('t)] external whereStr : (string, ~op: string, string) => query('t) =
     "where";

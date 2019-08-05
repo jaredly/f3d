@@ -95,7 +95,7 @@ let make = (~fb, ~images, ~onChange, _children) => {
       />
       <button
         onClick=?{state.triggerInput |> BaseUtils.optMap(Utils.ignoreArg)}
-        disabled=(state.triggerInput === None |> Js.Boolean.to_js_boolean)
+        disabled=(state.triggerInput === None |> bool.to_js_boolean)
       >
         (str("Add Images"))
       </button>

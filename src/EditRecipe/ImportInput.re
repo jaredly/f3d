@@ -35,7 +35,7 @@ let make = (~fb, ~allIngredients, ~onImport, _) =>
           | Some(v) => v
           }
         )
-        disabled=(Js.Boolean.to_js_boolean(state !== None))
+        disabled=(bool.to_js_boolean(state !== None))
         placeholder="Paste in URL to import"
         onChange=(
           (evt) => {

@@ -10,7 +10,7 @@ let make = (~instructions, ~allIngredients, ~ingredients, _) =>
     render: ({state: speaking, reduce}) => {
       let map = Ingredients.ingredientsMap(allIngredients);
       <button
-        disabled=(Js.Boolean.to_js_boolean(speaking))
+        disabled=(bool.to_js_boolean(speaking))
         onClick=(
           (_) => {
             reduce((_) => true, ());

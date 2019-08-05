@@ -68,7 +68,7 @@ let render = (~batches, ~ingredients, ~allIngredients, ~making) => {
                             StringSet.add(ingredient##id, set)
                         )
                     )>
-                    <input _type="checkbox" checked=(Js.Boolean.to_js_boolean(checked)) />
+                    <input _type="checkbox" checked=(bool.to_js_boolean(checked)) />
                   </td>
                 }
               )

@@ -29,7 +29,7 @@ let make = (~auth, ~navigate, _) =>
           className=Styles.input
           placeholder="Email Address"
           value=username
-          disabled=(Js.Boolean.to_js_boolean(loading))
+          disabled=(bool.to_js_boolean(loading))
           onChange=(reduce((evt) => (evtValue(evt), password, false, error)))
         />
         (spacer(16))
@@ -38,13 +38,13 @@ let make = (~auth, ~navigate, _) =>
           className=Styles.input
           placeholder="Password"
           value=password
-          disabled=(Js.Boolean.to_js_boolean(loading))
+          disabled=(bool.to_js_boolean(loading))
           onChange=(reduce((evt) => (username, evtValue(evt), false, error)))
         />
         (spacer(16))
         <button
           className=Styles.button
-          disabled=(Js.Boolean.to_js_boolean(loading))
+          disabled=(bool.to_js_boolean(loading))
           onClick=(
             (_) => {
               (reduce((_) => (username, password, true, "")))();

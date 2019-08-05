@@ -44,7 +44,7 @@ let render = (~instructions, ~making) =>
                   <input
                     _type="checkbox"
                     style=(ReactDOMRe.Style.make(~width="1em", ()))
-                    checked=(Js.Boolean.to_js_boolean(checked))
+                    checked=(bool.to_js_boolean(checked))
                   />
                 </div>
               }

@@ -132,20 +132,20 @@ type recipe = {
   .
   "id": string,
   "authorId": string,
-  "collaborators": Js.Dict.t(Js.boolean),
-  "isPrivate": Js.boolean,
+  "collaborators": Js.Dict.t(bool),
+  "isPrivate": bool,
   "title": string,
-  "titleSearch": Js.Dict.t(Js.boolean),
+  "titleSearch": Js.Dict.t(bool),
   "created": float,
   "updated": float,
   "imageUrl": nu(string),
-  "tags": Js.Dict.t(Js.boolean),
+  "tags": Js.Dict.t(bool),
   "source": nu(string),
   "instructions": array(instruction),
   "instructionHeaders": array(header),
   "ingredients": array(recipeIngredient),
   "ingredientHeaders": array(header),
-  "ingredientsUsed": Js.Dict.t(Js.boolean),
+  "ingredientsUsed": Js.Dict.t(bool),
   "images": nu(array(string)),
   "notes": nu(string), /* TODO update models */
   "description": nu(string),
@@ -192,7 +192,7 @@ module Recipe = {
       },
       "authorId": authorId,
       "collaborators": empty,
-      "isPrivate": Js.Boolean.to_js_boolean(false)
+      "isPrivate": bool.to_js_boolean(false)
     }
   };
 };
@@ -202,8 +202,8 @@ type madeIt = {.
   "recipeId": string,
   "authorId": string,
 
-  "collaborators": Js.Dict.t(Js.boolean), /* gets copied from main recipe? if its private */
-  "isPrivate": Js.boolean,
+  "collaborators": Js.Dict.t(bool), /* gets copied from main recipe? if its private */
+  "isPrivate": bool,
 
   "created": float,
   "updated": float,
@@ -268,12 +268,12 @@ type list = {
   .
   "id": string,
   "authorId": string,
-  "collaborators": Js.Dict.t(Js.boolean),
-  "isPrivate": Js.boolean,
+  "collaborators": Js.Dict.t(bool),
+  "isPrivate": bool,
   "title": string,
   "created": float,
   "updated": float,
-  "recipes": Js.Dict.t(Js.boolean)
+  "recipes": Js.Dict.t(bool)
 };
 
 module List = {
