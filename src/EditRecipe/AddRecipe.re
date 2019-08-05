@@ -11,7 +11,7 @@ let make = (~ingredients, ~fb, ~uid, ~navigate, _children) =>
     ...component,
     initialState: () => Editing,
     reducer: (action, _) => ReasonReact.Update(action),
-    render: ({state, reduce}) => {
+    render: ({state, send}) => {
       let id = BaseUtils.uuid();
       <EditRecipe
         saving=(state === Saving)
@@ -21,7 +21,7 @@ let make = (~ingredients, ~fb, ~uid, ~navigate, _children) =>
         id
         onSave=(
           (recipe) => {
-            (reduce((_) => Saving))();
+            (send(Saving));
             module FB = Firebase.Collection(Models.Recipe);
             let collection = FB.get(fb);
             let doc = Firebase.doc(collection, recipe##id);

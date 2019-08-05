@@ -43,7 +43,7 @@ module Auth = {
   [@bs.send] external onAuthStateChanged : (auth, Js.nullable(user) => unit) => unit = "";
   [@bs.get] external uid : user => string = "";
   let fsUid = (fs) =>
-    app(fs) |> auth |> currentUser |> Js.Nullable.to_opt |> optMap(uid);
+    app(fs) |> auth |> currentUser |>  Js.Nullable.toOption |> optMap(uid);
 };
 
 [@bs.send] external collection' : (firestore, string) => collection('t) = "collection";

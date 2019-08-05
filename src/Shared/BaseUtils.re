@@ -19,7 +19,7 @@ let rec range = (~at=0, i) => at === i ? [] : [at, ...range(~at=at + 1, i)];
 let uuid: unit => string = [%bs.raw {|function() {return Math.random().toString(16).slice(2)}|}];
 
 let magicDefault = (default, v) => {
-  if (Obj.magic(v) |> Js.Null_undefined.test) {
+  if (Obj.magic(v) |> Js.Nullable.isNullable) {
     default
   } else {
     v
@@ -52,7 +52,7 @@ let optFold = (fn, default, value) =>
   | Some(v) => fn(v)
   };
 
-let optFoldReact = (fn, value) => optFold(fn, ReasonReact.nullElement, value);
+let optFoldReact = (fn, value) => optFold(fn, ReasonReact.null, value);
 
 let optOr = (default, value) =>
   switch value {
@@ -74,7 +74,7 @@ let ifEmpty = (default, value) =>
   };
 
 let maybe = (item, render) =>
-  switch (Js.Null.to_opt(item)) {
+  switch (Js.Null.toOption(item)) {
   | None => None
   | Some(value) => Some(render(value))
   };

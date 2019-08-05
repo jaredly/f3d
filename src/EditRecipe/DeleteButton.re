@@ -62,10 +62,10 @@ let make = (~onDelete, ~title="Delete", _) =>
     ...component,
     initialState: () => false,
     reducer: (action, _) => ReasonReact.Update(action),
-    render: ({state, reduce}) =>
+    render: ({state, send}) =>
       state ?
         <div className=Glamor.(css([flexDirection("row")]))>
-          <button className=Styles.safeButton onClick=(reduce((_) => false))>
+          <button className=Styles.safeButton onClick=(((_) => send(false)))>
             (str("Just kidding"))
           </button>
           (spacer(32))
@@ -74,6 +74,6 @@ let make = (~onDelete, ~title="Delete", _) =>
           </button>
         </div> :
         <div className=Glamor.(css([flexDirection("row")]))>
-          <button className=Styles.button onClick=(reduce((_) => true))> (str(title)) </button>
+          <button className=Styles.button onClick=(((_) => send(true)))> (str(title)) </button>
         </div>
   };

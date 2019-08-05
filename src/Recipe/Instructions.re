@@ -29,7 +29,7 @@ let render = (~instructions, ~making) =>
             )>
             (
               switch making {
-              | None => ReasonReact.nullElement
+              | None => ReasonReact.null
               | Some((set, _onChange)) =>
                 let checked = IntSet.mem(i, set);
                 <div
@@ -42,9 +42,9 @@ let render = (~instructions, ~making) =>
                     )
                   )>
                   <input
-                    _type="checkbox"
+                    type_="checkbox"
                     style=(ReactDOMRe.Style.make(~width="1em", ()))
-                    checked=(bool.to_js_boolean(checked))
+                    checked=((checked))
                   />
                 </div>
               }
@@ -55,6 +55,6 @@ let render = (~instructions, ~making) =>
         instructions
       )
       |> spacedArray((i) => spacer(~key=string_of_int(i) ++ "s", 16))
-      |> ReasonReact.arrayToElement
+      |> ReasonReact.array
     )
   </div>;

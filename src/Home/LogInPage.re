@@ -22,32 +22,32 @@ let make = (~auth, ~navigate, _) =>
     ...component,
     initialState: () => ("", "", false, ""),
     reducer: (action, state) => ReasonReact.Update(action),
-    render: ({state: (username, password, loading, error), reduce}) =>
+    render: ({state: (username, password, loading, error), send}) =>
       <div className=Styles.container>
         <input
-          _type="text"
+          type_="text"
           className=Styles.input
           placeholder="Email Address"
           value=username
-          disabled=(bool.to_js_boolean(loading))
-          onChange=(reduce((evt) => (evtValue(evt), password, false, error)))
+          disabled=((loading))
+          onChange=(((evt) => send(((evtValue(evt)), password, false, error))))
         />
         (spacer(16))
         <input
-          _type="password"
+          type_="password"
           className=Styles.input
           placeholder="Password"
           value=password
-          disabled=(bool.to_js_boolean(loading))
-          onChange=(reduce((evt) => (username, evtValue(evt), false, error)))
+          disabled=((loading))
+          onChange=(((evt) => send(((username, evtValue(evt), false, error)))))
         />
         (spacer(16))
         <button
           className=Styles.button
-          disabled=(bool.to_js_boolean(loading))
+          disabled=((loading))
           onClick=(
             (_) => {
-              (reduce((_) => (username, password, true, "")))();
+              (send((username, password, true, "")));
               Firebase.Auth.signInWithEmailAndPassword(auth, username, password)
               |> Js.Promise.then_(
                    (user) => {
@@ -57,7 +57,7 @@ let make = (~auth, ~navigate, _) =>
                  )
               |> Js.Promise.catch(
                    (err) => {
-                     (reduce((_) => (username, password, false, "Failed to login")))();
+                     (send((username, password, false, "Failed to login")));
                      Js.Promise.resolve()
                    }
                  )

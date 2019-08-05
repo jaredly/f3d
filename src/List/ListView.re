@@ -67,7 +67,7 @@ let showList = (~fb, ~list, ~uid, ~navigate) => {
               placeholder="Type new list name & hit enter"
               onKeyDown=(
                 (evt) =>
-                  if (ReactEventRe.Keyboard.key(evt) === "Enter") {
+                  if (ReactEvent.Keyboard.key(evt) === "Enter") {
                     onBlur(())
                   }
               )
@@ -83,7 +83,7 @@ let showList = (~fb, ~list, ~uid, ~navigate) => {
         (Js.Dict.keys(list##recipes)
         |> Array.map((id) => {
           <RecipeSummary key=id id fb navigate />
-        }) |> ReasonReact.arrayToElement)
+        }) |> ReasonReact.array)
       </div>
       (spacer(128))
       <div className=Glamor.(css([alignItems("flex-end")]))>

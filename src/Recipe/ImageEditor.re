@@ -15,7 +15,6 @@ let module Canvas = {
         render(ctx);
       }
       };
-      ReasonReact.NoUpdate
     },
     didUpdate: ({newSelf: {state}}) => {
       switch (state^) {
@@ -30,7 +29,7 @@ let module Canvas = {
       <canvas
         width=(string_of_int(width) ++ "px")
         height=(string_of_int(height) ++ "px")
-        ref=(node => Js.Nullable.to_opt(node) |> BaseUtils.optFold(node => state := Some(node), ()))
+        ref=(node =>  Js.Nullable.toOption(node) |> BaseUtils.optFold(node => state := Some(node), ()))
       />
     }
   };
@@ -137,10 +136,10 @@ let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
     ...component,
     initialState: () => (Orig),
     reducer: (newState, _) => ReasonReact.Update(newState),
-    render: ({reduce, state: (transform)}) => {
+    render: ({send, state: (transform)}) => {
       <UtilComponents.Backdrop onCancel>
         <div className=Styles.container
-        onClick=(evt => ReactEventRe.Mouse.stopPropagation(evt))
+        onClick=(evt => ReactEvent.Mouse.stopPropagation(evt))
         >
         (str("editor"))
         <Canvas
@@ -151,22 +150,22 @@ let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
         />
         <div className=RecipeStyles.row>
         <button
-          onClick=(reduce((_) => (Orig)))
+          onClick=(((_) => send((Orig))))
         >
           (str("Original"))
         </button>
         <button
-          onClick=(reduce((_) => (Clockwise90)))
+          onClick=(((_) => send((Clockwise90))))
         >
           (str("Clockwise90"))
         </button>
         <button
-          onClick=(reduce((_) => (One80)))
+          onClick=(((_) => send((One80))))
         >
           (str("180"))
         </button>
         <button
-          onClick=(reduce((_) => (AntiClockwise90)))
+          onClick=(((_) => send((AntiClockwise90))))
         >
           (str("AntiClockwise90"))
         </button>
@@ -193,21 +192,21 @@ let module ImageLoader = {
     ...component,
     initialState: () => (None, false),
     reducer: (state, _) => ReasonReact.Update(state),
-    render: ({state: (img, loaded), reduce}) => {
+    render: ({state: (img, loaded), send}) => {
       Js.log2("Loadded", loaded);
       <div>
         <img
           src=url
           style=ReactDOMRe.Style.make(~display="none", ())
-          onLoad=((_) => reduce(() => (img, true))())
+          onLoad=((_) => send((img, true)))
           ref=?(switch img {
-          | None => Some(node => Js.Nullable.to_opt(node) |> BaseUtils.optFold(node => reduce(() => (Some(node), false))(), ()))
+          | None => Some(node =>  Js.Nullable.toOption(node) |> BaseUtils.optFold(node => send((Some(node), false)), ()))
           | _ => None
           })
         />
         (switch (img, loaded) {
         | (Some(img), true) => render(img)
-        | _ => ReasonReact.nullElement
+        | _ => ReasonReact.null
         })
       </div>
     }

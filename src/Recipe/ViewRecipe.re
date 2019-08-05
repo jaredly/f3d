@@ -50,18 +50,18 @@ let deleteRecipe = (~fb, ~recipe, onDone) => {
 };
 
 let renderEditor =
-    (~making, ~ingredients, ~self as {ReasonReact.reduce}, ~fb, ~recipe, ~id, ~navigate) =>
+    (~making, ~ingredients, ~self as {ReasonReact.send}, ~fb, ~recipe, ~id, ~navigate) =>
   <EditRecipe
     saving=(making === Saving)
     allIngredients=ingredients
     recipe
     fb
     id
-    onCancel=(reduce((_) => StopEditing))
+    onCancel=(((_) => send(StopEditing)))
     onSave=(
       (recipe) => {
-        (reduce((_) => StartSaving))();
-        saveRecipe(~fb, ~recipe, () => (reduce((_) => DoneSaving))());
+        (send(StartSaving));
+        saveRecipe(~fb, ~recipe, () => (send(DoneSaving)));
         ()
       }
     )
@@ -92,11 +92,14 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         | SetBatches(batches) => (batches, making)
         }
       ),
-    render: ({state: (batches, making), reduce} as self) => {
+    render: ({state: (batches, making), send} as self) => {
       let uid = Firebase.Auth.fsUid(fb);
       let canEdit = uid == Some(recipe##authorId);
-      [@else renderEditor(~making, ~ingredients, ~self, ~fb, ~recipe, ~id, ~navigate)]
-      [%guard let false = (making === Editing || making === Saving) && canEdit];
+      if ((making === Editing || making === Saving) && canEdit) {
+      renderEditor(~making, ~ingredients, ~self, ~fb, ~recipe, ~id, ~navigate)
+
+      } else {
+
       <div className=Styles.container>
         <div className=Styles.header>
           <div className=Styles.title> (str(recipe##title)) </div>
@@ -114,15 +117,15 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
                    ])
                  )
             )>
-            <button className=Styles.button onClick=(reduce((_) => ToggleMaking))>
+            <button className=Styles.button onClick=(((_) => send(ToggleMaking)))>
               (str(making !== Normal ? "Done" : "Make"))
             </button>
             (
               canEdit ?
-                <button className=Styles.button onClick=(reduce((_) => StartEditing))>
+                <button className=Styles.button onClick=(((_) => send(StartEditing)))>
                   (str("Edit"))
                 </button> :
-                ReasonReact.nullElement
+                ReasonReact.null
             )
           </div>
         </div>
@@ -139,7 +142,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         </div>
         (spacer(16))
         <div className=Glamor.(css([whiteSpace("pre-wrap")]))>
-          (orr("", Js.Null.to_opt(recipe##description)) |> ifEmpty("No description") |> str)
+          (orr("", Js.Null.toOption(recipe##description)) |> ifEmpty("No description") |> str)
         </div>
         (spacer(32))
         <div className=Styles.subHeader>
@@ -158,7 +161,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               value=(Some(batches))
               onChange=(
                 (value) =>
-                  value |> optMap((value: float) => reduce((_) => SetBatches(value), ())) |> ignore
+                  value |> optMap((value: float) => send(SetBatches(value))) |> ignore
               )
               className=Glamor.(css([width("40px")]))
             />
@@ -183,7 +186,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
                   allIngredients=ingredients
                   instructions=recipe##instructions
                 />
-              </div> : ReasonReact.nullElement)
+              </div> : ReasonReact.null)
           </div>
         </div>
         (spacer(16))
@@ -194,7 +197,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
             ~allIngredients=ingredients,
             ~making=
               switch making {
-              | Making((ing, inst)) => Some((ing, reduce((ing) => SetMaking((ing, inst)))))
+              | Making((ing, inst)) => Some((ing, ((ing) => send(SetMaking((ing, inst))))))
               | _ => None
               }
           )
@@ -207,7 +210,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
             ~instructions=recipe##instructions,
             ~making=
               switch making {
-              | Making((ing, inst)) => Some((inst, reduce((inst) => SetMaking((ing, inst)))))
+              | Making((ing, inst)) => Some((inst, ((inst) => send(SetMaking((ing, inst))))))
               | _ => None
               }
           )
@@ -216,14 +219,14 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         <div className=Styles.subHeader> (str("Notes")) </div>
         (spacer(16))
         <div className=Glamor.(css([whiteSpace("pre-wrap")]))>
-          (orr("", Js.Null.to_opt(recipe##notes)) |> ifEmpty("No notes") |> str)
+          (orr("", Js.Null.toOption(recipe##notes)) |> ifEmpty("No notes") |> str)
         </div>
         (spacer(32))
         <div className=Styles.subHeader> (str("Experiences")) </div>
         (spacer(16))
         (
           switch uid {
-          | None => ReasonReact.nullElement
+          | None => ReasonReact.null
           | Some(uid) => <MadeItEntry.Adder recipe uid fb />
           }
         )
@@ -231,6 +234,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
         <ViewMadeIts id=recipe##id fb />
         (spacer(128))
       </div>
+      }
     }
   };
 

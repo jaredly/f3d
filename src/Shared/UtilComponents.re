@@ -11,8 +11,8 @@ let toggle = (~initial, ~render) => {
   ...toggleComponent,
   initialState: () => initial,
   reducer: (newState, _state) => ReasonReact.Update(newState),
-  render: ({state, reduce}) => {
-    render(~on=state, ~toggle=reduce(() => !state))
+  render: ({state, send}) => {
+    render(~on=state, ~toggle=(() => send( !state)))
   }
 };
 
@@ -48,12 +48,11 @@ let module Loader = (Config: {type t}) => {
     ...loaderComponent,
     initialState: () => (None: option(Config.t)),
     reducer: (value, state: option(Config.t)) => ReasonReact.Update(Some(value)),
-    didMount: ({reduce}) => {
+    didMount: ({send}) => {
       Js.Promise.then_((value) => {
-        reduce(() => value)();
+        send( value);
         Js.Promise.resolve();
       }, promise) |> ignore;
-      ReasonReact.NoUpdate
     },
     render: ({state}) => switch state {
     | None => loading
@@ -77,7 +76,7 @@ let module OnVisible = {
       <div ref=((node) => {
         if (state.contents !== None) {
           ()
-        } else switch (Js.Nullable.to_opt(node)) {
+        } else switch ( Js.Nullable.toOption(node)) {
         | None => ()
         | Some(node) => {
           let fn = ([%bs.raw {|(function(node, cb){
@@ -99,7 +98,7 @@ let module OnVisible = {
         }
         }
       })>
-        (ReasonReact.arrayToElement(children))
+        (ReasonReact.array(children))
       </div>
     }
   };

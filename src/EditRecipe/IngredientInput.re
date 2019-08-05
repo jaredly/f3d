@@ -54,7 +54,7 @@ let showResults = (~results, ~selection, ~onSelect, ~onNew) => {
             className=(Styles.result ++ (" " ++ (selection == i ? Styles.selectedResult : "")))
             onMouseDown=(
               (evt) => {
-                ReactEventRe.Mouse.preventDefault(evt);
+                ReactEvent.Mouse.preventDefault(evt);
                 onSelect(ing)
               }
             )>
@@ -62,7 +62,7 @@ let showResults = (~results, ~selection, ~onSelect, ~onNew) => {
           </div>,
         results
       )
-      |> ReasonReact.arrayToElement
+      |> ReasonReact.array
     )
     <div
       className=(
@@ -74,7 +74,7 @@ let showResults = (~results, ~selection, ~onSelect, ~onNew) => {
       )
       onMouseDown=(
         (evt) => {
-          ReactEventRe.Mouse.preventDefault(evt);
+          ReactEvent.Mouse.preventDefault(evt);
           onNew()
         }
       )>
@@ -147,14 +147,14 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
           selection: isOpen ? selectDown(selection, Array.length(results)) : 0
         })
       },
-    willReceiveProps: ({retainedProps, reduce, state}) =>
+    willReceiveProps: ({retainedProps, send, state}) =>
       if (retainedProps != value) {
         let text = getText(value, ingredientsMap);
         {text, isOpen: false, selection: 0, results: getResults(~map=ingredientsMap, ~text)}
       } else {
         state
       },
-    render: ({state: {text, selection, isOpen, results}, reduce}) => {
+    render: ({state: {text, selection, isOpen, results}, send}) => {
       let findByName = (text) => {
         let result = ref(None);
         Js.Array.some(
@@ -181,7 +181,7 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
           value=text
           placeholder="Select ingredient"
           className=(Styles.input ++ (" " ++ (isTextDifferent ? Styles.badInput : "")))
-          onChange=(reduce((evt) => SetText(Utils.evtValue(evt))))
+          onChange=(((evt) => send(SetText(Utils.evtValue(evt)))))
           onBlur=(
             (_) => {
               switch value {
@@ -207,12 +207,12 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
                   }
                 }
               };
-              (reduce((_) => Close))()
+              (send(Close))
             }
           )
           onKeyDown=(
             (evt) => {
-              let key = ReactEventRe.Keyboard.key(evt);
+              let key = ReactEvent.Keyboard.key(evt);
               let cmd =
                 switch key {
                 | "ArrowUp" => Some(GoUp)
@@ -234,17 +234,17 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
                   None
                 | _ => None
                 };
-              [@else ()] [%guard let Some(cmd) = cmd];
-              ReactEventRe.Keyboard.preventDefault(evt);
-              (reduce((_) => cmd))()
+              let%Lets.Opt.Consume cmd = cmd;
+              ReactEvent.Keyboard.preventDefault(evt);
+              (send(cmd))
             }
           )
           onFocus=(
-            reduce(
+            (
               (evt) => {
-                let obj = ReactDOMRe.domElementToObj(ReactEventRe.Focus.target(evt));
+                let obj = (ReactEvent.Focus.target(evt));
                 obj##select() |> ignore;
-                Open
+                send(Open)
               }
             )
           )
@@ -258,8 +258,8 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
               ~onSelect=
                 (ing) =>
                   if (Models.Id(ing##id) == value) {
-                    (reduce((_) => SetText(ing##name)))();
-                    (reduce((_) => Close))()
+                    (send(SetText(ing##name)));
+                    (send(Close))
                   } else {
                     onChange(Models.Id(ing##id))
                   },
@@ -274,7 +274,7 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
                      )
                   |> ignore
             ) :
-            ReasonReact.nullElement
+            ReasonReact.null
         )
       </div>
     }

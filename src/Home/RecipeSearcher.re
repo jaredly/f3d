@@ -22,13 +22,13 @@ let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~sear
         /*** Only recipes that have the specified ingredients */
         let q =
           List.fold_left(
-            (q, ing) => q |> whereBool("ingredientsUsed." ++ ing##id, ~op="==", Js.true_),
+            (q, ing) => q |> whereBool("ingredientsUsed." ++ ing##id, ~op="==", true),
             q,
             ingredients
           );
         let q =
           List.fold_left(
-            (q, tag) => q |> whereBool("tags." ++ tag##id, ~op="==", Js.true_),
+            (q, tag) => q |> whereBool("tags." ++ tag##id, ~op="==", true),
             q,
             tags
           );
@@ -36,7 +36,7 @@ let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~sear
         /*** TODO search bar should add texts to things */
         let q = q
           /*** Only public ones (TODO also fetch private ones I can see) */
-          |> whereBool("isPrivate", ~op="==", Js.false_);
+          |> whereBool("isPrivate", ~op="==", false);
         if (ingredients === [] && tags == []) {
           q |> orderBy(~fieldPath="updated", ~direction="desc")
         } else {

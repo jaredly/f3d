@@ -27,6 +27,7 @@ let tokens = (text) =>
   text
   |> Js.String.toLowerCase
   |> Js.String.splitByRe(rx)
+  |> Belt.Array.keepMap(_, x => x)
   |> Array.map(Js.String.trim)
   |> Js.Array.filter((item) => item !== "" && Js.Dict.get(stopMap, item) == None)
   |> unique;

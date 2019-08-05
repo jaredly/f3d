@@ -56,7 +56,7 @@ let render = (~batches, ~ingredients, ~allIngredients, ~making) => {
               )>
               (
                 switch making {
-                | None => ReasonReact.nullElement
+                | None => ReasonReact.null
                 | Some((set, onChange)) =>
                   let checked = StringSet.mem(ingredient##id, set);
                   <td
@@ -68,7 +68,7 @@ let render = (~batches, ~ingredients, ~allIngredients, ~making) => {
                             StringSet.add(ingredient##id, set)
                         )
                     )>
-                    <input _type="checkbox" checked=(bool.to_js_boolean(checked)) />
+                    <input type_="checkbox" checked=((checked)) />
                   </td>
                 }
               )
@@ -83,13 +83,13 @@ let render = (~batches, ~ingredients, ~allIngredients, ~making) => {
                           )>
                 (
                   maybe(ingredient##amount, (amount) => str @@ fractionify(amount *. batches))
-                  |> orr(ReasonReact.nullElement)
+                  |> orr(ReasonReact.null)
                 )
               </td>
               <td>
                 (
                   maybe(ingredient##unit, (unit) => str @@ smallUnit(unit))
-                  |> orr(ReasonReact.nullElement)
+                  |> orr(ReasonReact.null)
                 )
               </td>
               <td className=Glamor.(css([width("8px")])) />
@@ -102,7 +102,7 @@ let render = (~batches, ~ingredients, ~allIngredients, ~making) => {
                       ingredient##comments,
                       (comment) => <div className=Styles.comment> (str(comment)) </div>
                     )
-                    |> orr(ReasonReact.nullElement)
+                    |> orr(ReasonReact.null)
                   )
                 </div>
               </td>
@@ -114,7 +114,7 @@ let render = (~batches, ~ingredients, ~allIngredients, ~making) => {
              key=(string_of_int i ^ "s")
              className=Glamor.(css[height "8px"])
            />) */
-        |> ReasonReact.arrayToElement
+        |> ReasonReact.array
       )
     </tbody>
   </table>

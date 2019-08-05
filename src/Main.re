@@ -6,9 +6,9 @@ let fb = Firebase.initializeApp(config);
 
 [%bs.raw "window.fb = fb"];
 
-[@bs.module] external hack : unit = "../../../src/hack.js";
+// [@bs.module] external hack : unit = "../../../src/hack.js";
 
-hack;
+// hack;
 
 Firebase.enablePersistence(Firebase.firestore(fb))
 |> Js.Promise.catch(

@@ -11,11 +11,11 @@ let make = (~value: string, ~resetOnBlur=false, ~onChange=?, ~render, _children)
         state
       },
     reducer: (action, state) => ReasonReact.Update(action),
-    render: ({state, reduce}) =>
-      render(~value=state, ~onChange=reduce((text) => text), ~onBlur=(_) => {
+    render: ({state, send}) =>
+      render(~value=state, ~onChange=((text) => send(text)), ~onBlur=(_) => {
         BaseUtils.optMap((fn) => fn(state), onChange) |> ignore;
         if (resetOnBlur) {
-          reduce(() => value)()
+          send(value)
         };
       })
   };

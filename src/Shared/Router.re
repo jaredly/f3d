@@ -20,7 +20,7 @@ type location;
 
 [@bs.set] external setHash : (location, string) => unit = "hash";
 
-let str = ReasonReact.stringToElement;
+let str = ReasonReact.string;
 
 let switch_ = (path, routes, navigate) => {
   let rec loop = (routes) =>
@@ -54,15 +54,14 @@ let make = (~render, ~routes, _children) =>
   ReasonReact.{
     ...component,
     initialState: () => currentHash(),
-    didMount: ({state, reduce}) => {
+    didMount: ({state, send}) => {
       onhashchange(window, (_) => {
         [%bs.raw {|window.Bugsnag && (Bugsnag.context = window.location.hash, Bugsnag.refresh())|}];
-        (reduce(currentHash))()
+        send(currentHash())
       });
-      ReasonReact.NoUpdate
     },
     reducer: (action, state) => ReasonReact.Update(action),
-    render: ({state, reduce}) => {
+    render: ({state, send}) => {
       let navigate = (path) =>
         setHash
           (location, "#" ++ path);

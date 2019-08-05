@@ -28,16 +28,17 @@ let blankInstruction: Models.instruction = {"text": "", "ingredientsUsed": Js.Di
 
 let render = (~instructions, ~instructionHeaders, ~onChange) => {
   let setText = (i, instruction: Models.instruction, value: string) => {
-    [@else ()] [%guard let true = i < Array.length(instructions) || value !== ""];
-    let instruction = Obj.magic(clone(instruction));
-    instruction##text#=value;
-    let instructions = Array.copy(instructions);
-    if (i >= Array.length(instructions)) {
-      Js.Array.push(instruction, instructions) |> ignore
-    } else {
-      instructions[i] = instruction
-    };
-    onChange((instructionHeaders, instructions))
+    if (i < Array.length(instructions) || value !== "") {
+      let instruction = Obj.magic(clone(instruction));
+      instruction##text#=value;
+      let instructions = Array.copy(instructions);
+      if (i >= Array.length(instructions)) {
+        Js.Array.push(instruction, instructions) |> ignore
+      } else {
+        instructions[i] = instruction
+      };
+      onChange((instructionHeaders, instructions))
+    }
   };
   let addInstruction = (i, value: string) => {
     let instructions = Array.copy(instructions);
@@ -89,8 +90,11 @@ let render = (~instructions, ~instructionHeaders, ~onChange) => {
                     )
                     onDelete=(
                       (text) => {
-                        [@else removeFirst()] [%guard let true = i > 0];
-                        removeToPrev(i, text)
+                        if (i > 0) {
+                          removeToPrev(i, text)
+                        } else {
+                          removeFirst();
+                        }
                       }
                     )
                     value
@@ -104,7 +108,7 @@ let render = (~instructions, ~instructionHeaders, ~onChange) => {
         Js.Array.concat([|blankInstruction|], instructions)
       )
       |> spacedArray((i) => spacer(~key=string_of_int(i) ++ "s", 16))
-      |> ReasonReact.arrayToElement
+      |> ReasonReact.array
     )
   </div>
 };

@@ -17,7 +17,7 @@ let myMadeItForRecipe = (render, ~fb, ~id, ~uid, children: array(ReasonReact.rea
         Firebase.Query.whereStr("recipeId", ~op="==", id, q)
         |> BaseUtils.optFold(
           (uid) => Firebase.Query.whereStr("authorId", ~op="==", uid),
-          Firebase.Query.whereBool("isPrivate", ~op="==", Js.false_),
+          Firebase.Query.whereBool("isPrivate", ~op="==", false),
           uid
         )
         |> Firebase.Query.orderBy(~fieldPath="updated", ~direction="desc"),
@@ -32,7 +32,7 @@ let madeItForRecipe = (render, ~fb, ~id, children: array(ReasonReact.reactElemen
     ~query=
       (q) =>
         Firebase.Query.whereStr("recipeId", ~op="==", id, q)
-        |> Firebase.Query.whereBool("isPrivate", ~op="==", Js.false_)
+        |> Firebase.Query.whereBool("isPrivate", ~op="==", false)
         |> Firebase.Query.orderBy(~fieldPath="updated", ~direction="desc"),
     ~render=(~state) => render(~state, ~fb),
     children
@@ -51,7 +51,7 @@ let make =
               madeits |> Array.of_list
             )
             |> Js.Array.reverseInPlace
-            |> ReasonReact.arrayToElement
+            |> ReasonReact.array
           )
         </div>
       | `Errored(_err) => <div> (str("Failed Loading")) </div>

@@ -20,8 +20,8 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
       spring
       <div className=RecipeStyles.row>
       (
-        switch (Js.Null.to_opt(madeit##rating)) {
-        | None => ReasonReact.nullElement
+        switch (Js.Null.toOption(madeit##rating)) {
+        | None => ReasonReact.null
         | Some(rating) => RatingWidget.showStars(~active=true, ~rating)
         }
       )
@@ -37,19 +37,19 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
               (str("edit"))
             </button>
           </div>
-        | _ => ReasonReact.nullElement
+        | _ => ReasonReact.null
         }
       )
     </div>
     (spacer(8))
     <div className=Styles.notes> (str(madeit##notes)) </div>
-    (madeit##images != [||] ? spacer(32) : ReasonReact.nullElement)
+    (madeit##images != [||] ? spacer(32) : ReasonReact.null)
     <div className=RecipeStyles.row>
     (madeit##images |>
     Array.map(id => <FirebaseImage key=id fb id render=(url => <img src=url
         className=Styles.image
     />) />)
-    |> ReasonReact.arrayToElement)
+    |> ReasonReact.array)
     </div>
   </div>;
 

@@ -34,7 +34,7 @@ let empty =
 let showRecipes = (~navigate, ~recipes, ~loadingMore, ~fetchMore) =>
   <div className=Styles.container>
     (
-      ReasonReact.arrayToElement(
+      ReasonReact.array(
         Array.map(
           (recipe) =>
             <div
@@ -49,6 +49,6 @@ let showRecipes = (~navigate, ~recipes, ~loadingMore, ~fetchMore) =>
     )
     (
       loadingMore ?
-        <button onClick=((_) => fetchMore())> (str("More")) </button> : ReasonReact.nullElement
+        <button onClick=((_) => fetchMore())> (str("More")) </button> : ReasonReact.null
     )
   </div>;

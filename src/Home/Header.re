@@ -1,9 +1,9 @@
 open Utils;
 
 let name = (auth) => {
-  [@else None] [%guard let Some(user) = Firebase.Auth.currentUser(auth) |> Js.Nullable.to_opt];
+  let%Lets.Opt (user) = Firebase.Auth.currentUser(auth) |>  Js.Nullable.toOption;
   let name =
-    switch (Firebase.Auth.displayName(user) |> Js.Nullable.to_opt) {
+    switch (Firebase.Auth.displayName(user) |>  Js.Nullable.toOption) {
     | Some(name) => name
     | None => Firebase.Auth.email(user)
     };
@@ -47,7 +47,7 @@ let make = (~auth, ~navigate, _children) =>
   ReasonReact.{
     ...component,
     render: (_) => {
-      let uid = Firebase.Auth.currentUser(auth) |> Js.Nullable.to_opt;
+      let uid = Firebase.Auth.currentUser(auth) |>  Js.Nullable.toOption;
       <div className=Styles.container>
         (spacer(16))
         <a href="#/" className=Styles.logo> (str("Foood")) </a>
@@ -64,7 +64,7 @@ let make = (~auth, ~navigate, _children) =>
             <Menu
               className=Glamor.(css([backgroundColor("#333")]))
               menu=(
-                ReasonReact.arrayToElement([|
+                ReasonReact.array([|
                   <div
                     className=Styles.menuItem
                     key="Logout"

@@ -1,4 +1,4 @@
-let str = ReasonReact.stringToElement;
+let str = ReasonReact.string;
 
 let spring = <div style=ReactDOMRe.Style.(make(~flexGrow="1", ())) />;
 
@@ -7,8 +7,8 @@ let ignoreArg = (fn, _) => fn();
 let spacer = (~className=?, ~key=?, num) =>
   <div ?key ?className style=ReactDOMRe.Style.(make(~flexBasis=string_of_int(num) ++ "px", ())) />;
 
-let evtValue: ReactEventRe.Form.t => string =
-  (event) => ReactDOMRe.domElementToObj(ReactEventRe.Form.target(event))##value;
+let evtValue: ReactEvent.Form.t => string =
+  (event) => ReactEvent.Form.target(event)##value;
 
 let rec spacedItems = (~i=0, spacer, items) =>
   switch items {
@@ -19,7 +19,8 @@ let rec spacedItems = (~i=0, spacer, items) =>
 
 let spacedArray = (spacer, items) => {
   let num = Array.length(items);
-  [@else [||]] [%guard let true = num > 0];
+  if (num > 0) {
+
   let result = Array.make(num * 2 - 1, items[0]);
   items
   |> Array.iteri(
@@ -32,6 +33,9 @@ let spacedArray = (spacer, items) => {
        }
      );
   result
+  } else {
+    [||]
+  }
 };
 
 let doubleState = (a, b) =>
@@ -45,8 +49,6 @@ let doubleState = (a, b) =>
     | `Loaded(b) => `Loaded((a, b))
     }
   };
-
-let nonnull = (v) => (!) @@ Js.Null.test(v);
 
 let fractions = [
   (1. /. 2., {j|½|j}),
@@ -118,4 +120,4 @@ let speakableUnit = (unit, isPlural) => {
   loop(unitSpeakableNames)
 };
 
-let reactMapList = (items, ~fn) => Array.of_list(items) |> Array.map(fn) |> ReasonReact.arrayToElement;
+let reactMapList = (items, ~fn) => Array.of_list(items) |> Array.map(fn) |> ReasonReact.array;

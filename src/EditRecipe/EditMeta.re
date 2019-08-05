@@ -13,12 +13,12 @@ let render = (~meta, ~onChange, ~source, ~onChangeSource) =>
         <div> (str("Oven Temp:")) </div>
         (spacer(4))
         <IntInput
-          value=(Js.Null.to_opt(meta##ovenTemp))
+          value=(Js.Null.toOption(meta##ovenTemp))
           className=inputStyle
           onChange=(
             (value) => {
               let obj = Obj.magic(clone(meta));
-              obj##ovenTemp#=(Js.Null.from_opt(value));
+              obj##ovenTemp#=(Js.Null.fromOption(value));
               onChange(obj)
             }
           )
@@ -27,12 +27,12 @@ let render = (~meta, ~onChange, ~source, ~onChangeSource) =>
         <div> (str("Total time:")) </div>
         (spacer(4))
         <IntInput
-          value=(Js.Null.to_opt(meta##totalTime))
+          value=(Js.Null.toOption(meta##totalTime))
           className=inputStyle
           onChange=(
             (value) => {
               let obj = Obj.magic(clone(meta));
-              obj##totalTime#=(Js.Null.from_opt(value));
+              obj##totalTime#=(Js.Null.fromOption(value));
               onChange(obj)
             }
           )
@@ -41,12 +41,12 @@ let render = (~meta, ~onChange, ~source, ~onChangeSource) =>
         <div> (str("Prep time:")) </div>
         (spacer(4))
         <IntInput
-          value=(Js.Null.to_opt(meta##prepTime))
+          value=(Js.Null.toOption(meta##prepTime))
           className=inputStyle
           onChange=(
             (value) => {
               let obj = Obj.magic(clone(meta));
-              obj##prepTime#=(Js.Null.from_opt(value));
+              obj##prepTime#=(Js.Null.fromOption(value));
               onChange(obj)
             }
           )
@@ -55,12 +55,12 @@ let render = (~meta, ~onChange, ~source, ~onChangeSource) =>
         <div> (str("Cook time:")) </div>
         (spacer(4))
         <IntInput
-          value=(Js.Null.to_opt(meta##cookTime))
+          value=(Js.Null.toOption(meta##cookTime))
           className=inputStyle
           onChange=(
             (value) => {
               let obj = Obj.magic(clone(meta));
-              obj##cookTime#=(Js.Null.from_opt(value));
+              obj##cookTime#=(Js.Null.fromOption(value));
               onChange(obj)
             }
           )
@@ -68,7 +68,7 @@ let render = (~meta, ~onChange, ~source, ~onChangeSource) =>
       </div>
       (spacer(16))
       <input
-        value=(Js.Null.to_opt(source) |> optOr(""))
+        value=(Js.Null.toOption(source) |> optOr(""))
         placeholder="Source"
         onChange=(
           (evt) => {

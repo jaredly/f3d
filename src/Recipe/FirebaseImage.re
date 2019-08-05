@@ -4,16 +4,15 @@ let make = (~id, ~fb, ~render, _children) => ReasonReact.{
   ...component,
   initialState: () => None,
   reducer: (action, _) => ReasonReact.Update(action),
-  didMount: ({reduce}) => {
+  didMount: ({send}) => {
     Firebase.Storage.get(Firebase.app(fb))
     |> Firebase.Storage.ref
     |> Firebase.Storage.child(id)
     |> Firebase.Storage.getDownloadURL
     |> Js.Promise.then_(url => {
-      reduce(() => Some(url))();
+      send(Some(url));
       Js.Promise.resolve(())
     }) |> ignore;
-    ReasonReact.NoUpdate
   },
   render: ({state}) => {
     switch state {

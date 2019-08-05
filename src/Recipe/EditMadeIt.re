@@ -159,7 +159,7 @@ let updateMadeIt = (~madeIt, ~state as {notes, rating, meta, created}, ~images) 
 
   "meta": meta,
   "notes": notes,
-  "rating": Js.Null.from_opt(rating)
+  "rating": Js.Null.fromOption(rating)
 };
 
 let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onSave, _children) => {
@@ -167,7 +167,7 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
   initialState: (_) => {
     saving: false,
     notes: initial##notes,
-    rating: initial##rating |> Js.Null.to_opt,
+    rating: initial##rating |> Js.Null.toOption,
     meta: initial##meta,
     created: initial##created |> MomentRe.momentWithTimestampMS,
     images: initial##images |> Array.map(name => ImageUploader.AlreadyUploaded(name)),
@@ -183,7 +183,7 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
     | SetImages(images) => ReasonReact.Update({...state, images})
     | SetCreated(created) => ReasonReact.Update({...state, created})
     },
-  render: ({reduce, state: {notes, rating, created, images} as state}) =>
+  render: ({send, state: {notes, rating, created, images} as state}) =>
     <div className=Styles.container>
       <div className=Styles.title> (str(title)) </div>
       (spacer(16))
@@ -192,24 +192,24 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
         (spacer(16))
         <DatePicker
           selected=created
-          onChange=(reduce((time) => SetCreated(time)))
+          onChange=(((time) => send(SetCreated(time))))
           placeholderText="Awesome"
         />
       </div>
       <div className=Styles.label> (str("Rating")) </div>
       (spacer(16))
-      <RatingWidget rating onChange=(reduce((rating) => SetRating(rating))) />
+      <RatingWidget rating onChange=(((rating) => send(SetRating(rating)))) />
       (spacer(32))
       <div className=Styles.label> (str("Notes")) </div>
       (spacer(16))
-      <Textarea value=notes onChange=(reduce((text) => SetText(text))) />
+      <Textarea value=notes onChange=(((text) => send(SetText(text)))) />
       (spacer(32))
       <div className=Styles.label> (str("Images")) </div>
       (spacer(32))
       <ImageUploader
         fb
         images
-        onChange=(reduce(newImages => SetImages(newImages)))
+        onChange=((newImages => send(SetImages(newImages))))
       />
 
       (spacer(32))
@@ -217,7 +217,7 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
         <button
           onClick=(
             (_) => {
-              reduce(() => StartSaving) ();
+              send(StartSaving);
               ensureImagesUploaded(
                 ~fb,
                 ~uid,
@@ -242,7 +242,7 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
               )
               |> Js.Promise.catch(
                 err => {
-                  reduce(() => DoneSaving)();
+                  send(DoneSaving);
                   Js.Promise.resolve()
                 }
               ) |> ignore

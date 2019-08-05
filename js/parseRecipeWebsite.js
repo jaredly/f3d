@@ -1,6 +1,6 @@
 
 const cheerio = require('cheerio')
-const {parseIngredient} = require('bs/EditRecipe/pasteUtils.js')
+const {parseIngredient} = require('bs/EditRecipe/PasteUtils.js')
 
 const unwhite = text => {
   return text.replace(/\s+/g, ' ').trim()

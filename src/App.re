@@ -8,22 +8,22 @@ let component = ReasonReact.reducerComponent("App");
   }
 |}];
 
-let str = ReasonReact.stringToElement;
+let str = ReasonReact.string;
 
+module MyRouter = Router;
 let make = (~fb, ~auth, _children) =>
   ReasonReact.{
     ...component,
-    initialState: () => Firebase.Auth.currentUser(auth) |> Js.Nullable.to_opt,
+    initialState: () => Firebase.Auth.currentUser(auth) |>  Js.Nullable.toOption,
     reducer: (action, _) => ReasonReact.Update(action),
-    didMount: ({reduce}) => {
+    didMount: ({send}) => {
       Firebase.Auth.onAuthStateChanged(
         auth,
         (user) => {
           [%bs.raw {|window.Bugsnag && (Bugsnag.user = user)|}];
-          (reduce((_) => user |> Js.Nullable.to_opt))()
+          (send(user |>  Js.Nullable.toOption))
         }
       );
-      ReasonReact.NoUpdate
     },
     render: ({state}) => {
       let basicRoutes = [
@@ -44,7 +44,7 @@ let make = (~fb, ~auth, _children) =>
              [`Exact(("/login", (navigate) => <LogInPage auth navigate />))]
            );
       let routes = routes @ basicRoutes;
-      <Router
+      <MyRouter
         routes
         render=(
           (child, navigate) =>

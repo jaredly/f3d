@@ -48,7 +48,7 @@ let make = (~fb, ~images, ~onChange, _children) => {
   | StopEditing => ReasonReact.Update({...state, edit: None})
   /* | SetFiles(objectUrls) => ReasonReact.Update({...state, objectUrls}) */
   },
-  render: ({reduce, state}) =>
+  render: ({send, state}) =>
     <div>
       <div style=S.make(~flexDirection="row", ())>
         (
@@ -61,33 +61,33 @@ let make = (~fb, ~images, ~onChange, _children) => {
             | NotUploaded(blob) => <img
                width="100px"
                src=(Images.cachingCreateObjectURL(blob))
-               onClick=(reduce ((_) => Edit(i, blob)))
+               onClick=(((_) => send(Edit(i, blob))))
               />
             })
           </div>)
-          |> ReasonReact.arrayToElement
+          |> ReasonReact.array
         )
       </div>
       <input
-        _type="file"
+        type_="file"
         style=(ReactDOMRe.Style.make(~visibility="hidden", ()))
         onChange=(evt => {
-          let obj = ReactEventRe.Form.target(evt) |> ReactDOMRe.domElementToObj;
+          let obj = ReactEvent.Form.target(evt) ;
           let files = obj##files;
           Js.log2("files", files);
           onChange(Array.append(images, Array.map(file => NotUploaded(file), files)));
           /* reduce(() => SetFiles(
             Array.append(state.objectUrls, Array.map(file => createObjectURL(file), files))
           ))(); */
-          /* reduce(() => SetStatus(Preview))(); */
+          /* send( SetStatus(Preview)); */
 
         })
-        multiple=Js.true_
+        multiple=true
         ref=?(state.triggerInput === None
         ? Some((node) =>
-            Js.Nullable.to_opt(node)
+             Js.Nullable.toOption(node)
             |> BaseUtils.optFold(
-                 (node) => reduce(() => SetTrigger(() => clickDom(node)))(),
+                 (node) => send(SetTrigger(() => clickDom(node))),
                  ()
                ))
         : None
@@ -95,18 +95,18 @@ let make = (~fb, ~images, ~onChange, _children) => {
       />
       <button
         onClick=?{state.triggerInput |> BaseUtils.optMap(Utils.ignoreArg)}
-        disabled=(state.triggerInput === None |> bool.to_js_boolean)
+        disabled=(state.triggerInput === None)
       >
         (str("Add Images"))
       </button>
       (state.edit |> BaseUtils.optFoldReact(
         ((i, blob)) => <ImageEditor blob onDone=((newBlob) => {
-          reduce(() => StopEditing)();
+          send(StopEditing);
           let images = Js.Array.copy(images);
           images[i] = NotUploaded(newBlob);
           onChange(images);
         }) onCancel=(() => {
-          reduce(() => StopEditing)()
+          send(StopEditing)
         })/>
       ))
       /* (

@@ -48,34 +48,38 @@ let make =
   let shadow = ref(None);
   let textarea = ref(None);
   let resize = () => {
-    [@else ()] [%guard let Some(textarea) = textarea^];
-    [@else ()] [%guard let Some(shadow) = shadow^];
+    let%Lets.Opt.Consume (textarea) = textarea^;
+    let%Lets.Opt.Consume (shadow) = shadow^;
     let height = getShadowHeight(value, shadow);
     setHeight(textarea, height)
   };
   let setRef = (dest, node) =>
-    Js.Nullable.to_opt(node) |> BaseUtils.optMap((node) => dest := Some(node)) |> ignore;
+     Js.Nullable.toOption(node) |> BaseUtils.optMap((node) => dest := Some(node)) |> ignore;
   let handleReturn = (evt) => {
-    [@else ()] [%guard let Some(onReturn) = onReturn];
-    [@else ()] [%guard let Some(textarea) = textarea^];
+    let%Lets.Opt.Consume (onReturn) = onReturn;
+    let%Lets.Opt.Consume (textarea) = textarea^;
     let obj = ReactDOMRe.domElementToObj(textarea);
     let start: int = obj##selectionStart;
     let send: int = obj##selectionEnd;
-    [@else ()] [%guard let true = start === send];
-    ReactEventRe.Keyboard.preventDefault(evt);
+    if (start === send) {
+
+    ReactEvent.Keyboard.preventDefault(evt);
     let before: string = Js.String.slice(~from=0, ~to_=start, value);
     let after: string = Js.String.sliceToEnd(~from=start, value);
     onReturn(before, after)
+    }
   };
   let handleDelete = (evt) => {
-    [@else ()] [%guard let Some(onDelete) = onDelete];
-    [@else ()] [%guard let Some(textarea) = textarea^];
+    let%Lets.Opt.Consume (onDelete) = onDelete;
+    let%Lets.Opt.Consume (textarea) = textarea^;
     let obj = ReactDOMRe.domElementToObj(textarea);
     let start: int = obj##selectionStart;
     let send: int = obj##selectionEnd;
-    [@else ()] [%guard let true = start === send && start === 0];
-    ReactEventRe.Keyboard.preventDefault(evt);
-    onDelete(value)
+    if (start === send && start === 0) {
+
+      ReactEvent.Keyboard.preventDefault(evt);
+      onDelete(value)
+    }
   };
   ReasonReact.{
     ...component,
@@ -84,7 +88,6 @@ let make =
       resize();
       shadow^ |> BaseUtils.optMap((shadow) => setPosition(shadow, "absolute")) |> ignore;
       textarea^ |> BaseUtils.optMap((shadow) => setDisplay(shadow, "block")) |> ignore;
-      ReasonReact.NoUpdate
     },
     render: (_) =>
       <div
@@ -101,7 +104,7 @@ let make =
               None :
               Some(
                 (evt) =>
-                  switch (ReactEventRe.Keyboard.key(evt)) {
+                  switch (ReactEvent.Keyboard.key(evt)) {
                   | "Return"
                   | "Enter" => handleReturn(evt)
                   | "Backspace"

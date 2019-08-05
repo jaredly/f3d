@@ -89,7 +89,7 @@ let emptyIngredient = () => {
 let emptyToNull = (s) => s === "" ? Js.null : Js.Null.return(s);
 
 let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange, ~onPaste) => {
-  [@else ReasonReact.nullElement] [%guard let Some(uid) = Firebase.Auth.fsUid(fb)];
+  let%Lets.Opt.React uid = Firebase.Auth.fsUid(fb);
   /* let ingredientHeaders = [|(0, "the crumble"), (5, "For the eggs")|]; */
   let changeHeader = changeHeader(ingredients, ingredientHeaders, onChange);
   let change = change(ingredients, ingredientHeaders, onChange);
@@ -97,7 +97,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
   let setUnit = (value: string) => change((ing) => ing##unit#=(emptyToNull(value)));
   let setComments = (value: string) => change((ing) => ing##comments#=(emptyToNull(value)));
   let setAmount = (value: option(float)) =>
-    change((ing) => ing##amount#=(Js.Null.from_opt(value)));
+    change((ing) => ing##amount#=(Js.Null.fromOption(value)));
   let remove = (i) => {
     let ingredients = Array.copy(ingredients);
     Js.Array.spliceInPlace(~pos=i, ~remove=1, ~add=[||], ingredients) |> ignore;
@@ -187,7 +187,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
           None :
           Some(
             (node) =>
-              Js.Nullable.to_opt(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
+               Js.Nullable.toOption(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
           )
       )>
       <td
@@ -195,7 +195,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
           isBlank ? None : Some(DragNDrop.startMoving(~positions, ~key, ~margin=4, ~onDrop))
         )
         style=?(isBlank ? None : Some(ReactDOMRe.Style.(make(~cursor="pointer", ()))))>
-        (isBlank ? ReasonReact.nullElement : str({j|↕|j}))
+        (isBlank ? ReasonReact.null : str({j|↕|j}))
       </td>
       <td className=Glamor.(css([width("8px")])) />
       <td colSpan=7>
@@ -216,7 +216,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
       <td>
         (
           isBlank ?
-            ReasonReact.nullElement :
+            ReasonReact.null :
             <button onClick=((_) => removeHeader(i)) className=Styles.remove>
               (str("remove"))
             </button>
@@ -234,7 +234,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
           None :
           Some(
             (node) =>
-              Js.Nullable.to_opt(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
+               Js.Nullable.toOption(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
           )
       )>
       <td
@@ -242,12 +242,12 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
           isBlank ? None : Some(DragNDrop.startMoving(~positions, ~key, ~margin=4, ~onDrop))
         )
         style=?(isBlank ? None : Some(ReactDOMRe.Style.(make(~cursor="pointer", ()))))>
-        (isBlank ? ReasonReact.nullElement : str({j|↕|j}))
+        (isBlank ? ReasonReact.null : str({j|↕|j}))
       </td>
       <td className=Glamor.(css([width("8px")])) />
       <td>
         <AmountInput
-          value=(ingredient##amount |> Js.Null.to_opt)
+          value=(ingredient##amount |> Js.Null.toOption)
           onChange=((value) => setAmount(value, i, ingredient))
           onPaste=(PasteUtils.parseIngredients(allIngredients, onPaste))
           className=Glamor.(css([width("70px"), paddingLeft("8px")]))
@@ -257,7 +257,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
       <td className=Glamor.(css([width("8px")])) />
       <td>
         <input
-          value=(ingredient##unit |> Js.Null.to_opt |> optOr(""))
+          value=(ingredient##unit |> Js.Null.toOption |> optOr(""))
           onChange=((evt) => setUnit(evtValue(evt), i, ingredient))
           className=Glamor.(css([width("100px"), paddingLeft("8px")]))
           placeholder="Unit"
@@ -275,7 +275,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
       <td className=Glamor.(css([width("16px")])) />
       <td>
         <Textarea
-          value=(ingredient##comments |> Js.Null.to_opt |> optOr(""))
+          value=(ingredient##comments |> Js.Null.toOption |> optOr(""))
           onChange=((text) => setComments(text, i, ingredient))
           onReturn=((_, _) => addEmptyAfter(i))
           className=Glamor.(css([border("1px solid rgb(200, 200, 200)"), padding("4px")]))
@@ -284,7 +284,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
       <td>
         (
           isBlank ?
-            ReasonReact.nullElement :
+            ReasonReact.null :
             <button onClick=((_) => remove(i)) className=Styles.remove> (str("remove")) </button>
         )
       </td>
@@ -325,7 +325,7 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
         |> spacedArray(
              (i) => <tr key=(string_of_int(i) ++ "s") className=Glamor.(css([height("8px")])) />
            )
-        |> ReasonReact.arrayToElement
+        |> ReasonReact.array
       )
     </tbody>
   </table>

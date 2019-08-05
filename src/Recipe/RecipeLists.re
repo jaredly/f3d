@@ -26,11 +26,11 @@ let module Styles = {
   ]);
 };
 
-let isMember = (recipes, recipeId) => Js.Dict.get(recipes, recipeId) |> BaseUtils.optFold(Js.to_bool, false);
+let isMember = (recipes, recipeId) => Js.Dict.get(recipes, recipeId) |> BaseUtils.optFold(x => x, false);
 
 let toggleRecipe = (list: Models.list, recipeId: string) => {
   let newRecipes = Js.Dict.fromArray(Js.Dict.entries(list##recipes));
-  Js.Dict.set(newRecipes, recipeId, !isMember(list##recipes, recipeId) |> bool.to_js_boolean);
+  Js.Dict.set(newRecipes, recipeId, !isMember(list##recipes, recipeId) );
   let newList = Js.Obj.assign(Js.Obj.empty(), list);
   newList##recipes #= newRecipes;
   newList##updated #= (Js.Date.now());
@@ -66,7 +66,7 @@ let showLists = (~fb, ~recipeId, ~lists, ~uid, ~navigate) => {
           <Link className=Styles.link navigate dest=("/list/" ++ list##id) text={j|🔗|j} />
         </div>
       }
-    ) |> ReasonReact.arrayToElement)
+    ) |> ReasonReact.array)
   </div>
 };
 

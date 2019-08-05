@@ -27,7 +27,7 @@ let make = (~fb, ~allIngredients, ~onImport, _) =>
     ...component,
     initialState: () => None,
     reducer: (action, _) => ReasonReact.Update(action),
-    render: ({state, reduce}) =>
+    render: ({state, send}) =>
       <input
         value=(
           switch state {
@@ -35,23 +35,23 @@ let make = (~fb, ~allIngredients, ~onImport, _) =>
           | Some(v) => v
           }
         )
-        disabled=(bool.to_js_boolean(state !== None))
+        disabled=((state !== None))
         placeholder="Paste in URL to import"
         onChange=(
           (evt) => {
             let url = Utils.evtValue(evt);
-            (reduce((_) => Some(url)))();
+            (send(Some(url)));
             importRecipe(url)
             |> Js.Promise.then_(
                  (recipe) => {
-                   (reduce((_) => None))();
+                   (send(None));
                    onImport(fillOutRecipe(url, fb, Array.of_list(allIngredients), recipe));
                    Js.Promise.resolve()
                  }
                )
             |> Js.Promise.catch(
                  (err) => {
-                   (reduce((_) => None))();
+                   (send(None));
                    Js.log2("Failed to import", err);
                    Js.Promise.resolve()
                  }

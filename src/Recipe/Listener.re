@@ -41,14 +41,14 @@ let filterMap = (fn, items) => {
 
 let listen = (handleCommand) => SpeechSynthesis.recognize(handleCommand);
 
-let speak = (reduce, text) => {
-  (reduce((_) => StartSpeaking))();
-  SpeechSynthesis.speak(text, reduce((_) => DoneSpeaking))
+let speak = (send, text) => {
+  (send(StartSpeaking));
+  SpeechSynthesis.speak(text, ((_) => send(DoneSpeaking)))
 };
 
-let speakMany = (reduce, items) => {
-  (reduce((_) => StartSpeaking))();
-  SpeechSynthesis.speakSeveral(items, reduce((_) => DoneSpeaking))
+let speakMany = (send, items) => {
+  (send(StartSpeaking));
+  SpeechSynthesis.speakSeveral(items, ((_) => send(DoneSpeaking)))
 };
 
 let parseCommand = (command, map, ingredients) =>
@@ -103,28 +103,34 @@ let parseCommand = (command, map, ingredients) =>
       } else {
         None
       };
-    [@else `UnknownCommand(command)] [%guard let Some(ingredient) = ingredient];
-    let ingredient = Js.String.trim(ingredient) |> Js.String.toLocaleLowerCase;
-    let found =
-      filterMap(
-        (item) =>
-          Js.Dict.get(map, item##ingredient)
-          |> optBind((ing) => ing##name === ingredient ? Some(item) : None),
-        ingredients
-      );
-    Js.log2("found", found);
-    switch found {
-    | [||] => `IngredientNotFound(ingredient)
-    | _ => `Ingredient(found)
+    switch ingredient {
+      | None => `UnknownCommand(command)
+      | Some(ingredient) => {
+
+        let ingredient = Js.String.trim(ingredient) |> Js.String.toLocaleLowerCase;
+        let found =
+          filterMap(
+            (item) =>
+              Js.Dict.get(map, item##ingredient)
+              |> optBind((ing) => ing##name === ingredient ? Some(item) : None),
+            ingredients
+          );
+        Js.log2("found", found);
+        switch found {
+        | [||] => `IngredientNotFound(ingredient)
+        | _ => `Ingredient(found)
+      }
+      }
     }
   };
 
 let lastCommand = ref(None);
 
-let handleCommand = (reduce, map, ingredients, instructions, state, text) => {
+let handleCommand = (send, map, ingredients, instructions, state, text) => {
   /* SpeechSynthesis.speak "Turning off" (reduce (fun _ => TurnOff)) */
-  [@else (reduce((_) => TurnOn))()]
-  [%guard let Some(text) = Js.Null.to_opt(text)];
+  switch (Js.Null.toOption(text)) {
+    | None => send(TurnOn)
+    | Some(text) =>
   let command = parseCommand(text, map, ingredients);
   let command =
     command == `Repeat ?
@@ -135,31 +141,32 @@ let handleCommand = (reduce, map, ingredients, instructions, state, text) => {
       };
   switch command {
   | `RestInstructions
-  | `Repeat => speak(reduce, "Nothing to repeat")
-  | `Stop => SpeechSynthesis.speak("Turning off", reduce((_) => TurnOff))
+  | `Repeat => speak(send, "Nothing to repeat")
+  | `Stop => SpeechSynthesis.speak("Turning off", ((_) => send(TurnOff)))
   | `FullIngredients =>
-    speakMany(reduce, Array.map(SpeechSynthesis.fullIngredientText(map), ingredients))
-  | `Ingredients => speakMany(reduce, Array.map(SpeechSynthesis.ingredientText(map), ingredients))
-  | `IngredientNotFound(name) => speak(reduce, "I can't find " ++ (name ++ " in the recipe"))
+    speakMany(send, Array.map(SpeechSynthesis.fullIngredientText(map), ingredients))
+  | `Ingredients => speakMany(send, Array.map(SpeechSynthesis.ingredientText(map), ingredients))
+  | `IngredientNotFound(name) => speak(send, "I can't find " ++ (name ++ " in the recipe"))
   | `Ingredient((ings: array(Models.recipeIngredient))) =>
-    speakMany(reduce, Array.map(SpeechSynthesis.fullIngredientText(map), ings))
+    speakMany(send, Array.map(SpeechSynthesis.fullIngredientText(map), ings))
   | `UnknownCommand(_command) => {
     SpeechSynthesis.beep2();
-    reduce((_) => DoneSpeaking)()
+    send(DoneSpeaking)
   }
-        /* speak(reduce, "Unknown command: " ++ command) */
+        /* speak(send, "Unknown command: " ++ command) */
   | `FirstInstruction =>
-    (reduce((_) => StartSpeakingAt((state.currentIngredient, 0))))();
-    SpeechSynthesis.speak(instructions[0]##text, reduce((_) => DoneSpeaking))
+    (send(StartSpeakingAt((state.currentIngredient, 0))));
+    SpeechSynthesis.speak(instructions[0]##text, ((_) => send(DoneSpeaking)))
   | `NextInstruction =>
     let next = state.currentInstruction + 1;
     if (next >= Array.length(instructions)) {
-      speak(reduce, "No more instructions")
+      speak(send, "No more instructions")
     } else {
-      (reduce((_) => StartSpeakingAt((state.currentIngredient, next))))();
-      SpeechSynthesis.speak(instructions[next]##text, reduce((_) => DoneSpeaking))
+      (send(StartSpeakingAt((state.currentIngredient, next))));
+      SpeechSynthesis.speak(instructions[next]##text, ((_) => send(DoneSpeaking)))
     }
-  | `Instructions => speakMany(reduce, Array.map((i) => i##text, instructions))
+  | `Instructions => speakMany(send, Array.map((i) => i##text, instructions))
+  }
   }
 };
 
@@ -178,13 +185,13 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
         ReasonReact.UpdateWithSideEffects(
           {...state, currently: `Listening},
           (
-            ({state, reduce}) =>
+            ({state, send}) =>
               /* (handleCommand reduce (Ingredients.ingredientsMap allIngredients) ingredients instructions state (Js.Null.return "what is the first instruction")) */
               state.unlisten :=
                 Some(
                   listen(
                     handleCommand(
-                      reduce,
+                      send,
                       Ingredients.ingredientsMap(allIngredients),
                       ingredients,
                       instructions,
@@ -212,13 +219,13 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
         ReasonReact.UpdateWithSideEffects(
           {...state, currently: `Listening},
           (
-            ({state, reduce}) => {
+            ({state, send}) => {
               SpeechSynthesis.beep();
               state.unlisten :=
                 Some(
                   listen(
                     handleCommand(
-                      reduce,
+                      send,
                       Ingredients.ingredientsMap(allIngredients),
                       ingredients,
                       instructions,
@@ -230,7 +237,7 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
           )
         )
       },
-    render: ({state, reduce}) =>
+    render: ({state, send}) =>
       <button
         className=RecipeStyles.button
         onClick=(
@@ -238,9 +245,9 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
             switch state.currently {
             | `Off =>
               SpeechSynthesis.beep();
-              reduce((_) => TurnOn, ())
+              send(TurnOn)
             | `Speaking
-            | `Listening => reduce((_) => TurnOff, ())
+            | `Listening => send(TurnOff)
             }
         )>
         (

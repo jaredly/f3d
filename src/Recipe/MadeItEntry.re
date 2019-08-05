@@ -6,7 +6,7 @@ module Adder = {
     ...component,
     initialState: (_) => false,
     reducer: ((), state) => ReasonReact.Update(! state),
-    render: ({state, reduce}) =>
+    render: ({state, send}) =>
       <div className=Glamor.(css([]))>
         (
           state ?
@@ -16,8 +16,8 @@ module Adder = {
               title="Add experience"
               action="Add"
               initial=Models.MadeIt.fromRecipe(recipe, uid)
-              onCancel=(reduce(() => ()))
-              onSave=(reduce(() => ()))
+              onCancel=((() => send( ())))
+              onSave=((() => send( ())))
             /> :
             <div
               className=Glamor.(
@@ -27,7 +27,7 @@ module Adder = {
                             justifyContent("flex-start")
                           ])
                         )>
-              <button className=RecipeStyles.primaryButton onClick=(reduce((_) => ()))>
+              <button className=RecipeStyles.primaryButton onClick=(((_) => send(())))>
                 (str("Record experience"))
               </button>
             </div>

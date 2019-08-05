@@ -7,18 +7,18 @@ let make = (~navigate, ~dest, ~text, ~className=?, _) =>
       <a
         onMouseDown=(
           (evt) => {
-            ReactEventRe.Mouse.stopPropagation(evt);
-            if (ReactEventRe.Mouse.button(evt) === 0
-                && ReactEventRe.Mouse.metaKey(evt) === false
-                && ReactEventRe.Mouse.ctrlKey(evt) === false
-                && ReactEventRe.Mouse.shiftKey(evt) === false) {
-              ReactEventRe.Mouse.preventDefault(evt);
+            ReactEvent.Mouse.stopPropagation(evt);
+            if (ReactEvent.Mouse.button(evt) === 0
+                && ReactEvent.Mouse.metaKey(evt) === false
+                && ReactEvent.Mouse.ctrlKey(evt) === false
+                && ReactEvent.Mouse.shiftKey(evt) === false) {
+              ReactEvent.Mouse.preventDefault(evt);
               navigate(dest)
             }
           }
         )
         href=("#" ++ dest)
         ?className>
-        (ReasonReact.stringToElement(text))
+        (ReasonReact.string(text))
       </a>
   };

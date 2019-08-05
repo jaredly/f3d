@@ -62,7 +62,7 @@ let showRecipe = (fb, navigate, recipe) => <div
   (spring)
   (spacer(16))
   <div className=Styles.time>
-    (str(recipe##meta##totalTime |> Js.Null.to_opt |> BaseUtils.optMap(BaseUtils.hoursMinutes) |> BaseUtils.optOr("")))
+    (str(recipe##meta##totalTime |> Js.Null.toOption |> BaseUtils.optMap(BaseUtils.hoursMinutes) |> BaseUtils.optOr("")))
   </div>
   /* <div>
     (str(recipe##created |> Js.Date.fromFloat |> Js.Date.toLocaleDateString))
@@ -72,7 +72,7 @@ let showRecipe = (fb, navigate, recipe) => <div
 let showRecipes = (~fb, ~navigate, ~recipes, ~loadingMore, ~fetchMore) =>
   <div className=Styles.container>
     (
-      ReasonReact.arrayToElement(
+      ReasonReact.array(
         Array.map(
           showRecipe(fb, navigate),
           recipes
@@ -83,6 +83,6 @@ let showRecipes = (~fb, ~navigate, ~recipes, ~loadingMore, ~fetchMore) =>
     ? <UtilComponents.OnVisible trigger=fetchMore>
       (str("Loading..."))
     </UtilComponents.OnVisible>
-    : ReasonReact.nullElement)
+    : ReasonReact.null)
     (spacer(128))
   </div>;

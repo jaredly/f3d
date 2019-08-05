@@ -133,28 +133,33 @@ let beep: unit => unit = [%bs.raw
 let ingredientText = (map, ring) => {
   open BaseUtils;
   let ing = Js.Dict.get(map, ring##ingredient);
-  [@else ""] [%guard let Some(ing) = ing];
-  ing##name ++ "."
+  switch (ing) {
+    | Some(ing) => ing##name ++ "."
+  | None => ""
+  }
 };
 
 let fullIngredientText = (map, ring) => {
   open BaseUtils;
   let ing = Js.Dict.get(map, ring##ingredient);
-  [@else ""] [%guard let Some(ing) = ing];
+  switch (ing) {
+    | Some(ing) =>
   let amount =
     ring##amount
-    |> Js.Null.to_opt
+    |> Js.Null.toOption
     |> optMap((amount) => Utils.fractionify(amount) ++ " ")
     |> optOr("");
-  let plural = ring##amount |> Js.Null.to_opt |> optMap((a) => a != 1.) |> optOr(false);
+  let plural = ring##amount |> Js.Null.toOption |> optMap((a) => a != 1.) |> optOr(false);
   let unit =
     ring##unit
-    |> Js.Null.to_opt
+    |> Js.Null.toOption
     |> optMap((unit) => Utils.speakableUnit(unit, plural) ++ " ")
     |> optOr("");
   let comments =
-    ring##comments |> Js.Null.to_opt |> optMap((comments) => " " ++ comments) |> optOr("");
+    ring##comments |> Js.Null.toOption |> optMap((comments) => " " ++ comments) |> optOr("");
   amount ++ (unit ++ (ing##name ++ (comments ++ ".")))
+  | None => ""
+  }
 };
 
 let ingredientsText = (map, ingredients) =>

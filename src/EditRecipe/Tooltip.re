@@ -7,11 +7,11 @@ let make = (~render, ~message, ~enabled, _children) =>
     ...component,
     initialState: () => false,
     reducer: (action, state) => ReasonReact.Update(action),
-    render: ({state, reduce}) =>
+    render: ({state, send}) =>
       <div
         className=Glamor.(css([position("relative")]))
-        onMouseEnter=(reduce((_) => true))
-        onMouseLeave=(reduce((_) => false))>
+        onMouseEnter=(((_) => send(true)))
+        onMouseLeave=(((_) => send(false)))>
         (render())
         (
           state && enabled ?
@@ -34,7 +34,7 @@ let make = (~render, ~message, ~enabled, _children) =>
                         )>
               (str(message))
             </div> :
-            ReasonReact.nullElement
+            ReasonReact.null
         )
       </div>
   };

@@ -8,7 +8,7 @@ let splitNumbers = (lines) => {
       0,
       lines
     );
-  [@else None] [%guard let true = count > 0];
+  let%Lets.Opt () = count > 0 ? Some(()) : None;
   let result = [||];
   Array.iter(
     (line) =>
@@ -162,11 +162,8 @@ let parseUnit = (amount, text) => {
         maybeFind(
           names,
           (name) => {
-            [@else None]
-            [%guard
-              let true =
-                Js.String.startsWith(name ++ " ", text) || Js.String.startsWith(name ++ ".", text)
-            ];
+            let%Lets.Opt () =
+              (Js.String.startsWith(name ++ " ", text) || Js.String.startsWith(name ++ ".", text)) ? Some(()) : None;
             let text = Js.String.sliceToEnd(~from=String.length(name) + 1, text) |> Js.String.trim;
             let (unit, text) =
               if (Js.Array.includes(canon, weightUnits)) {
@@ -340,7 +337,7 @@ let matchIngredient = (allIngredients, ingredient) =>
   maybeFindIngredient(allIngredients, ingredient)
   |> (
     ((guess, ingredient)) =>
-      Models.maybeRecipeIngredient(~guess=?Js.Null.to_opt(guess), ingredient)
+      Models.maybeRecipeIngredient(~guess=?Js.Null.toOption(guess), ingredient)
   );
 
 let parseIngredientsText = (allIngredients, text) => {
@@ -356,7 +353,7 @@ let parseIngredientsText = (allIngredients, text) => {
 
 /* Instructions section */
 [@bs.scope "clipboardData"] [@bs.send]
-external getData : (ReactEventRe.Clipboard.t, string) => string =
+external getData : (ReactEvent.Clipboard.t, string) => string =
   "";
 
 let parseInstructionsText = (text) => {
@@ -370,9 +367,9 @@ let parseInstructionsText = (text) => {
 
 let parseInstructions = (onPaste, evt) => {
   let text = getData(evt, "text/plain") |> Js.String.trim;
-  [@else ()] [%guard let Some(items) = parseInstructionsText(text)];
+  let%Lets.Opt.Consume (items) = parseInstructionsText(text);
   if (Array.length(items) > 1) {
-    ReactEventRe.Clipboard.preventDefault(evt);
+    ReactEvent.Clipboard.preventDefault(evt);
     onPaste(items)
   }
 };
@@ -381,17 +378,18 @@ let parseIngredients = (allIngredients, onPaste, evt) => {
   let text = getData(evt, "text/plain") |> Js.String.trim;
 
   /*** TODO maybe make this check more sophisticated */
-  [@else ()] [%guard let None = Js.String.match([%bs.re {|/^[\.\/\d\s]+$/|}], text)];
-  let partsRe = [%bs.re {|/\ninstructions\n/i|}];
-  let parts = Js.String.splitByRe(partsRe, text);
-  let (ingText, instText) =
-    if (Array.length(parts) === 1) {
-      (text, None)
-    } else {
-      (parts[0], Some(Js.Array.joinWith("\ninstructions\n", Js.Array.sliceFrom(1, parts))))
-    };
-  let ingredients = parseIngredientsText(allIngredients, ingText);
-  let instructions = BaseUtils.optBind(parseInstructionsText, instText);
-  ReactEventRe.Clipboard.preventDefault(evt);
-  onPaste((ingredients, instructions))
+  if (None == Js.String.match([%bs.re {|/^[\.\/\d\s]+$/|}], text)) {
+    let partsRe = [%bs.re {|/\ninstructions\n/i|}];
+    let parts = Js.String.splitByRe(partsRe, text);
+    let (ingText, instText) =
+      if (Array.length(parts) === 1) {
+        (text, None)
+      } else {
+        (Lets.Opt.force(parts[0]), Some(Js.Array.joinWith("\ninstructions\n", Js.Array.sliceFrom(1, parts))))
+      };
+    let ingredients = parseIngredientsText(allIngredients, ingText);
+    let instructions = BaseUtils.optBind(parseInstructionsText, instText);
+    ReactEvent.Clipboard.preventDefault(evt);
+    onPaste((ingredients, instructions))
+  }
 };

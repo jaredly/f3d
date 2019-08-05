@@ -10,7 +10,7 @@ module MadeItsFetcher =
   );
 
 let bestScore = items => List.fold_left(
-  (best, madeit) => max(best, madeit##rating |> Js.Null.to_opt |> optOr(0)),
+  (best, madeit) => max(best, madeit##rating |> Js.Null.toOption |> optOr(0)),
   0,
   items
 );
@@ -100,7 +100,7 @@ let ringStars = (num) => {
       ))>
         (str({j|★|j}))
       </div>
-    }) |> Array.of_list |> ReasonReact.arrayToElement)
+    }) |> Array.of_list |> ReasonReact.array)
   </div>
 };
 

@@ -74,7 +74,7 @@ let metaLine = (~meta, ~source) => {
       /* spacer(~key=string_of_int(i), 16) */
       )
       |> Array.of_list
-      |> ReasonReact.arrayToElement
+      |> ReasonReact.array
     )
   </div>
 };

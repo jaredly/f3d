@@ -11,7 +11,7 @@ module Styles = {
   let addText = "";
 };
 
-let recipeCount = (recipes) => Js.Dict.values(recipes) |> Js.Array.filter(Js.to_bool) |> Array.length;
+let recipeCount = (recipes) => Js.Dict.values(recipes) |> Js.Array.filter(x => x) |> Array.length;
 
 let showLists = (~addList, ~lists, ~uid, ~navigate) =>
   <div className=Styles.container>
@@ -27,7 +27,7 @@ let showLists = (~addList, ~lists, ~uid, ~navigate) =>
             placeholder="Type new list name & hit enter"
             onKeyDown=(
               (evt) =>
-                if (ReactEventRe.Keyboard.key(evt) === "Enter") {
+                if (ReactEvent.Keyboard.key(evt) === "Enter") {
                   if (value !== "") {
                     addList(value);
                   };
@@ -51,7 +51,7 @@ let showLists = (~addList, ~lists, ~uid, ~navigate) =>
              (spacer(16))
             </div>
          )
-      |> ReasonReact.arrayToElement
+      |> ReasonReact.array
     )
   </div>;
 
@@ -80,7 +80,7 @@ let make = (~fb, ~uid, ~navigate, _children) => {
                 "id": id,
                 "authorId": uid,
                 "collaborators": Js.Dict.empty(),
-                "isPrivate": Js.false_,
+                "isPrivate": false,
                 "title": title,
                 "created": Js.Date.now(),
                 "updated": Js.Date.now(),

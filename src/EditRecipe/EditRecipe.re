@@ -55,13 +55,13 @@ let clone: Js.t('a) => Js.t('a) = (obj) => Js.Obj.assign(Js.Obj.empty(), obj);
 let makeTitleSearch = (title) => {
   let tokens = SearchIndex.tokens(title);
   let obj = Js.Dict.empty();
-  Array.iter((tok) => Js.Dict.set(obj, tok, Js.true_), tokens);
+  Array.iter((tok) => Js.Dict.set(obj, tok, true), tokens);
   obj
 };
 
 let makeIngredientsUsed = (ingredients) => {
   let obj = Js.Dict.empty();
-  Array.iter((ing) => Js.Dict.set(obj, ing##ingredient, Js.true_), ingredients);
+  Array.iter((ing) => Js.Dict.set(obj, ing##ingredient, true), ingredients);
   obj
 };
 
@@ -109,8 +109,8 @@ let make =
       title: recipe##title,
       meta: recipe##meta,
       source: recipe##source,
-      description: recipe##description |> Js.Null.to_opt |> BaseUtils.optOr(""),
-      notes: recipe##notes |> Js.Null.to_opt |> BaseUtils.optOr(""),
+      description: recipe##description |> Js.Null.toOption |> BaseUtils.optOr(""),
+      notes: recipe##notes |> Js.Null.toOption |> BaseUtils.optOr(""),
       ingredients: recipe##ingredients |> Array.map(Models.maybeRecipeIngredient),
       ingredientHeaders: recipe##ingredientHeaders,
       instructions: recipe##instructions,
@@ -153,7 +153,7 @@ let make =
               meta,
               source
             } as state,
-          reduce
+          send
         }
       ) => {
       let allIngredientsValid =
@@ -169,11 +169,11 @@ let make =
       <div className=Styles.container>
         <div className=Styles.header>
           <input
-            disabled=(bool.to_js_boolean(saving))
+            disabled=((saving))
             className=Styles.title
             placeholder="Recipe title"
             value=title
-            onChange=(reduce((evt) => SetTitle(evtValue(evt))))
+            onChange=(((evt) => send(SetTitle(evtValue(evt)))))
           />
           <Tooltip
             message="Cannot save with invalid ingredients"
@@ -187,7 +187,7 @@ let make =
                       " " ++ (Styles.saveButton ++ (" " ++ (canSave ? "" : Styles.disabledbutton)))
                     )
                   )
-                  /* disabled=(bool.to_js_boolean (not canSave)) */
+                  /* disabled=( (not canSave)) */
                   onClick=((_) => canSave ? onSave(updateRecipe(recipe, state)) : ())>
                   (str(saving ? "Saving" : "Save"))
                 </button>
@@ -198,16 +198,16 @@ let make =
         (spacer(8))
         (
           EditMeta.render(
-            ~onChange=reduce((meta) => SetMeta(meta)),
+            ~onChange=((meta) => send(SetMeta(meta))),
             ~meta,
             ~source,
-            ~onChangeSource=reduce((source) => SetSource(source))
+            ~onChangeSource=((source) => send(SetSource(source)))
           )
         )
         (spacer(16))
         <Textarea
           value=description
-          onChange=(reduce((text) => SetDescription(text)))
+          onChange=(((text) => send(SetDescription(text))))
           className=Glamor.(
                       css([
                         border("none"),
@@ -231,10 +231,10 @@ let make =
             ~onPaste=
               ((ingredients, instructions)) =>
                 switch instructions {
-                | None => (reduce((_) => SetIngredients(([||], ingredients))))()
-                | Some(inst) => (reduce((_) => SetBoth((ingredients, inst))))()
+                | None => (send(SetIngredients(([||], ingredients))))
+                | Some(inst) => (send(SetBoth((ingredients, inst))))
                 },
-            ~onChange=reduce(((headers, ingredients)) => SetIngredients((headers, ingredients)))
+            ~onChange=(((headers, ingredients)) => send(SetIngredients((headers, ingredients))))
           )
         )
         (spacer(32))
@@ -244,7 +244,7 @@ let make =
           EditInstructions.render(
             ~instructions,
             ~instructionHeaders,
-            ~onChange=reduce(((headers, instructions)) => SetInstructions((headers, instructions)))
+            ~onChange=(((headers, instructions)) => send(SetInstructions((headers, instructions))))
           )
         )
         (spacer(32))
@@ -252,7 +252,7 @@ let make =
         (spacer(16))
         <Textarea
           value=notes
-          onChange=(reduce((text) => SetNotes(text)))
+          onChange=(((text) => send(SetNotes(text))))
           className=Glamor.(
                       css([
                         border("none"),
@@ -268,9 +268,9 @@ let make =
           fb
           allIngredients
           onImport=(
-            reduce(
+            (
               (recipe) =>
-                Import
+                send(Import
                   ({
                     title: recipe##title,
                     instructions: recipe##instructions,
@@ -281,13 +281,13 @@ let make =
                     description: recipe##description,
                     notes: "",
                     ingredientHeaders: [||]
-                  }) /*** TODO import headers too */
+                  })) /*** TODO import headers too */
             )
           )
         />
         (spacer(32))
         {
-          [@else ReasonReact.nullElement] [%guard let Some(onDelete) = onDelete];
+          let%Lets.Opt.React onDelete = onDelete;
           <DeleteButton onDelete />
         }
         (spacer(64))

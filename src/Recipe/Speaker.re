@@ -7,20 +7,20 @@ let make = (~instructions, ~allIngredients, ~ingredients, _) =>
     ...component,
     initialState: () => false,
     reducer: (action, _) => ReasonReact.Update(action),
-    render: ({state: speaking, reduce}) => {
+    render: ({state: speaking, send}) => {
       let map = Ingredients.ingredientsMap(allIngredients);
       <button
-        disabled=(bool.to_js_boolean(speaking))
+        disabled=((speaking))
         onClick=(
           (_) => {
-            reduce((_) => true, ());
+            send(true);
             SpeechSynthesis.speak(
               instructions[0]##text,
               /* (SpeechSynthesis.fullIngredientText map ingredients.(0)) */
               /* (Array.map
                  (SpeechSynthesis.ingredientText map)
                  ingredients) */
-              (_) => (reduce((_) => false))()
+              (_) => (send(false))
             )
           }
         )

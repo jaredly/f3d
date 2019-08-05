@@ -82,7 +82,7 @@ let showStars = (~active, ~rating) => {
     })>
       (str({j|★|j}))
     </div>
-  }, BaseUtils.range(5) |> Array.of_list) |> ReasonReact.arrayToElement)
+  }, BaseUtils.range(5) |> Array.of_list) |> ReasonReact.array)
 };
 
 let component = ReasonReact.statelessComponent("RatingWidget");
@@ -107,7 +107,7 @@ let make = (~rating, ~onChange, _children) => {
           (spacer(16))
           (str(text))
         </div>
-      }, ratings) |> ReasonReact.arrayToElement)
+      }, ratings) |> ReasonReact.array)
     </div>
   }
 };

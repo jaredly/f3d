@@ -79,7 +79,8 @@ type result =
   | Ingredient(Models.ingredient);
 
 let search = (ingredients, tags, text) => {
-  [@else [||]] [%guard let true = String.length(text) > 0];
+  if (String.length(text) > 0) {
+
   let text = Js.String.toLowerCase(text);
   Array.append(
     Js.Array.filter(
@@ -99,6 +100,9 @@ let search = (ingredients, tags, text) => {
     )
     |> Array.map((tag) => Tag(tag))
   )
+  } else {
+    [||]
+  }
 };
 
 
@@ -145,7 +149,7 @@ let make =
     ...component,
     initialState: () => "",
     reducer: (action, state) => ReasonReact.Update(action),
-    render: ({state, reduce}) => {
+    render: ({state, send}) => {
       let removeIngredient = (ingredient) =>
         onChange((
           text,
@@ -167,16 +171,16 @@ let make =
             )
             |> Array.of_list
             |> Js.Array.reverseInPlace
-            |> ReasonReact.arrayToElement
+            |> ReasonReact.array
           )
           (
-            selectedIngredients !== [] || selectedTags !== [] ? spacer(16) : ReasonReact.nullElement
+            selectedIngredients !== [] || selectedTags !== [] ? spacer(16) : ReasonReact.null
           )
           <input
             value=state
-            onChange=(reduce((evt) => evtValue(evt)))
+            onChange=(((evt) => send(evtValue(evt))))
             placeholder="Search by ingredient" /* ", tag, or title" */
-            /* disabled=(not enabled |> bool.to_js_boolean) */
+            /* disabled=(not enabled |> ) */
             className=Styles.input
           />
         </div>
@@ -185,7 +189,7 @@ let make =
           if (results != [||]) {
             <div className=Styles.results>
               (
-                ReasonReact.arrayToElement(
+                ReasonReact.array(
                   Array.mapi(
                     (i, result) =>
                       <div
@@ -200,7 +204,7 @@ let make =
                               | Ingredient(ing) => ([ing, ...selectedIngredients], selectedTags)
                               };
                             onChange((text, selectedIngredients, selectedTags));
-                            (reduce((_) => ""))()
+                            (send(""))
                           }
                         )>
                         {
@@ -218,7 +222,7 @@ let make =
               )
             </div>
           } else {
-            ReasonReact.nullElement
+            ReasonReact.null
           }
         }
       </div>

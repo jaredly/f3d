@@ -7,12 +7,12 @@ let make = (~menu, ~className, children) =>
     ...component,
     initialState: () => false,
     reducer: (action, _) => ReasonReact.Update(action),
-    render: ({state, reduce}) =>
+    render: ({state, send}) =>
       <div
-        onMouseEnter=(reduce((_) => true))
-        onMouseLeave=(reduce((_) => false))
+        onMouseEnter=(((_) => send(true)))
+        onMouseLeave=(((_) => send(false)))
         className=Glamor.(css([position("relative")]))>
-        (ReasonReact.arrayToElement(children))
+        (ReasonReact.array(children))
         (
           state ?
             <div
@@ -25,7 +25,7 @@ let make = (~menu, ~className, children) =>
                         )>
               menu
             </div> :
-            ReasonReact.nullElement
+            ReasonReact.null
         )
       </div>
   };

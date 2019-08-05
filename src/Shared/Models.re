@@ -192,7 +192,7 @@ module Recipe = {
       },
       "authorId": authorId,
       "collaborators": empty,
-      "isPrivate": bool.to_js_boolean(false)
+      "isPrivate": (false)
     }
   };
 };
@@ -237,7 +237,7 @@ module MadeIt = {
     "recipeId": recipe##id,
     "authorId": authorId,
     "collaborators": recipe##collaborators,
-    "isPrivate": Js.false_,
+    "isPrivate": false,
 
     "created": Js.Date.now(),
     "updated": Js.Date.now(),

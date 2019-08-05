@@ -1,5 +1,5 @@
 let startMoving = (~positions, ~key, ~margin, ~onDrop, evt) => {
-  ReactEventRe.Mouse.preventDefault(evt);
+  ReactEvent.Mouse.preventDefault(evt);
   /* Js.log2 "moving" key; */
   [@bs]
   [%bs.raw

@@ -93,7 +93,7 @@ let make = (~value, ~onChange, ~className=?, ~onPaste=?, ~placeholder=?, _) =>
         ReasonReact.UpdateWithSideEffects(
           text,
           (
-            ({state, reduce}) => {
+            ({state, send}) => {
               let num = makeFloat(state);
               if (num != value) {
                 onChange(num)
@@ -103,15 +103,15 @@ let make = (~value, ~onChange, ~className=?, ~onPaste=?, ~placeholder=?, _) =>
         )
       | Reset => ReasonReact.Update(makeText(value))
       },
-    willReceiveProps: ({retainedProps, reduce, state}) =>
+    willReceiveProps: ({retainedProps, send, state}) =>
       if (retainedProps != value && value != makeFloat(state)) {
         /* Js.log2 retainedProps (makeFloat state); */
         makeText(value)
       } else {
         state
       },
-    render: ({state, reduce}) => {
-      let process = (text) => reduce((_) => Set(text), ());
+    render: ({state, send}) => {
+      let process = (text) => send(Set(text));
       <input
         value=state
         ?className
@@ -119,22 +119,22 @@ let make = (~value, ~onChange, ~className=?, ~onPaste=?, ~placeholder=?, _) =>
         ?onPaste
         onKeyDown=(
           (evt) =>
-            switch (ReactEventRe.Keyboard.key(evt)) {
+            switch (ReactEvent.Keyboard.key(evt)) {
             | "ArrowUp" =>
-              ReactEventRe.Keyboard.preventDefault(evt);
-              let shift = ReactEventRe.Keyboard.shiftKey(evt);
+              ReactEvent.Keyboard.preventDefault(evt);
+              let shift = ReactEvent.Keyboard.shiftKey(evt);
               let off = shift ? 0.5 : 1.;
-              (reduce((_) => Set(makeText(Some((makeFloat(state) |> optOr(0.)) +. off)))))()
+              (send(Set(makeText(Some((makeFloat(state) |> optOr(0.)) +. off)))))
             | "ArrowDown" =>
-              ReactEventRe.Keyboard.preventDefault(evt);
-              let shift = ReactEventRe.Keyboard.shiftKey(evt);
+              ReactEvent.Keyboard.preventDefault(evt);
+              let shift = ReactEvent.Keyboard.shiftKey(evt);
               let off = shift ? (-0.5) : (-1.);
-              (reduce((_) => Set(makeText(Some((makeFloat(state) |> optOr(0.)) +. off)))))()
+              (send(Set(makeText(Some((makeFloat(state) |> optOr(0.)) +. off)))))
             | _ => ()
             }
         )
         onChange=((evt) => process(Utils.evtValue(evt)))
-        onBlur=(reduce((_) => Reset))
+        onBlur=(((_) => send(Reset)))
       />
     }
   };
