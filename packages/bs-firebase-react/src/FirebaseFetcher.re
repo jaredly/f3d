@@ -88,7 +88,7 @@ module Dynamic = (Collection: {
     | None => orr
     | Some(x) => fn(x)
     };
-  let make = (~fb, ~pageSize=10, ~query, ~refetchKey="", ~render, _children) => {
+  let make = (~fb, ~pageSize=?, ~query, ~refetchKey="", ~render, _children) => {
     let collection = FBCollection.get(fb);
     let handleResult = (send, current, prom) =>
       prom
@@ -97,7 +97,10 @@ module Dynamic = (Collection: {
            let items = Array.map(Firebase.data, snaps);
            let total = Array.append(current, items);
            send(
-             Array.length(items) === pageSize
+             (switch (pageSize) {
+               | Some(pageSize) => Array.length(items) === pageSize
+               | None => false
+             })
                ? `Loaded((Some(snaps[Array.length(snaps) - 1]), total))
                : `Loaded((None, total)),
            );
@@ -112,7 +115,11 @@ module Dynamic = (Collection: {
       |> ignore;
     let fetch = (state, send, clear) => {
       module Q = Firebase.Query;
-      let q = Firebase.asQuery(collection) |> query |> Q.limit(pageSize);
+      let q = Firebase.asQuery(collection) |> query;
+      let q = switch pageSize {
+        | None => q
+        | Some(pageSize) => q |> Q.limit(pageSize)
+      };
       let (q, current) =
         if (clear) {
           (q, [||]);
@@ -155,10 +162,10 @@ module Static =
          },
        ) => {
   module Inner = Dynamic(Config);
-  let make = (~fb, ~pageSize=10, ~render, children) =>
+  let make = (~fb, ~pageSize=?, ~render, children) =>
     Inner.make(
       ~fb,
-      ~pageSize,
+      ~pageSize?,
       ~query=Config.query,
       ~refetchKey="",
       ~render,

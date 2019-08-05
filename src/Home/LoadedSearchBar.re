@@ -21,7 +21,7 @@ module TagsLoader =
 let render = (fb, outerState, onChange) =>
   <IngredientsLoader
     fb
-    pageSize=1000
+    // pageSize=1000
     render=(
       (~state, ~fetchMore) => {
         let (ingredientsLoaded, ingredients) =
@@ -34,7 +34,7 @@ let render = (fb, outerState, onChange) =>
           };
         <TagsLoader
           fb
-          pageSize=1000
+          // pageSize=1000
           render=(
             (~state, ~fetchMore) => {
               let (tagsLoaded, tags) =

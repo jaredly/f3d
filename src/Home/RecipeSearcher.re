@@ -47,7 +47,7 @@ let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~sear
 
     Fetcher.make(
       ~fb,
-      ~pageSize=20,
+      // ~pageSize=200,
       ~refetchKey,
       ~query,
       ~render=(
