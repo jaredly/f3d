@@ -43,8 +43,8 @@ module Styles = {
   ]);
 };
 
-let make = (~auth, ~navigate, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~auth, ~navigate) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     render: (_) => {
       let uid = Firebase.Auth.currentUser(auth) |>  Js.Nullable.toOption;
@@ -90,4 +90,4 @@ let make = (~auth, ~navigate, _children) =>
         )
       </div>
     }
-  };
+  });

@@ -1,8 +1,3 @@
-[@bs.module] external myJSReactClass : ReasonReact.reactClass = "../../../src/TopErrorBoundary.js";
 
-let make = (children) =>
-  ReasonReact.wrapJsForReason(
-    ~reactClass=myJSReactClass,
-    ~props=Js.Obj.empty(),
-    children
-  );
+[@bs.module ][@react.component]
+external make: (~children: React.element) => React.element = "../../../src/TopErrorBoundary.js";

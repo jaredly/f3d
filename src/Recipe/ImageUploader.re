@@ -34,7 +34,7 @@ let component = ReasonReact.reducerComponent("ImageUploader");
 
 let module S = ReactDOMRe.Style;
 
-let make = (~fb, ~images, ~onChange, _children) => {
+[@react.component] let make = (~fb, ~images, ~onChange) => ReactCompat.useRecordApi({
   ...component,
   initialState: () => {
     triggerInput: None,
@@ -84,12 +84,12 @@ let make = (~fb, ~images, ~onChange, _children) => {
         })
         multiple=true
         ref=?(state.triggerInput === None
-        ? Some((node) =>
+        ? Some(ReactDOMRe.Ref.callbackDomRef((node) =>
              Js.Nullable.toOption(node)
             |> BaseUtils.optFold(
                  (node) => send(SetTrigger(() => clickDom(node))),
                  ()
-               ))
+               )))
         : None
         )
       />
@@ -142,4 +142,4 @@ let make = (~fb, ~images, ~onChange, _children) => {
         }
       ) */
     </div>
-};
+});

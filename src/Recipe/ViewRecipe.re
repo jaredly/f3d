@@ -74,30 +74,23 @@ let renderEditor =
   />;
 
 module UpDownArrows = {
-let component = ReasonReact.statelessComponent("UpDownArrows");
-  let make = (~value, ~onChange, _children) => {
-    {
-      ...component,
-      render: (_) => {
-
-    <div className=Glamor.(css([
-      display("flex"),
-      flexDirection("column"),
-    ]))>
+  [@react.component]
+  let make = (~value, ~onChange) => {
+    <div className=Glamor.(css([display("flex"), flexDirection("column")]))>
       <button onClick={_evt => onChange(value +. 1.0)}>
-        (React.string({j|▲|j}))
+        {React.string({j|▲|j})}
       </button>
       <button onClick={_evt => onChange(value -. 1.0)}>
-        (React.string({j|▼|j}))
+        {React.string({j|▼|j})}
       </button>
-    </div>
-      }
-    }
-  }
-}
+    </div>;
+  };
+};
 
-let make = (~navigate, ~recipe, ~ingredients, ~user, ~fb, ~id, _children) =>
-  ReasonReact.{
+module Inner = {
+
+[@react.component] let make = (~navigate, ~recipe, ~ingredients, ~user, ~fb, ~id) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => (1., Normal),
     reducer: (action, (batches, making)) =>
@@ -260,7 +253,8 @@ let make = (~navigate, ~recipe, ~ingredients, ~user, ~fb, ~id, _children) =>
       </div>
       }
     }
-  };
+  });
+}
 
 let loadingRecipe = () =>
   <div className=Styles.container> <div className=Styles.loading> (str("Loading")) </div> </div>;
@@ -288,9 +282,12 @@ module IngredientsFetcher =
     }
   );
 
-let make = (~fb, ~navigate, ~user, ~id, children) => {
+// let innerProps = makeProps;
+
+[@react.component] let make = (~fb, ~navigate, ~user, ~id) => {
   Js.log(id);
   RecipeFetcher.make(
+    RecipeFetcher.makeProps(
     ~fb,
     ~id,
     ~listen=true,
@@ -303,11 +300,12 @@ let make = (~fb, ~navigate, ~user, ~id, children) => {
               switch (doubleState(state, ingredients)) {
               | `Initial => loadingRecipe()
               | `Loaded(recipe, ingredients) =>
-                make(~navigate, ~recipe, ~user, ~ingredients, ~fb, ~id, [||]) |> ReasonReact.element
+                <Inner navigate recipe user ingredients fb id />
               | `Errored(err) => failedLoading(err)
               }
           )
         />,
-    children
+    ()
+    )
   )
 };

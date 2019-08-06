@@ -2,8 +2,8 @@ open BaseUtils;
 
 let component = ReasonReact.reducerComponent("Speaker");
 
-let make = (~instructions, ~allIngredients, ~ingredients, _) =>
-  ReasonReact.{
+[@react.component] let make = (~instructions, ~allIngredients, ~ingredients, _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => false,
     reducer: (action, _) => ReasonReact.Update(action),
@@ -38,4 +38,4 @@ let make = (~instructions, ~allIngredients, ~ingredients, _) =>
         (Utils.str("Speak"))
       </button>
     }
-  };
+  });

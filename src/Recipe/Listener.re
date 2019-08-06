@@ -170,8 +170,8 @@ let handleCommand = (send, map, ingredients, instructions, state, text) => {
   }
 };
 
-let make = (~allIngredients, ~ingredients, ~instructions, _) =>
-  ReasonReact.{
+[@react.component] let make = (~allIngredients, ~ingredients, ~instructions, _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => {
       currently: `Off,
@@ -260,7 +260,7 @@ let make = (~allIngredients, ~ingredients, ~instructions, _) =>
           )
         )
       </button>
-  };
+  });
 
 /* Glamor.(
                     css([

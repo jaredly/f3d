@@ -186,8 +186,8 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
         isBlank ?
           None :
           Some(
-            (node) =>
-               Js.Nullable.toOption(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
+            ((node) =>
+               Js.Nullable.toOption(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore)->ReactDOMRe.Ref.callbackDomRef
           )
       )>
       <td
@@ -233,8 +233,8 @@ let render = (~fb, ~ingredients, ~ingredientHeaders, ~allIngredients, ~onChange,
         isBlank ?
           None :
           Some(
-            (node) =>
-               Js.Nullable.toOption(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore
+            ((node) =>
+               Js.Nullable.toOption(node) |> optMap((node) => Js.Dict.set(positions, key, node)) |> ignore)->ReactDOMRe.Ref.callbackDomRef
           )
       )>
       <td

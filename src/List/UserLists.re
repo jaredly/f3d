@@ -59,9 +59,9 @@ module Fetcher = FirebaseFetcher.Stream(Models.List);
 
 let component = ReasonReact.statelessComponent("UserLists");
 
-let make = (~fb, ~uid, ~navigate, _children) => {
+[@react.component] let make = (~fb, ~uid, ~navigate) => {
   let query = Firebase.Query.((q) => q |> whereStr("authorId", ~op="==", uid));
-  ReasonReact.{
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     render: (_self) =>
       <Fetcher
@@ -91,5 +91,5 @@ let make = (~fb, ~uid, ~navigate, _children) => {
             }
         )
       />
-  }
+  })
 };

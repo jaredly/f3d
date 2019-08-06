@@ -10,7 +10,7 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     this.setState({ error });
-    Bugsnag.notifyException(error, { react: info })
+    window.Bugsnag && Bugsnag.notifyException(error, { react: info })
   }
 
   render() {

@@ -109,8 +109,8 @@ let getText = (value, ingredientsMap) =>
   | Models.Id(id) => Js.Dict.get(ingredientsMap, id) |> optMap((ing) => ing##name) |> optOr("")
   };
 
-let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?) =>
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     initialState: (_) => {
       let text =
@@ -278,4 +278,4 @@ let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?, _c
         )
       </div>
     }
-  };
+  });

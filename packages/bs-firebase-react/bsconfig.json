@@ -1,10 +1,11 @@
 {
   "name": "bs-firebase-react",
-  "reason" : {"react-jsx": 2},
+  "reason" : {"react-jsx": 3},
   "namespace": false,
   "bsc-flags": ["-bs-super-errors"],
   "bs-dependencies": [
     "reason-react",
+    "reason-react-compat",
     "bs-firebase"
   ],
   "refmt": 3,

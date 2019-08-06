@@ -5,7 +5,7 @@ let showError = (_err) => <div> (str("Failed to search")) </div>;
 
 module Fetcher = FirebaseFetcher.Dynamic(Models.Recipe);
 
-let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~search, ~navigate, _children) => {
+[@react.component] let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~search, ~navigate) => {
   let (text: string, ingredients, tags) = search;
   let refetchKey =
     text
@@ -46,6 +46,7 @@ let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~sear
     );
 
     Fetcher.make(
+      Fetcher.makeProps(
       ~fb,
       // ~pageSize=200,
       ~refetchKey,
@@ -58,6 +59,7 @@ let make = (~initial=RecipeList.empty, ~showError=showError, ~render, ~fb, ~sear
           | `Loaded(snap, recipes) => render(~fb, ~navigate, ~recipes, ~loadingMore=snap !== None, ~fetchMore)
           }
       ),
-      [||]
+      ()
+      )
     )
 };

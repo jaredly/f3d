@@ -1,6 +1,6 @@
 let component = ReasonReact.reducerComponentWithRetainedProps("BlurryInput");
-let make = (~value: string, ~resetOnBlur=false, ~onChange=?, ~render, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~value: string, ~resetOnBlur=false, ~onChange=?, ~render) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => value,
     retainedProps: value,
@@ -18,4 +18,4 @@ let make = (~value: string, ~resetOnBlur=false, ~onChange=?, ~render, _children)
           send(value)
         };
       })
-  };
+  });

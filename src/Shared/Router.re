@@ -50,8 +50,8 @@ let currentHash = () => hash(location) |> Js.String.sliceToEnd(~from=1);
 
 let component = ReasonReact.reducerComponent("Router");
 
-let make = (~render, ~routes, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~render, ~routes) =>
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     initialState: () => currentHash(),
     didMount: ({state, send}) => {
@@ -69,4 +69,4 @@ let make = (~render, ~routes, _children) =>
       /* (reduce (fun path => path)); */
       render(switch_(state, routes, navigate), navigate)
     }
-  };
+  });

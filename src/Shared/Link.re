@@ -1,7 +1,7 @@
 let component = ReasonReact.statelessComponent("Link");
 
-let make = (~navigate, ~dest, ~text, ~className=?, _) =>
-  ReasonReact.{
+[@react.component] let make = (~navigate, ~dest, ~text, ~className=?, _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     render: (_) =>
       <a
@@ -21,4 +21,4 @@ let make = (~navigate, ~dest, ~text, ~className=?, _) =>
         ?className>
         (ReasonReact.string(text))
       </a>
-  };
+  });

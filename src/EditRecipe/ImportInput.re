@@ -22,8 +22,8 @@ let fillOutRecipe = (url, fb, allIngredients, recipe) => {
 
 let component = ReasonReact.reducerComponent("ImportInput");
 
-let make = (~fb, ~allIngredients, ~onImport, _) =>
-  ReasonReact.{
+[@react.component] let make = (~fb, ~allIngredients, ~onImport, _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => None,
     reducer: (action, _) => ReasonReact.Update(action),
@@ -60,4 +60,4 @@ let make = (~fb, ~allIngredients, ~onImport, _) =>
           }
         )
       />
-  };
+  });

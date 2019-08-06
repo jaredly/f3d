@@ -55,7 +55,7 @@ let view = (~uid, ~fb, ~madeit, ~onEdit) =>
 
 let component = ReasonReact.statelessComponent("MadeIt");
 
-let make = (~madeit, ~uid, ~fb, _children) =>
+[@react.component] let make = (~madeit, ~uid, ~fb) =>
   UtilComponents.toggle(
     ~initial=false,
     ~render=
@@ -78,7 +78,7 @@ let make = (~madeit, ~uid, ~fb, _children) =>
  ERROR
  because I want to conditionally return differently typed components. Which sholdn't be a problem :/
 
- let make = (~madeit, ~uid, ~fb, _children) =>
+ [@react.component] let make = (~madeit, ~uid, ~fb) =>
    switch uid {
    | None => UtilComponents.render(() => view(~fb, ~uid, ~madeit, ~onEdit=() => ()))
    | Some(uid) =>

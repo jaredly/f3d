@@ -33,7 +33,7 @@ let getShadowHeight = (_value, node) => {
   /* } */
 };
 
-let make =
+[@react.component] let make =
     (
       ~value,
       ~onChange,
@@ -42,8 +42,7 @@ let make =
       ~onReturn=?,
       ~onDelete=?,
       ~onBlur=?,
-      ~className=?,
-      _children
+      ~className=?
     ) => {
   let shadow = ref(None);
   let textarea = ref(None);
@@ -81,7 +80,7 @@ let make =
       onDelete(value)
     }
   };
-  ReasonReact.{
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     didUpdate: (_) => resize(),
     didMount: (_) => {
@@ -96,7 +95,7 @@ let make =
         <textarea
           ?className
           ?onPaste
-          ref=(setRef(textarea))
+          ref=(setRef(textarea)->ReactDOMRe.Ref.callbackDomRef)
           onChange=((evt) => onChange(evtValue(evt)))
           ?onBlur
           onKeyDown=?(
@@ -128,7 +127,7 @@ let make =
         />
         <div
           ?className
-          ref=(setRef(shadow))
+          ref=(setRef(shadow)->ReactDOMRe.Ref.callbackDomRef)
           style=ReactDOMRe.Style.(
                   make(
                     ~whiteSpace="pre-wrap",
@@ -144,5 +143,5 @@ let make =
           (str @@ (value === "" ? "M" : value ++ " "))
         </div>
       </div>
-  }
+  })
 };

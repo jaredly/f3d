@@ -82,8 +82,8 @@ type action =
 
 let component = ReasonReact.reducerComponentWithRetainedProps("AmountInput");
 
-let make = (~value, ~onChange, ~className=?, ~onPaste=?, ~placeholder=?, _) =>
-  ReasonReact.{
+[@react.component] let make = (~value, ~onChange, ~className=?, ~onPaste=?, ~placeholder=?, _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: (_) => makeText(value),
     retainedProps: value,
@@ -137,4 +137,4 @@ let make = (~value, ~onChange, ~className=?, ~onPaste=?, ~placeholder=?, _) =>
         onBlur=(((_) => send(Reset)))
       />
     }
-  };
+  });

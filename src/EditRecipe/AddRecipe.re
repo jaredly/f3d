@@ -6,8 +6,8 @@ type state =
 
 let component = ReasonReact.reducerComponent("Recipe");
 
-let make = (~ingredients, ~fb, ~uid, ~navigate, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~ingredients, ~fb, ~uid, ~navigate) =>
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     initialState: () => Editing,
     reducer: (action, _) => ReasonReact.Update(action),
@@ -47,7 +47,7 @@ let make = (~ingredients, ~fb, ~uid, ~navigate, _children) =>
         onCancel=((_) => ())
       />
     }
-  };
+  });
 
 module Styles = RecipeStyles;
 
@@ -70,15 +70,20 @@ module IngredientsFetcher =
     }
   );
 
-let make = (~fb, ~uid, ~navigate, _children) =>
+let innerProps = makeProps;
+
+[@react.component] let make = (~fb, ~uid, ~navigate) =>
   IngredientsFetcher.make(
+    IngredientsFetcher.makeProps(
+
     ~fb,
     ~render=
       (~state as ingredients) =>
         switch ingredients {
         | `Initial => loadingRecipe()
-        | `Loaded(ingredients) => make(~ingredients, ~uid, ~fb, ~navigate, [||]) |> ReasonReact.element
+        | `Loaded(ingredients) => make(innerProps(~ingredients, ~uid, ~fb, ~navigate, ()))
         | `Errored(err) => failedLoading(err)
         },
-    [||]
+    ()
+    )
   );

@@ -8,8 +8,10 @@ module MadeItsFetcher =
     }
   );
 
-let myMadeItForRecipe = (render, ~fb, ~id, ~uid, children: array(ReasonReact.reactElement)) =>
+let myMadeItForRecipe = (render, ~fb, ~id, ~uid) =>
   MadeItsFetcher.make(
+    MadeItsFetcher.makeProps(
+
     ~fb,
     ~refetchKey=id,
     ~query=
@@ -22,11 +24,13 @@ let myMadeItForRecipe = (render, ~fb, ~id, ~uid, children: array(ReasonReact.rea
         )
         |> Firebase.Query.orderBy(~fieldPath="updated", ~direction="desc"),
     ~render=(~state) => render(~state, ~fb, ~uid),
-    children
+    ()
+    )
   );
 
-let madeItForRecipe = (render, ~fb, ~id, children: array(ReasonReact.reactElement)) =>
+let madeItForRecipe = (render, ~fb, ~id) =>
   MadeItsFetcher.make(
+    MadeItsFetcher.makeProps(
     ~fb,
     ~refetchKey=id,
     ~query=
@@ -35,10 +39,10 @@ let madeItForRecipe = (render, ~fb, ~id, children: array(ReasonReact.reactElemen
         |> Firebase.Query.whereBool("isPrivate", ~op="==", false)
         |> Firebase.Query.orderBy(~fieldPath="updated", ~direction="desc"),
     ~render=(~state) => render(~state, ~fb),
-    children
+    ())
   );
 
-let make =
+[@react.component] let make = (~fb, ~id) =>
   madeItForRecipe(
     (~state, ~fb) =>
       switch state {
@@ -55,5 +59,6 @@ let make =
           )
         </div>
       | `Errored(_err) => <div> (str("Failed Loading")) </div>
-      }
+      },
+      ~fb,~id
   );

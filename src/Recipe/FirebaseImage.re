@@ -1,6 +1,6 @@
 open Utils;
 let component = ReasonReact.reducerComponent("FirebaseImage");
-let make = (~id, ~fb, ~render, _children) => ReasonReact.{
+[@react.component] let make = (~id, ~fb, ~render) => ReactCompat.useRecordApi(ReasonReact.{
   ...component,
   initialState: () => None,
   reducer: (action, _) => ReasonReact.Update(action),
@@ -20,4 +20,4 @@ let make = (~id, ~fb, ~render, _children) => ReasonReact.{
     | Some(url) => render(url)
     }
   }
-}
+})

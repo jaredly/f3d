@@ -1,12 +1,13 @@
 {
   "name" : "f3d",
-  "reason" : {"react-jsx" : 2},
+  "reason" : {"react-jsx" : 3},
   "bsc-flags": ["-bs-super-errors -w -27-33-102-26-32"],
   "bs-dependencies": [
     "reason-react",
     "bs-glamor",
     "bs-firebase",
     "bs-moment",
+    "reason-react-compat",
     "bs-firebase-react"
   ],
   "refmt": 3,

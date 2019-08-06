@@ -144,7 +144,7 @@ let isMine = (uid, madeit) => {
 
 let isNotMine = (uid, madeit) => !isMine(uid, madeit);
 
-let make =
+[@react.component] let make = (~fb, ~id, ~uid) =>
   ViewMadeIts.myMadeItForRecipe(
     (~state, ~fb, ~uid) =>
       switch state {
@@ -162,5 +162,6 @@ let make =
       | `Errored(err) =>
         Js.log2("Failed to load madeits", err);
         <div> (str("")) </div>
-      }
+      },
+       ~fb, ~id, ~uid
   );

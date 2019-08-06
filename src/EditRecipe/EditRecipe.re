@@ -101,9 +101,9 @@ let updateRecipe =
 
 let component = ReasonReact.reducerComponent("EditRecipe");
 
-let make =
-    (~saving, ~recipe, ~allIngredients, ~fb, ~id, ~onSave, ~onCancel, ~onDelete=?, _children) =>
-  ReasonReact.{
+[@react.component] let make =
+    (~saving, ~recipe, ~allIngredients, ~fb, ~id, ~onSave, ~onCancel, ~onDelete=?) =>
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     initialState: () => {
       title: recipe##title,
@@ -293,4 +293,4 @@ let make =
         (spacer(64))
       </div>
     }
-  };
+  });

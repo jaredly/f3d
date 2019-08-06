@@ -2,7 +2,7 @@ open Utils;
 
 module Adder = {
   let component = ReasonReact.reducerComponent("MadeItEntry");
-  let make = (~fb, ~uid, ~recipe, _children) => {
+  [@react.component] let make = (~fb, ~uid, ~recipe) => ReactCompat.useRecordApi({
     ...component,
     initialState: (_) => false,
     reducer: ((), state) => ReasonReact.Update(! state),
@@ -33,5 +33,5 @@ module Adder = {
             </div>
         )
       </div>
-  };
+  });
 };

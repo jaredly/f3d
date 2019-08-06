@@ -15,7 +15,7 @@ module Single = (Config: {
       "FirebaseSingleFetcher:" ++ Config.name,
     );
   module FBCollection = Firebase.Collection(Config);
-  let make = (~fb, ~id, ~listen=false, ~render, _children) => {
+  [@react.component] let make = (~fb, ~id, ~listen=false, ~render) => {
     let collection = FBCollection.get(fb);
     let fetch = (_status, send) => {
       Firebase.doc(collection, id)
@@ -40,7 +40,7 @@ module Single = (Config: {
          })
       |> ignore;
     };
-    ReasonReact.{
+   ReactCompat.useRecordApi(ReasonReact.{
       ...component,
       retainedProps: id,
       initialState: () => (ref(None), `Initial),
@@ -68,7 +68,7 @@ module Single = (Config: {
         | Some(destruct) => destruct()
         },
       render: ({state: (_, state), send: _}) => render(~state),
-    };
+    });
   };
 };
 
@@ -86,7 +86,7 @@ module Singleton = (Config: {
       "FirebaseSingleFetcher:" ++ Config.path("{arg}"),
     );
   module FBCollection = Firebase.Single(Config);
-  let make = (~fb, ~listen=false, ~render, ~arg, _children) => {
+  [@react.component] let make = (~fb, ~listen=false, ~render, ~arg) => {
     let docRef = FBCollection.get(fb, arg);
     let fetch = (_status, send) => {
       Firebase.Database.onceValue(docRef)
@@ -110,7 +110,7 @@ module Singleton = (Config: {
          })
       |> ignore;
     };
-    ReasonReact.{
+    ReactCompat.useRecordApi(ReasonReact.{
       ...component,
       initialState: () => (ref(None), `Initial),
       reducer: (action, (destruct, _)) =>
@@ -130,7 +130,7 @@ module Singleton = (Config: {
         | Some(destruct) => destruct()
         },
       render: ({state: (_, state), send: _}) => render(~state),
-    };
+    });
   };
 };
 
@@ -155,7 +155,7 @@ module Dynamic = (Collection: {
     | None => orr
     | Some(x) => fn(x)
     };
-  let make = (~fb, ~pageSize=?, ~query, ~refetchKey="", ~render, _children) => {
+  [@react.component] let make = (~fb, ~pageSize=?, ~query, ~refetchKey="", ~render) => {
     let collection = FBCollection.get(fb);
     let handleResult = (send, current, prom) =>
       prom
@@ -200,7 +200,7 @@ module Dynamic = (Collection: {
         };
       q |> Q.get |> handleResult(send, current);
     };
-    ReasonReact.{
+    ReactCompat.useRecordApi(ReasonReact.{
       ...component,
       retainedProps: refetchKey,
       initialState: () => `Initial,
@@ -216,7 +216,7 @@ module Dynamic = (Collection: {
       },
       render: ({state, send}) =>
         render(~state, ~fetchMore=() => fetch(state, send, false)),
-    };
+    });
   };
 };
 
@@ -229,14 +229,15 @@ module Static =
          },
        ) => {
   module Inner = Dynamic(Config);
-  let make = (~fb, ~pageSize=?, ~render, children) =>
-    Inner.make(
-      ~fb,
-      ~pageSize?,
-      ~query=Config.query,
-      ~refetchKey="",
-      ~render,
-      children,
+  [@react.component] let make = (~fb, ~pageSize=?, ~render) =>
+    Inner.make(Inner.makeProps(
+        ~fb,
+        ~pageSize?,
+        ~query=Config.query,
+        ~refetchKey="",
+        ~render,
+        (),
+    )
     );
 };
 
@@ -265,7 +266,7 @@ module Stream =
     | None => orr
     | Some(x) => fn(x)
     };
-  let make = (~fb, ~query, ~refetchKey="", ~render, _children) => {
+  [@react.component] let make = (~fb, ~query, ~refetchKey="", ~render) => {
     let collection = FBCollection.get(fb);
     let unlisten = ref(None);
     let fetch = (state, send) => {
@@ -287,7 +288,7 @@ module Stream =
           ),
         );
     };
-    ReasonReact.{
+    ReactCompat.useRecordApi(ReasonReact.{
       ...component,
       retainedProps: refetchKey,
       initialState: () => `Initial,
@@ -340,7 +341,7 @@ module Stream =
           ReasonReact.Update(`Loaded(docs));
         },
       render: ({state, send}) => render(~state),
-    };
+    });
   };
 };
 
@@ -354,6 +355,6 @@ module StaticStream =
          },
        ) => {
   module Inner = Stream(Config);
-  let make = (~fb, ~render, children) =>
-    Inner.make(~fb, ~query=Config.query, ~refetchKey="", ~render, children);
+  [@react.component] let make = (~fb, ~render) =>
+    Inner.make(Inner.makeProps(~fb, ~query=Config.query, ~refetchKey="", ~render, ()));
 };

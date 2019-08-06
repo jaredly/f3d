@@ -162,7 +162,7 @@ let updateMadeIt = (~madeIt, ~state as {notes, rating, meta, created}, ~images) 
   "rating": Js.Null.fromOption(rating)
 };
 
-let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onSave, _children) => {
+[@react.component] let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onSave) => ReactCompat.useRecordApi({
   ...component,
   initialState: (_) => {
     saving: false,
@@ -256,4 +256,4 @@ let make = (~fb, ~uid, ~title, ~action, ~initial: Models.madeIt, ~onCancel, ~onS
         </button>
       </div>
     </div>
-};
+});

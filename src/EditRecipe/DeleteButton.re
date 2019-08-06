@@ -57,8 +57,8 @@ module Styles = {
     );
 };
 
-let make = (~onDelete, ~title="Delete", _) =>
-  ReasonReact.{
+[@react.component] let make = (~onDelete, ~title="Delete", _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => false,
     reducer: (action, _) => ReasonReact.Update(action),
@@ -76,4 +76,4 @@ let make = (~onDelete, ~title="Delete", _) =>
         <div className=Glamor.(css([flexDirection("row")]))>
           <button className=Styles.button onClick=(((_) => send(true)))> (str(title)) </button>
         </div>
-  };
+  });

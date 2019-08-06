@@ -7,14 +7,14 @@ let render = (render) => {
 };
 
 let toggleComponent = ReasonReact.reducerComponent("Toggle");
-let toggle = (~initial, ~render) => {
+let toggle = (~initial, ~render) => ReactCompat.useRecordApi({
   ...toggleComponent,
   initialState: () => initial,
   reducer: (newState, _state) => ReasonReact.Update(newState),
   render: ({state, send}) => {
     render(~on=state, ~toggle=(() => send( !state)))
   }
-};
+});
 
 let module Backdrop = {
   let module Styles = {
@@ -33,18 +33,21 @@ let module Backdrop = {
   };
 
   let component = ReasonReact.statelessComponent("Backdrop");
-  let make = (~onCancel, children) => {
+  [@react.component] let make = (~onCancel, ~children: React.element) => ReactCompat.useRecordApi({
     ...component,
-    render: (_) => ReasonReact.createDomElement("div", ~props={
-      "onClick": Utils.ignoreArg(onCancel),
-      "className": Styles.container
-    }, children)
-  }
+    render: (_) => 
+    <div
+    onClick={Utils.ignoreArg(onCancel)}
+    className=Styles.container
+    >
+      children
+    </div>
+  })
 };
 
 let module Loader = (Config: {type t}) => {
   let loaderComponent = ReasonReact.reducerComponent("Loader");
-  let make = (~promise, ~loading, ~render) => {
+  [@react.component] let make = (~promise, ~loading, ~render) => {
     ...loaderComponent,
     initialState: () => (None: option(Config.t)),
     reducer: (value, state: option(Config.t)) => ReasonReact.Update(Some(value)),
@@ -64,7 +67,7 @@ let module Loader = (Config: {type t}) => {
 let module OnVisible = {
   let component = ReasonReact.reducerComponent("OnVisible");
   type unsub = unit => unit;
-  let make = (~trigger, children) => {
+  [@react.component] let make = (~trigger, ~children) => ReactCompat.useRecordApi({
     ...component,
     initialState: () => ref(None),
     reducer: ((), _) => ReasonReact.NoUpdate,
@@ -73,7 +76,7 @@ let module OnVisible = {
       | Some(fn) => fn()
     },
     render: ({state}) => {
-      <div ref=((node) => {
+      <div ref=(((node) => {
         if (state.contents !== None) {
           ()
         } else switch ( Js.Nullable.toOption(node)) {
@@ -97,9 +100,9 @@ let module OnVisible = {
           state.contents = Some([@bs]fn(node, trigger));
         }
         }
-      })>
-        (ReasonReact.array(children))
+      }) |> ReactDOMRe.Ref.callbackDomRef)>
+        children
       </div>
     }
-  };
+  });
 };

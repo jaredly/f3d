@@ -136,16 +136,15 @@ let component = ReasonReact.reducerComponent("SearchBar");
 
 let empty = ("", []: list(Models.ingredient), []: list(Models.tag));
 
-let make =
+[@react.component] let make =
     (
       ~onChange,
       ~current as (text, selectedIngredients, selectedTags),
       ~ingredients,
       ~tags,
       ~enabled,
-      _children
     ) =>
-  ReasonReact.{
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => "",
     reducer: (action, state) => ReasonReact.Update(action),
@@ -227,4 +226,4 @@ let make =
         }
       </div>
     }
-  };
+  });

@@ -2,8 +2,8 @@ open Utils;
 
 let component = ReasonReact.statelessComponent("IntInput");
 
-let make = (~value, ~onChange, ~className=?, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~value, ~onChange, ~className=?) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     render: (_) =>
       <input
@@ -22,4 +22,4 @@ let make = (~value, ~onChange, ~className=?, _children) =>
             }
         )
       />
-  };
+  });

@@ -21,8 +21,9 @@ Firebase.enablePersistence(Firebase.firestore(fb))
      () => {
        ReactDOMRe.renderToElementWithId(
          <TopErrorBoundary>
-         <App fb=(Firebase.firestore(fb)) auth=(Firebase.auth(fb)) />
+          <App fb=(Firebase.firestore(fb)) auth=(Firebase.auth(fb)) />
          </TopErrorBoundary>,
+        // <div></div>,
          "root"
        );
        Js.Promise.resolve()

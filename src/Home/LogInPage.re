@@ -17,8 +17,8 @@ module Styles = {
 
 let component = ReasonReact.reducerComponent("LogInPage");
 
-let make = (~auth, ~navigate, _) =>
-  ReasonReact.{
+[@react.component] let make = (~auth, ~navigate, _) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => ("", "", false, ""),
     reducer: (action, state) => ReasonReact.Update(action),
@@ -67,4 +67,4 @@ let make = (~auth, ~navigate, _) =>
           (str(loading ? "Loading..." : "Sign In"))
         </button>
       </div>
-  };
+  });

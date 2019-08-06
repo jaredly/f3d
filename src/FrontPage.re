@@ -7,8 +7,8 @@ type action = array(Models.recipe);
 
 type state = (list(string), list(string), string);
 
-let make = (~fb, ~navigate, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~fb, ~navigate) =>
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     reducer: (action, _state) => ReasonReact.Update(action),
     initialState: () => SearchBar.empty,
@@ -18,4 +18,4 @@ let make = (~fb, ~navigate, _children) =>
         <div className=Glamor.(css([flexBasis("16px")])) />
         <RecipeSearcher render=RecipeList.showRecipes fb search=state navigate />
       </div>
-  };
+  });

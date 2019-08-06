@@ -93,7 +93,7 @@ let ratings = [|
   "Will definitely make again",
   "Will make regularly"
 |];
-let make = (~rating, ~onChange, _children) => {
+[@react.component] let make = (~rating, ~onChange) => ReactCompat.useRecordApi({
   ...component,
   render: (_) => {
     <div>
@@ -110,4 +110,4 @@ let make = (~rating, ~onChange, _children) => {
       }, ratings) |> ReasonReact.array)
     </div>
   }
-};
+});

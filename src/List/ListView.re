@@ -16,18 +16,20 @@ let module RecipeSummary = {
     </div>
   };
 
-  let make = (~id, ~fb, ~navigate, _children) => {
+  [@react.component] let make = (~id, ~fb, ~navigate) => {
     RecipeFetcher.make(
-      ~fb,
-      ~id,
-      ~render=(
-        (~state) => switch state {
-        | `Initial => <div/>
-        | `Errored(err) => <div>(str("Failed to load recipe"))</div>
-        | `Loaded(recipe) => show(recipe, navigate)
-        }
-      ),
-      [||]
+      RecipeFetcher.makeProps(
+        ~fb,
+        ~id,
+        ~render=(
+          (~state) => switch state {
+          | `Initial => <div/>
+          | `Errored(err) => <div>(str("Failed to load recipe"))</div>
+          | `Loaded(recipe) => show(recipe, navigate)
+          }
+        ),
+        ()
+      )
     )
   }
 };
@@ -106,8 +108,10 @@ let showList = (~fb, ~list, ~uid, ~navigate) => {
 };
 
 module Fetcher = FirebaseFetcher.Single(Models.List);
-let make = (~fb, ~id, ~navigate, _children) => {
+[@react.component] let make = (~fb, ~id, ~navigate) => {
   Fetcher.make(
+    Fetcher.makeProps(
+
     ~fb,
     ~id,
     ~render=(
@@ -118,6 +122,7 @@ let make = (~fb, ~id, ~navigate, _children) => {
         | `Errored(err) => <div>(str("Failed to load"))</div>
         }
     ),
-    [||]
+    ()
+    )
   )
 };

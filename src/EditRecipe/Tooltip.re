@@ -2,8 +2,8 @@ open Utils;
 
 let component = ReasonReact.reducerComponent("Tooltip");
 
-let make = (~render, ~message, ~enabled, _children) =>
-  ReasonReact.{
+[@react.component] let make = (~render, ~message, ~enabled) =>
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     initialState: () => false,
     reducer: (action, state) => ReasonReact.Update(action),
@@ -37,4 +37,4 @@ let make = (~render, ~message, ~enabled, _children) =>
             ReasonReact.null
         )
       </div>
-  };
+  });

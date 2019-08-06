@@ -79,9 +79,9 @@ let showLists = (~fb, ~recipeId, ~lists, ~uid, ~navigate) => {
 
 module Fetcher = FirebaseFetcher.Stream(Models.List);
 let component = ReasonReact.statelessComponent("RecipeLists");
-let make = (~fb, ~uid, ~recipeId, ~navigate, _children) => {
+[@react.component] let make = (~fb, ~uid, ~recipeId, ~navigate) => {
   let query = Firebase.Query.((q) => q |> whereStr("authorId", ~op="==", uid));
-  ReasonReact.{
+  ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     render: (_self) =>
       <Fetcher
@@ -96,5 +96,5 @@ let make = (~fb, ~uid, ~recipeId, ~navigate, _children) => {
             }
         )
       />
-  }
+  })
 };

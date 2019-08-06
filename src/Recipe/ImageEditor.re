@@ -1,8 +1,9 @@
 open Utils;
 
-let module Canvas = {
+module Canvas = {
   let component = ReasonReact.reducerComponent("ImageEditor");
-  let make = (~size as (width, height) , ~render, _children) => {
+  [@react.component]
+  let make = (~size as (width, height) , ~render) => ReactCompat.useRecordApi({
     ...component,
     initialState: () => ref(None),
     reducer: ((), _) => ReasonReact.NoUpdate,
@@ -29,32 +30,13 @@ let module Canvas = {
       <canvas
         width=(string_of_int(width) ++ "px")
         height=(string_of_int(height) ++ "px")
-        ref=(node =>  Js.Nullable.toOption(node) |> BaseUtils.optFold(node => state := Some(node), ()))
+        ref=ReactDOMRe.Ref.callbackDomRef(node =>  Js.Nullable.toOption(node) |> BaseUtils.optFold(node => state := Some(node), ()))
       />
     }
-  };
+  });
 };
 
-/*
-Wierd bug for posterity
-
-let make = (~onDone, ~blob, ~size= (0, 0), _children) => {
-  ...component,
-  initialState: () => (blob, size),
-  /* the bug is v here, where I pretend state is unit */
-  reducer: ((), ()) => ReasonReact.NoUpdate,
-  render: ({state}) => {
-    <div>
-    </div>
-  }
-};
-
-make(~onDone, ~blob, ~size) |> ReasonReact.element
-/* but I get the error here, saying super weird things about retainedprops or something */
-
-*/
-
-let module Styles = {
+module Styles = {
   open Glamor;
   let container = css([
     padding("20px")
@@ -127,12 +109,12 @@ let transformImage = (transform, image, onDone) => {
 
 let component = ReasonReact.reducerComponent("ImageEditor");
 
-let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
+[@react.component] let make = (~onDone, ~onCancel, ~blob, ~img) => {
   let size = shrinkToMax((
     Images.naturalWidth(img),
     Images.naturalHeight(img)
   ), 1000); /* TODO make this min screen dimension or something, with margin */
-  {
+  ReactCompat.useRecordApi({
     ...component,
     initialState: () => (Orig),
     reducer: (newState, _) => ReasonReact.Update(newState),
@@ -183,12 +165,12 @@ let make = (~onDone, ~onCancel, ~blob, ~img, _children) => {
         </div>
       </UtilComponents.Backdrop>
     }
-  }
+  })
 };
 
-let module ImageLoader = {
+module ImageLoader = {
   let component = ReasonReact.reducerComponent("ImageLoader");
-  let make = (~url, ~render, _children) => {
+  [@react.component] let make = (~url, ~render) => ReactCompat.useRecordApi({
     ...component,
     initialState: () => (None, false),
     reducer: (state, _) => ReasonReact.Update(state),
@@ -200,7 +182,7 @@ let module ImageLoader = {
           style=ReactDOMRe.Style.make(~display="none", ())
           onLoad=((_) => send((img, true)))
           ref=?(switch img {
-          | None => Some(node =>  Js.Nullable.toOption(node) |> BaseUtils.optFold(node => send((Some(node), false)), ()))
+          | None => Some(ReactDOMRe.Ref.callbackDomRef(node =>  Js.Nullable.toOption(node) |> BaseUtils.optFold(node => send((Some(node), false)), ())))
           | _ => None
           })
         />
@@ -210,38 +192,19 @@ let module ImageLoader = {
         })
       </div>
     }
-  };
+  });
 };
 
-/* let getBlobSize: Images.blob => Js.Promise.t((int, int)) = [%bs.raw {|
-  function(blob) {
-    return new Promise((res, rej) => {
-      var img = document.createElement('img')
-      img.style.display = 'none'
-      document.body.appendChild(img)
-      img.onload = () => {
-        res([img.naturalHeight, img.naturalWidth])
-      }
-      img.src = URL.createObjectURL(blob);
-    })
-  }
-|}]; */
 
-/* let module ThingLoader = UtilComponents.Loader({type t = (int, int); });
-let make = (~onDone, ~onCancel, ~blob, _children) => ThingLoader.make(
-  ~promise=getBlobSize(blob),
-  ~loading=(<div>(str("Loading..."))</div>),
-  ~render=((size) =>
-  <ImageLoader
-    url=
-  make(~onDone, ~onCancel, ~blob, [||]) |> ReasonReact.element
-  )
-); */
+let innerProps = makeProps;
 
-let make = (~onDone, ~onCancel, ~blob, _children) => ImageLoader.make(
+[@react.component]
+let make = (~onDone, ~onCancel, ~blob) => ImageLoader.make(
+  ImageLoader.makeProps(
   ~url=Images.cachingCreateObjectURL(blob),
   ~render=(img => {
-    make(~onDone, ~onCancel, ~blob, ~img, [||]) |> ReasonReact.element
+    make(innerProps(~onDone, ~onCancel, ~blob, ~img, ()))
   }),
-  [||]
+  ()
+  )
 );

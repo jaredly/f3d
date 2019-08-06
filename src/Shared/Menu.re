@@ -2,8 +2,8 @@ open Utils;
 
 let component = ReasonReact.reducerComponent("Menu");
 
-let make = (~menu, ~className, children) =>
-  ReasonReact.{
+[@react.component] let make = (~menu, ~className, ~children) =>
+  ReactCompat.useRecordApi( ReasonReact.{
     ...component,
     initialState: () => false,
     reducer: (action, _) => ReasonReact.Update(action),
@@ -12,7 +12,7 @@ let make = (~menu, ~className, children) =>
         onMouseEnter=(((_) => send(true)))
         onMouseLeave=(((_) => send(false)))
         className=Glamor.(css([position("relative")]))>
-        (ReasonReact.array(children))
+        children
         (
           state ?
             <div
@@ -28,4 +28,4 @@ let make = (~menu, ~className, children) =>
             ReasonReact.null
         )
       </div>
-  };
+  });

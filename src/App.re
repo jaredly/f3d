@@ -11,8 +11,8 @@ let component = ReasonReact.reducerComponent("App");
 let str = ReasonReact.string;
 
 module MyRouter = Router;
-let make = (~fb, ~auth, _children) =>
-  ReasonReact.{
+[@react.component]
+let make = (~fb, ~auth) => ReactCompat.useRecordApi(ReasonReact.{
     ...component,
     initialState: () => Firebase.Auth.currentUser(auth) |>  Js.Nullable.toOption,
     reducer: (action, _) => ReasonReact.Update(action),
@@ -57,4 +57,4 @@ let make = (~fb, ~auth, _children) =>
         )
       />
     }
-  };
+  });
