@@ -27,7 +27,7 @@ let make = (~fb, ~auth, _children) =>
     },
     render: ({state}) => {
       let basicRoutes = [
-        `Prefix(("/recipe/", (navigate, id) => <ViewRecipe fb navigate id />)),
+        `Prefix(("/recipe/", (navigate, id) => <ViewRecipe fb navigate id user=state />)),
         `Prefix(("/list/", (navigate, id) => <ListView fb navigate id />)),
         `NotFound((navigate) => <FrontPage fb navigate />)
       ];
@@ -39,6 +39,8 @@ let make = (~fb, ~auth, _children) =>
                [
                  `Exact(("/add", (navigate) => <AddRecipe fb uid navigate />)),
                  `Exact(("/lists", (navigate) => <UserLists fb uid navigate />)),
+                //  `Exact(("/shopping", (navigate) => <ShoppingList fb uid navigate />)),
+                //  `Exact(("/pantry", (navigate) => <Pantry fb uid navigate />)),
                ]
              },
              [`Exact(("/login", (navigate) => <LogInPage auth navigate />))]

@@ -38,6 +38,14 @@ service cloud.firestore {
 	    allow read, write: if userId == request.auth.uid;
     }
 
+    match /userData/{userId}/pantry {
+	    allow read, write: if userId == request.auth.uid;
+    }
+
+    match /userData/{userId}/shoppingList {
+	    allow read, write: if userId == request.auth.uid;
+    }
+
     match /tags/{id} {
     	allow read;
       allow create: if canCreate();

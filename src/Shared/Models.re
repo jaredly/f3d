@@ -281,3 +281,43 @@ module List = {
   type t = list;
   let getId = (list) => list##id;
 };
+
+// type amountWithUnit = {
+//   .
+//   "amount": float,
+//   "unit": string,
+// }
+
+// Open questions:
+// - how do we account for ingredients being in multiple units?
+// - say for tomato sauce, we have 5 16-oz cans, and 1 32-oz can.
+// - also if those things are separately required by different recipes, what do I put in the shopping cart?
+//    - I guess one way to do it would be to have a "primary unit" for an ingredient, and allow the inputting of "secondary units" along with conversions
+//    - but I could probably automatically handle standard units of measure. But then "cups, bunches, etc." would need a conversion ratio
+
+/// oooohk, much simpler solution: Allow multiple units. So we merge things we can convert (straight units of measure), and maybe do best effort on other things
+/// but in general we just leave it. So you can have 2 bunches of asparagus and 1 bag frozen asparagus and 2 cups asparagus.
+
+type amountDict = Js.Dict.t(float);
+
+type pantry = {
+  .
+  // ingredient id -> amount
+  "ingredients": Js.Dict.t(amountDict),
+  // ingredient id -> as a set
+  "staples": Js.Dict.t(bool),
+}
+
+type shoppingList = {
+  .
+  // id -> # batches, ingredients to buy w/ amounts
+  "recipes": Js.Dict.t((float, Js.Dict.t(amountDict))),
+  // soo when adding a recipe, you should be able to specify that you're only getting a subset of the ingredients. By default, the ingredients that you have marked as "staples" are unchecked, but you can check them.
+  // you should also be able to go back and modify the number of batches.
+  // Should I let you muck with the amounts/units of ingredients? Maybe not. But it would be nice. And then I can just do the math when you change batch sizes, it's fine.
+  
+  // ingredient id -> amount
+  "extraIngredients": Js.Dict.t(amountDict),
+  // ingredient id -> amount
+  "boughtIngredients": Js.Dict.t(amountDict)
+}

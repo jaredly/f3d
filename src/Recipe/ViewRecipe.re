@@ -96,7 +96,7 @@ let component = ReasonReact.statelessComponent("UpDownArrows");
   }
 }
 
-let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
+let make = (~navigate, ~recipe, ~ingredients, ~user, ~fb, ~id, _children) =>
   ReasonReact.{
     ...component,
     initialState: () => (1., Normal),
@@ -288,7 +288,7 @@ module IngredientsFetcher =
     }
   );
 
-let make = (~fb, ~navigate, ~id, children) => {
+let make = (~fb, ~navigate, ~user, ~id, children) => {
   Js.log(id);
   RecipeFetcher.make(
     ~fb,
@@ -303,7 +303,7 @@ let make = (~fb, ~navigate, ~id, children) => {
               switch (doubleState(state, ingredients)) {
               | `Initial => loadingRecipe()
               | `Loaded(recipe, ingredients) =>
-                make(~navigate, ~recipe, ~ingredients, ~fb, ~id, [||]) |> ReasonReact.element
+                make(~navigate, ~recipe, ~user, ~ingredients, ~fb, ~id, [||]) |> ReasonReact.element
               | `Errored(err) => failedLoading(err)
               }
           )

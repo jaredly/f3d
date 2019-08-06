@@ -52,11 +52,22 @@ module Collection = (Config: {let name: string; type t;}) => {
   let get: firestore => collection(Config.t) = (fb) => collection'(fb, Config.name);
 };
 
+type unsubscribe = unit => unit;
+
+module Database = {
+  type ref('t);
+  [@bs.send] external ref : (firestore, string) => ref('t) = "ref";
+  [@bs.send] external onValue : (ref('t), [@bs.as "value"] _, (. snapshot('t)) => unit) => unsubscribe = "on";
+  [@bs.send] external onceValue : (ref('t), [@bs.as "value"] _) => Js.Promise.t(snapshot('t)) = "once";
+}
+
+module Single = (Config: {let path: string => string; type t;}) => {
+  let get: (firestore, string) => Database.ref(Config.t) = (fb, arg) => Database.ref(fb, Config.path(arg));
+};
+
 [@bs.send] external data : snapshot('t) => 't = "";
 
 [@bs.get] external exists : snapshot('t) => bool = "";
-
-type unsubscribe = unit => unit;
 
 module Query = {
   type query('t);

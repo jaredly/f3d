@@ -1,3 +1,6 @@
+/**
+ * Get a single item of a collection, identified by ID
+ */
 module Single = (Config: {
                    let name: string;
                    type t;
@@ -64,10 +67,74 @@ module Single = (Config: {
         | None => ()
         | Some(destruct) => destruct()
         },
-      render: ({state: (_, state), send}) => render(~state),
+      render: ({state: (_, state), send: _}) => render(~state),
     };
   };
 };
+
+module Singleton = (Config: {
+                   let path: string => string;
+                   type t;
+                 }) => {
+  type status = [
+    | `Initial
+    | `Loaded(Config.t)
+    | `Errored(Js.Promise.error)
+  ];
+  let component =
+    ReasonReact.reducerComponent(
+      "FirebaseSingleFetcher:" ++ Config.path("{arg}"),
+    );
+  module FBCollection = Firebase.Single(Config);
+  let make = (~fb, ~listen=false, ~render, ~arg, _children) => {
+    let docRef = FBCollection.get(fb, arg);
+    let fetch = (_status, send) => {
+      Firebase.Database.onceValue(docRef)
+      |> Js.Promise.then_(snap => {
+           if (Firebase.exists(snap)) {
+             send(`Loaded(Firebase.data(snap)));
+           } else {
+             Js.log(
+               "Deleted",
+               /*** TODO something useful? */
+             );
+           };
+           Js.Promise.resolve();
+         })
+      |> Js.Promise.catch(err => {
+           Js.log("bad");
+           [%bs.debugger];
+           /* [%bs.raw "debugger"]; */
+           send(`Errored(err));
+           Js.Promise.resolve();
+         })
+      |> ignore;
+    };
+    ReasonReact.{
+      ...component,
+      initialState: () => (ref(None), `Initial),
+      reducer: (action, (destruct, _)) =>
+        ReasonReact.Update((destruct, action: status)),
+      didMount: ({state: (destruct, status), send}) => {
+        if (listen) {
+          destruct := Some(Firebase.Database.onValue(docRef, (. snap) =>
+            send(`Loaded(Firebase.data(snap)))
+          ))
+        } else {
+          fetch(status, send);
+        };
+      },
+      willUnmount: ({state: (destruct, _)}) =>
+        switch (destruct^) {
+        | None => ()
+        | Some(destruct) => destruct()
+        },
+      render: ({state: (_, state), send: _}) => render(~state),
+    };
+  };
+};
+
+
 
 module Dynamic = (Collection: {
                     let name: string;

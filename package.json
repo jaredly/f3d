@@ -32,11 +32,12 @@
     "react-datepicker": "^0.60.2",
     "react-dom": "^15.4.2",
     "reason-react": ">=0.2.1",
+    "reason-react-compat": "^0.4.0",
     "stopword": "^0.1.8",
     "style-loader": "^0.19.0"
   },
   "devDependencies": {
-    "bs-platform": "5.0.4",
+    "bs-platform": "5.0.6",
     "webpack": "^1.14.0"
   }
 }
