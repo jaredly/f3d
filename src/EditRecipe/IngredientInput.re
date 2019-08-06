@@ -101,7 +101,7 @@ let selectUp = (selection, len) => selection <= 0 ? len : selection - 1;
 
 let selectDown = (selection, len) => selection + 1 > len ? 0 : selection + 1;
 
-let component = ReasonReact.reducerComponentWithRetainedProps("AmountInput");
+let component = ReasonReact.reducerComponentWithRetainedProps("IngredientInput");
 
 let getText = (value, ingredientsMap) =>
   switch value {

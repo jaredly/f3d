@@ -73,6 +73,29 @@ let renderEditor =
     )
   />;
 
+module UpDownArrows = {
+let component = ReasonReact.statelessComponent("UpDownArrows");
+  let make = (~value, ~onChange, _children) => {
+    {
+      ...component,
+      render: (_) => {
+
+    <div className=Glamor.(css([
+      display("flex"),
+      flexDirection("column"),
+    ]))>
+      <button onClick={_evt => onChange(value +. 1.0)}>
+        (React.string({j|▲|j}))
+      </button>
+      <button onClick={_evt => onChange(value -. 1.0)}>
+        (React.string({j|▼|j}))
+      </button>
+    </div>
+      }
+    }
+  }
+}
+
 let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
   ReasonReact.{
     ...component,
@@ -165,6 +188,7 @@ let make = (~navigate, ~recipe, ~ingredients, ~fb, ~id, _children) =>
               )
               className=Glamor.(css([width("40px")]))
             />
+            <UpDownArrows value={batches} onChange={value => send(SetBatches(value))} />
             (spacer(8))
             <div
               className=Glamor.(
