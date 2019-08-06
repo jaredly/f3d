@@ -2,17 +2,24 @@ open Utils;
 
 let module Styles = {
   open Glamor;
-  let item = css([
-    flexDirection("row"),
-  ]);
   let link = css([
     color("currentColor"),
     textDecoration("none"),
   ]);
   let check = css([color(Shared.action)]);
   let noCheck = css([
-    color("#aaa")
+    color("#eee")
   ]);
+  let item = css([
+    flexDirection("row"),
+    cursor("pointer"),
+    Glamor.Selector(":hover", [
+      Selector("& > ." ++ noCheck, [
+        color(Shared.action)
+      ])
+    ])
+  ]);
+  Js.log2(item, noCheck);
   let listName = css([
     flex("1"),
     whiteSpace("nowrap"),
