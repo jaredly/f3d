@@ -2,6 +2,9 @@ open Utils;
 
 let oneMeg = 1024 * 1024;
 
+// this is needed so that the css includes work
+include DatePicker;
+
 let shrinkImage: Images.blob => Js.Promise.t(Images.blob) = [%bs.raw {|
   function(blob) {
     return new Promise((res, rej) => {
