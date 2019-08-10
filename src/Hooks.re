@@ -70,15 +70,19 @@ let useOnChange = (value, onChange) => {
 
 let useUpdatingState = initial => {
   let (current, setState) = useState(initial);
-  React.useEffect1(
-    () => {
-      if (initial !== current) {
-        setState(initial);
-      };
-      None;
-    },
-    [|initial|],
-  );
+  let lastValue = useLastValue(initial);
+  if (lastValue != initial) {
+    setState(initial);
+  };
+  // React.useEffect1(
+  //   () => {
+  //     if (initial !== current) {
+  //       setState(initial);
+  //     };
+  //     None;
+  //   },
+  //   [|initial|],
+  // );
   (current, setState);
 };
 

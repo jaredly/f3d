@@ -101,7 +101,7 @@ let selectUp = (selection, len) => selection <= 0 ? len : selection - 1;
 
 let selectDown = (selection, len) => selection + 1 > len ? 0 : selection + 1;
 
-let component = ReasonReact.reducerComponentWithRetainedProps("IngredientInput");
+// let component = ReasonReact.reducerComponentWithRetainedProps("IngredientInput");
 
 let getText = (value, ingredientsMap) =>
   switch value {
@@ -109,10 +109,7 @@ let getText = (value, ingredientsMap) =>
   | Models.Id(id) => Js.Dict.get(ingredientsMap, id) |> optMap((ing) => ing##name) |> optOr("")
   };
 
-[@react.component] let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?) =>
-  ReactCompat.useRecordApi( ReasonReact.{
-    ...component,
-    initialState: (_) => {
+  let initialState = (value, ingredientsMap) => {
       let text =
         switch value {
         | Models.Text(text) => text
@@ -120,41 +117,49 @@ let getText = (value, ingredientsMap) =>
           Js.Dict.get(ingredientsMap, id) |> optMap((ing) => ing##name) |> optOr("")
         };
       {text, results: getResults(~map=ingredientsMap, ~text), isOpen: false, selection: 0}
-    },
-    retainedProps: value,
-    reducer: (action, {text, isOpen, selection, results} as state) =>
+
+  };
+
+  let reduce = (state, action) => {
       switch action {
-      | Open => ReasonReact.Update({...state, isOpen: true})
-      | Close => ReasonReact.Update({...state, isOpen: false})
-      | SetText(text) =>
-        ReasonReact.Update({
+      | `Open => ({...state, isOpen: true})
+      | `Close => ({...state, isOpen: false})
+      | `Reset(value, ingredientsMap) => initialState(value, ingredientsMap)
+      | `SetText(text, ingredientsMap) =>
+        ({
           ...state,
           isOpen: true,
           text,
           results: getResults(~map=ingredientsMap, ~text)
         })
-      | GoUp =>
-        ReasonReact.Update({
+      | `GoUp =>
+        ({
           ...state,
           isOpen: true,
           selection:
-            isOpen ? selectUp(selection, Array.length(results)) : Array.length(results) - 1
+            state.isOpen ? selectUp(state.selection, Array.length(state.results)) : Array.length(state.results) - 1
         })
-      | GoDown =>
-        ReasonReact.Update({
+      | `GoDown =>
+        ({
           ...state,
           isOpen: true,
-          selection: isOpen ? selectDown(selection, Array.length(results)) : 0
+          selection: state.isOpen ? selectDown(state.selection, Array.length(state.results)) : 0
         })
-      },
-    willReceiveProps: ({retainedProps, send, state}) =>
-      if (retainedProps != value) {
-        let text = getText(value, ingredientsMap);
-        {text, isOpen: false, selection: 0, results: getResults(~map=ingredientsMap, ~text)}
-      } else {
-        state
-      },
-    render: ({state: {text, selection, isOpen, results}, send}) => {
+      }
+
+  };
+
+[@react.component] let make = (~ingredientsMap, ~value, ~onChange, ~addIngredient, ~className=?) => {
+  let lastValue = Hooks.useLastValue(value);
+
+  let (state, dispatch) = React.useReducer(reduce, initialState(value, ingredientsMap));
+
+  if (value != lastValue) {
+    dispatch(`Reset(value, ingredientsMap))
+  };
+
+  let {results, text, selection, isOpen} = state;
+
       let findByName = (text) => {
         let result = ref(None);
         Js.Array.some(
@@ -181,7 +186,7 @@ let getText = (value, ingredientsMap) =>
           value=text
           placeholder="Select ingredient"
           className=(Styles.input ++ (" " ++ (isTextDifferent ? Styles.badInput : "")))
-          onChange=(((evt) => send(SetText(Utils.evtValue(evt)))))
+          onChange=(((evt) => dispatch(`SetText(Utils.evtValue(evt), ingredientsMap))))
           onBlur=(
             (_) => {
               switch value {
@@ -207,7 +212,7 @@ let getText = (value, ingredientsMap) =>
                   }
                 }
               };
-              (send(Close))
+              (dispatch(`Close))
             }
           )
           onKeyDown=(
@@ -215,9 +220,9 @@ let getText = (value, ingredientsMap) =>
               let key = ReactEvent.Keyboard.key(evt);
               let cmd =
                 switch key {
-                | "ArrowUp" => Some(GoUp)
-                | "ArrowDown" => Some(GoDown)
-                | "Escape" => Some(Close)
+                | "ArrowUp" => Some(`GoUp)
+                | "ArrowDown" => Some(`GoDown)
+                | "Escape" => Some(`Close)
                 | "Enter" =>
                   if (selection === Array.length(results)) {
                     addIngredient(text)
@@ -236,7 +241,7 @@ let getText = (value, ingredientsMap) =>
                 };
               let%Lets.Opt.Consume cmd = cmd;
               ReactEvent.Keyboard.preventDefault(evt);
-              (send(cmd))
+              (dispatch(cmd))
             }
           )
           onFocus=(
@@ -244,7 +249,7 @@ let getText = (value, ingredientsMap) =>
               (evt) => {
                 let obj = (ReactEvent.Focus.target(evt));
                 obj##select() |> ignore;
-                send(Open)
+                dispatch(`Open)
               }
             )
           )
@@ -258,8 +263,8 @@ let getText = (value, ingredientsMap) =>
               ~onSelect=
                 (ing) =>
                   if (Models.Id(ing##id) == value) {
-                    (send(SetText(ing##name)));
-                    (send(Close))
+                    (dispatch(`SetText(ing##name, ingredientsMap)));
+                    (dispatch(`Close))
                   } else {
                     onChange(Models.Id(ing##id))
                   },
@@ -277,5 +282,6 @@ let getText = (value, ingredientsMap) =>
             ReasonReact.null
         )
       </div>
-    }
-  });
+    // }
+  // });
+}
